@@ -1,4 +1,4 @@
-# name of non-profit
+# Hispanic Business Association
 
 {One sentence description of the project}
 
