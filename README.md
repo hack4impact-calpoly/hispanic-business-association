@@ -21,7 +21,7 @@ The Hispanic Business Association team consists of {#} Cal Poly students. Over t
 
 - [First Last](https://www.linkedin.com/) - Project Manager
 - [First Last](https://www.linkedin.com/) - Designer
-- [James Torres] - Tech Lead
+- James Torres - Tech Lead
 - [First Last](https://www.linkedin.com/) - Tech Lead
 - [First Last](https://www.linkedin.com/) - Software Developer
 
