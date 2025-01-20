@@ -24,7 +24,7 @@ The Hispanic Business Association team consists of {#} Cal Poly students. Over t
 - James Torres - Tech Lead
 - [Belal Elshenety](https://www.linkedin.com/in/belal-elshenety) - Tech Lead
 - [First Last](https://www.linkedin.com/) - Software Developer
-- Xavier Garcia (https://www.linkedin.com/in/xavier-a-garcia/) - Software Developer
+- [Xavier Garcia](https://www.linkedin.com/in/xavier-a-garcia/) - Software Developer
 
 ## Getting Started And Contributing
 
