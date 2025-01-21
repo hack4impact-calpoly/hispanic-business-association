@@ -1,10 +1,10 @@
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/layout/Navbar";
 
 export default function Home() {
   return (
     <main>
       <Navbar />
-      <h1>Home</h1>
+      <h1 className="text-3xl font-bold text-blue-600">Tailwind test!</h1>
     </main>
   );
 }
