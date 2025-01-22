@@ -1,4 +1,4 @@
-import Navbar from "@/components/layout/Navbar";
+import Navbar from "@/components/ui/MobileBottomNav";
 
 export default function Home() {
   return (
