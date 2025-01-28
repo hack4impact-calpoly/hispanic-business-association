@@ -1,6 +1,8 @@
-import React from "react";
+"use client";
+
+import Image from "next/image";
 import { Card, CardHeader, CardContent } from "./card";
-import { Pencil } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface BusinessInfo {
   name: string;
@@ -18,10 +20,11 @@ interface BusinessInfo {
 
 interface BusinessInfoCardProps {
   info?: BusinessInfo;
-  onEdit?: () => void;
 }
 
-const BusinessInfoCard = ({ info, onEdit }: BusinessInfoCardProps) => {
+const BusinessInfoCard = ({ info }: BusinessInfoCardProps) => {
+  const router = useRouter();
+
   const businessInfo = info ?? {
     name: "HALO Hair Studio",
     type: "Beauty & Personal Care",
@@ -37,18 +40,16 @@ const BusinessInfoCard = ({ info, onEdit }: BusinessInfoCardProps) => {
   };
 
   return (
-    <Card className="w-[544px] h-[292px] border border-[#8C8C8C] bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg">
-      <CardHeader className="px-[21px] pt-[19px] pb-0">
+    <Card className="relative w-[544px] h-[292px] border border-[#8C8C8C] bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg">
+      <CardHeader className="relative w-full px-[21px] pt-[19px] pb-0">
         <div>
           <div className="flex justify-between items-center">
             <h2 className="w-[298.72px] h-[21px] text-[16px] font-bold text-[#293241] font-['Futura'] leading-[21.26px] truncate">
               BUSINESS INFORMATION
             </h2>
-            {onEdit && (
-              <button onClick={onEdit} className="p-0">
-                <Pencil className="w-[20px] h-[20px] text-[#8C8C8C]" />
-              </button>
-            )}
+            <button onClick={() => router.push("/dashboard-edit-about")} className="absolute top-5 right-6">
+              <Image src="/icons/Edit.png" alt="Edit" width={20} height={20} />
+            </button>
           </div>
           <div className="h-[1px] bg-[#BEBEBE] mt-4 mb-6 w-[503px]" />
         </div>
