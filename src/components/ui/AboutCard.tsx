@@ -1,7 +1,7 @@
 "use client";
 
+import Image from "next/image";
 import { Card, CardHeader, CardContent } from "./card";
-import { cn } from "@/lib/utils";
 
 interface AboutCardInfo {
   description: string;
@@ -22,9 +22,14 @@ const AboutCard = ({ info }: AboutCardInfoProps) => {
   };
 
   return (
-    <Card className="relative w-[80vw] min-h-[value] bg-[#6884C226] rounded-lg">
+    <Card className="relative w-[80vw] min-h-[value] bg-[#6884C226] rounded-xl">
       <CardHeader className="font-futura text-left" style={{ fontWeight: "625", paddingTop: "12px" }}>
-        About
+        <div className="flex justify-between items-center">
+          About
+          <button className="absolute right-6">
+            <Image src="/icons/Edit.png" alt="Edit" width={20} height={20} />
+          </button>
+        </div>
         <hr className="h-[2px] bg-[#BEBEBE]" />
       </CardHeader>
       <CardContent className="grid gap-4">
