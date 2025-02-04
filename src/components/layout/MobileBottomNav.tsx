@@ -14,22 +14,30 @@ export default function Navbar() {
         <NavigationMenuList className="w-full flex justify-center items-center space-x-[45px] ">
           <NavigationMenuItem className="flex justify-center">
             <NavigationMenuLink className="flex flex-col items-center">
-              <Image src="/icons/Phone - Dashboard.png" alt="Dashboard" width={41} height={43} />
+              <Link href="/admin">
+                <Image src="/icons/Phone - Dashboard.png" alt="Dashboard" width={41} height={43} />
+              </Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem className="flex justify-center">
             <NavigationMenuLink className="flex flex-col items-center">
-              <Image src="/icons/Phone - Analytics.png" alt="Analytics" width={40} height={43} />
+              <Link href="/admin/analytics">
+                <Image src="/icons/Phone - Analytics.png" alt="Analytics" width={40} height={43} />
+              </Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem className="flex justify-center">
             <NavigationMenuLink className="flex flex-col items-center">
-              <Image src="/icons/Phone - Requests.png" alt="Requests" width={40} height={43} />
+              <Link href="/admin/requests">
+                <Image src="/icons/Phone - Requests.png" alt="Requests" width={40} height={43} />
+              </Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem className="flex justify-center">
             <NavigationMenuLink className="flex flex-col items-center">
-              <Image src="/icons/Phone - Automated.png" alt="Automated" width={50} height={43} />
+              <Link href="/admin/automations">
+                <Image src="/icons/Phone - Automated.png" alt="Automated" width={50} height={43} />
+              </Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
         </NavigationMenuList>
