@@ -27,10 +27,10 @@ const AboutCard = ({ info }: AboutCardInfoProps) => {
         <div className="flex justify-between items-center">
           About
           <button className="absolute right-6">
-            <Image src="/icons/Edit.png" alt="Edit" width={20} height={20} />
+            <Image src="/icons/Edit.png" alt="Edit" width={20} height={20} style={{ marginBottom: "5px" }} />
           </button>
         </div>
-        <hr className="h-[2px] bg-[#BEBEBE]" />
+        <hr className="h-[2px] bg-[#BEBEBE]" style={{ marginTop: "1.5px" }} />
       </CardHeader>
       <CardContent className="grid gap-4">
         <p
