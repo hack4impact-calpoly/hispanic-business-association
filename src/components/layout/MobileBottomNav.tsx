@@ -13,31 +13,23 @@ export default function Navbar() {
       <NavigationMenu className="w-full !max-w-full flex mt-[11px]">
         <NavigationMenuList className="w-full flex justify-center items-center space-x-[45px] ">
           <NavigationMenuItem className="flex justify-center">
-            <NavigationMenuLink className="flex flex-col items-center">
-              <Link href="/admin">
-                <Image src="/icons/Phone - Dashboard.png" alt="Dashboard" width={41} height={43} />
-              </Link>
+            <NavigationMenuLink href="/admin" className="flex flex-col items-center">
+              <Image src="/icons/Phone - Dashboard.png" alt="Dashboard" width={41} height={43} />
             </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem className="flex justify-center">
-            <NavigationMenuLink className="flex flex-col items-center">
-              <Link href="/admin/analytics">
-                <Image src="/icons/Phone - Analytics.png" alt="Analytics" width={40} height={43} />
-              </Link>
+            <NavigationMenuLink href="/admin/analytics" className="flex flex-col items-center">
+              <Image src="/icons/Phone - Analytics.png" alt="Analytics" width={40} height={43} />
             </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem className="flex justify-center">
-            <NavigationMenuLink className="flex flex-col items-center">
-              <Link href="/admin/requests">
-                <Image src="/icons/Phone - Requests.png" alt="Requests" width={40} height={43} />
-              </Link>
+            <NavigationMenuLink href="/admin/requests" className="flex flex-col items-center">
+              <Image src="/icons/Phone - Requests.png" alt="Requests" width={40} height={43} />
             </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem className="flex justify-center">
-            <NavigationMenuLink className="flex flex-col items-center">
-              <Link href="/admin/automations">
-                <Image src="/icons/Phone - Automated.png" alt="Automated" width={50} height={43} />
-              </Link>
+            <NavigationMenuLink href="/admin/automations" className="flex flex-col items-center">
+              <Image src="/icons/Phone - Automated.png" alt="Automated" width={50} height={43} />
             </NavigationMenuLink>
           </NavigationMenuItem>
         </NavigationMenuList>
