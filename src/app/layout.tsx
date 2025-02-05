@@ -6,22 +6,9 @@ import { DesktopSidebar } from "@/components/layout/DesktopSidebar";
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
-      <SidebarProvider>
-        <html lang="en">
-          <body className="flex h-screen">
-            <DesktopSidebar /> {/* Sidebar on the left */}
-            <div className="flex-1 p-4 overflow-auto">
-              <SignedOut>
-                <SignInButton mode="modal" />
-              </SignedOut>
-              <SignedIn>
-                <UserButton />
-              </SignedIn>
-              {children}
-            </div>
-          </body>
-        </html>
-      </SidebarProvider>
+      <html lang="en">
+        <body>{children}</body>
+      </html>
     </ClerkProvider>
   );
 }
