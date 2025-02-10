@@ -8,6 +8,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 
 // Menu items with image paths.
@@ -36,12 +37,37 @@ const items = [
 
 export default function DesktopSidebar() {
   return (
-    <Sidebar>
-      <SidebarContent>
+    <Sidebar collapsible="icon">
+      <SidebarContent style={{ position: "relative" }}>
+        {/* Sidebar Collapse Button in the Top-Right */}
+        <SidebarTrigger
+          style={{
+            position: "absolute",
+            top: "10px",
+            right: "10px",
+            zIndex: 10, // Ensure it stays above other elements
+          }}
+        ></SidebarTrigger>
+
+        {/* Logo at the top of the sidebar */}
+        <div style={{ textAlign: "center", padding: "20px" }}>
+          <Image
+            src="/logo/HBA_NoBack_NoWords.png" // Logo
+            alt="Logo"
+            width={1200} // Adjust size as needed
+            height={1200} // Adjust size as needed
+          />
+        </div>
+
         <SidebarGroup>
-          <SidebarGroupLabel>HBA LOGO HERE</SidebarGroupLabel>
+          <SidebarGroupLabel></SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
+              {/* Blank item to create space */}
+              <SidebarMenuItem>
+                <div style={{ height: "40px" }} /> {/* You can adjust height for spacing */}
+              </SidebarMenuItem>
+
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
@@ -49,8 +75,8 @@ export default function DesktopSidebar() {
                       <Image
                         src={item.icon}
                         alt={item.title}
-                        width={20} // Icon sizes
-                        height={20}
+                        width={20} // Icon size
+                        height={20} // Icon size
                       />
                       <span>{item.title}</span>
                     </a>
