@@ -40,7 +40,7 @@ const items = [
   },
 ];
 
-export function DesktopSidebar() {
+export default function DesktopSidebar() {
   return (
     <Sidebar>
       <SidebarContent>
