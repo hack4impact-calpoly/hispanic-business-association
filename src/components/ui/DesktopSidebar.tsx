@@ -1,5 +1,4 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
-
+import Image from "next/image";
 import {
   Sidebar,
   SidebarContent,
@@ -11,32 +10,27 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-// Menu items.
+// Menu items with image paths.
 const items = [
   {
-    title: "Home",
+    title: "Dashboard",
     url: "#",
-    icon: Home,
+    icon: "/icons/Home.png",
   },
   {
     title: "Inbox",
     url: "#",
-    icon: Inbox,
+    icon: "/icons/Check Inbox.png",
   },
   {
-    title: "Calendar",
+    title: "Update Information",
     url: "#",
-    icon: Calendar,
+    icon: "/icons/Change.png",
   },
   {
-    title: "Search",
+    title: "Application",
     url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
+    icon: "/icons/Application Form.png",
   },
 ];
 
@@ -45,14 +39,19 @@ export default function DesktopSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel>HBA LOGO HERE</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <a href={item.url}>
-                      <item.icon />
+                      <Image
+                        src={item.icon}
+                        alt={item.title}
+                        width={20} // Icon sizes
+                        height={20}
+                      />
                       <span>{item.title}</span>
                     </a>
                   </SidebarMenuButton>
