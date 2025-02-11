@@ -46,9 +46,6 @@ const UserSchema = new Schema<IUser>({
       FB: { type: String, required: false },
     },
     description: { type: String, required: true },
-    required: function () {
-      return this.role === "business";
-    },
   },
 });
 
