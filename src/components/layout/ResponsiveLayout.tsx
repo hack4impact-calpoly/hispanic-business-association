@@ -1,25 +1,20 @@
 "use client";
 
-import { useIsMobile } from "@/app/hooks/use-mobile";
-/* TODO: Uncomment when layouts are implemented
+import { useIsMobile } from "@/hooks/use-mobile";
 import DesktopLayout from "./DesktopLayout";
 import MobileLayout from "./MobileLayout";
-*/
 
 interface ResponsiveLayoutProps {
   children: React.ReactNode;
+  title: string;
 }
 
-export default function ResponsiveLayout({ children }: ResponsiveLayoutProps) {
+export default function ResponsiveLayout({ children, title }: ResponsiveLayoutProps) {
   const isMobile = useIsMobile();
 
-  /* TODO: Uncomment when layouts are implemented
   if (isMobile) {
-    return <MobileLayout>{children}</MobileLayout>;
+    return <MobileLayout title={title}>{children}</MobileLayout>;
   }
-  return <DesktopLayout>{children}</DesktopLayout>;
-  */
 
-  // Temporary return until layouts are implemented
-  return children;
+  return <DesktopLayout title={title}>{children}</DesktopLayout>;
 }
