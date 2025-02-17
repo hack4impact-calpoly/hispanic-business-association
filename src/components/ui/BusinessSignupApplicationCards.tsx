@@ -39,3 +39,15 @@ interface SocialLink {
   platform: SocialPlatform;
   handle: string;
 }
+
+const BusinessSignupApplication = () => {
+  const router = useRouter();
+
+  return (
+    <Card className="relative w-[70vw] h-[350px] bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg">
+      <CardContent className="flex flex-col h-screen"></CardContent>
+    </Card>
+  );
+};
+
+export default BusinessSignupApplication;
