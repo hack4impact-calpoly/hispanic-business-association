@@ -68,8 +68,8 @@ const BusinessSignupApplication = () => {
   });
 
   // Step navigation (step # corresponds to which modal displays)
-  const nextStep = () => setStep(step + 1);
-  const prevStep = () => setStep(step - 1);
+  const nextStep = () => setStep(Math.min(pageSubtitles.length, step + 1));
+  const prevStep = () => setStep(Math.max(1, step - 1));
 
   const onSubmit: SubmitHandler<BusinessSignupAppInfo> = (data) => {
     // TODO: process form data
@@ -78,12 +78,15 @@ const BusinessSignupApplication = () => {
 
   return (
     <Card className="relative w-[70vw] h-[250px] bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg">
-      <CardContent className="flex w-full h-[320px] mt-[15px] ">
-        <div className="w-[35%] bg-gray-200">
-          <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} className="ml-[-110px]" />
-          <p>Hello</p>
+      <CardContent className="flex w-full h-[320px] mt-[15px] p-1">
+        <div className="w-[35%] flex flex-col items-start text-left p-4">
+          <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
+          <div className="mt-[40px]">
+            <strong className="text-[24px]">Membership Application</strong>
+            <h4 className="pt-2 text-[16px]">{pageSubtitles[step - 1]}</h4>
+          </div>
         </div>
-        <div className="w-[65%] flex justify-center">
+        <div className="w-[65%] bg-gray-200 flex justify-center">
           <p>Hello</p>
           <h1>much more</h1>
         </div>
