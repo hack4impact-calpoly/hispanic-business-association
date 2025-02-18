@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import DesktopSidebar from "@/components/layout/DesktopSidebar";
-import AdminHeader from "@/components/layout/AdminHeader";
+import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import { RequestCard } from "@/components/ui/RequestCard";
 import StatsCard from "@/components/ui/StatsCard";
 import FilterButton from "@/components/ui/FilterButton";
@@ -104,30 +103,17 @@ export default function AdminDashboardPage() {
     setHistoryData(filterHistoryRequests(historyRequests, filter as FilterType));
   };
 
-  const separatorPosition = pendingData.length > 0 ? 194 + 67 * pendingData.length + 20 + 18 : 148 + 34.53 + 18;
-
   return (
-    <div className="flex min-h-screen bg-white">
-      <div className="z-50 pointer-events-auto">
-        <DesktopSidebar />
-      </div>
-
-      <div className="flex-1">
-        <div className="relative z-10">
-          <AdminHeader title="Requests" />
-        </div>
-
-        <main className="relative w-[1440px] h-[1024px] bg-white">
-          <section>
-            <h2 className="absolute top-[148px] left-[119px] font-futura font-medium text-[26px] leading-[34.53px] text-black">
-              Pending Requests
-            </h2>
-
-            <div className="absolute top-[150px] left-[629px]">
+    <ResponsiveLayout title="Requests">
+      <div className="relative min-h-screen bg-white px-4 md:px-0">
+        <div className="flex flex-col md:flex-row justify-between">
+          <div className="md:w-[591px]">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="font-futura font-medium text-[26px] leading-[34.53px] text-black">Pending Requests</h2>
               <FilterButton onFilterChange={handlePendingFilterChange} selectedFilter={pendingFilter} />
             </div>
 
-            <div className="absolute top-[194px] left-[119px] space-y-[10px]">
+            <div className="space-y-[10px]">
               {pendingData.map((request, index) => (
                 <RequestCard
                   key={index}
@@ -139,39 +125,16 @@ export default function AdminDashboardPage() {
               ))}
             </div>
 
-            <div
-              className="absolute left-[119px] w-[591px] h-0 border-t border-[#BEBEBE]"
-              style={{
-                top: pendingData.length > 0 ? `${194 + 67 * pendingData.length + 20 + 18}px` : `${148 + 34.53 + 18}px`,
-              }}
-            />
-          </section>
+            <div className="w-full h-0 border-t border-[#BEBEBE] my-8" />
 
-          <section className="absolute top-[191px] right-[32px] space-y-[18px]">
-            <StatsCard title="Total Pending Request" count={stats.pending} isHighlighted={true} />
-            <StatsCard title="Requests Approved This Month" count={stats.approved} isHighlighted={false} />
-            <StatsCard title="Requests Declined This Month" count={stats.declined} isHighlighted={false} />
-          </section>
-
-          <section
-            style={{
-              position: "absolute",
-              top: `${separatorPosition + 200}px`,
-              left: 0,
-              right: 0,
-            }}
-          >
-            <h2 className="absolute left-[119px] font-futura font-medium text-[26px] leading-[34.53px] text-black">
-              History of Recent Requests
-            </h2>
-
-            <div className="absolute left-[629px] top-[3px]">
-              {" "}
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="font-futura font-medium text-[26px] leading-[34.53px] text-black">
+                History of Recent Requests
+              </h2>
               <FilterButton onFilterChange={handleHistoryFilterChange} selectedFilter={historyFilter} />
             </div>
 
-            <div className="absolute top-[56px] left-[119px] space-y-[10px]">
-              {" "}
+            <div className="space-y-[10px]">
               {historyData.map((request, index) => (
                 <RequestCard
                   key={index}
@@ -182,9 +145,15 @@ export default function AdminDashboardPage() {
                 />
               ))}
             </div>
-          </section>
-        </main>
+          </div>
+
+          <div className="md:ml-8 mt-8 md:mt-0 space-y-[18px]">
+            <StatsCard title="Total Pending Request" count={stats.pending} isHighlighted={true} />
+            <StatsCard title="Requests Approved This Month" count={stats.approved} isHighlighted={false} />
+            <StatsCard title="Requests Declined This Month" count={stats.declined} isHighlighted={false} />
+          </div>
+        </div>
       </div>
-    </div>
+    </ResponsiveLayout>
   );
 }
