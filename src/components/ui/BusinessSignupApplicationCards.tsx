@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useForm, SubmitHandler, FieldValues } from "react-hook-form";
 import { Input } from "./input";
 import { Button } from "./button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
 
 interface BusinessSignupAppInfo {
   contactInfo: BusinessContactInfo;
@@ -46,7 +47,35 @@ interface SocialLink {
 const BusinessSignupApplication = () => {
   const router = useRouter();
 
-  const pageSubtitles = ["Social Links", "Contact Information", "Business Information"];
+  const [langOption, setLangOption] = useState(0); // either 0 or 1 for language preference
+
+  // for language toggle
+  const langOptions = ["English (United States)", "Español"];
+
+  // for form title
+  const formTitle = ["Membership Application", "Solicitud de Membresía"];
+
+  // page subtitles by language
+  const englishPageSubtitles = [
+    "Social Links",
+    "Contact Information",
+    "Business Information",
+    "Payment Information",
+    "Payment Method",
+  ];
+  const spanishPageSubtitles = [
+    "Enlaces Sociales",
+    "Información del Contacto",
+    "Información Comercial",
+    "Información de Pago",
+    "Método de Pago",
+  ];
+  const pageSubtitles = [englishPageSubtitles, spanishPageSubtitles];
+
+  // for navigation buttons
+  const englishNav = ["Back", "Next"];
+  const spanishNav = ["Atrás", "Próximo"];
+  const navTitles = [englishNav, spanishNav];
 
   const [step, setStep] = useState(1);
   const {
@@ -135,9 +164,16 @@ const BusinessSignupApplication = () => {
                 />
               </div>
             </div>
-            <div className="absolute bottom-0 left-[35%] right-0 p-4 flex flex-row items-end justify-end">
+            <div className="absolute bottom-0 left-0 right-0 p-4 flex flex-row items-end justify-between">
+              <Button
+                className="bg-white text-[#405BA9] border border-[#405BA9] rounded-3xl"
+                type="button"
+                onClick={prevStep}
+              >
+                {navTitles[langOption][0]}
+              </Button>
               <Button className="bg-[#405BA9] rounded-3xl" type="button" onClick={nextStep}>
-                Next
+                {navTitles[langOption][1]}
               </Button>
             </div>
           </div>
@@ -152,10 +188,10 @@ const BusinessSignupApplication = () => {
                 type="button"
                 onClick={prevStep}
               >
-                Back
+                {navTitles[langOption][0]}
               </Button>
               <Button className="bg-[#405BA9] rounded-3xl" type="button" onClick={nextStep}>
-                Next
+                {navTitles[langOption][1]}
               </Button>
             </div>
           </div>
@@ -170,18 +206,37 @@ const BusinessSignupApplication = () => {
   };
 
   return (
-    <Card className="relative w-[70vw] h-[300px] bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg">
-      <CardContent className="flex w-full h-[320px] mt-[15px] p-1">
-        <div className="w-[35%] flex flex-col items-start text-left p-4">
-          <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
-          <div className="mt-[40px]">
-            <strong className="text-[24px]">Membership Application</strong>
-            <h4 className="pt-2 text-[16px]">{pageSubtitles[step - 1]}</h4>
+    <div className="w-[70vw] h-[300px]">
+      <Card className="relative bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg">
+        <CardContent className="flex w-full h-[320px] mt-[15px] p-1">
+          <div className="w-[35%] flex flex-col items-start text-left p-4">
+            <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
+            <div className="mt-[40px]">
+              <strong className="text-[24px]">{formTitle[langOption]}</strong>
+              <h4 className="pt-2 text-[16px]">{pageSubtitles[langOption][step - 1]}</h4>
+            </div>
           </div>
-        </div>
-        <div className="w-[65%] flex justify-center">{renderStepForm()}</div>
-      </CardContent>
-    </Card>
+          <div className="w-[65%] flex justify-center">{renderStepForm()}</div>
+        </CardContent>
+      </Card>
+      <div className="flex flex-row justify-start">
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Button
+              className="bg-white text-[#405BA9] hover:bg-white hover:opacity-100 hover:shadow-none"
+              type="button"
+            >
+              {langOptions[langOption]}
+              <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => setLangOption(0)}>{langOptions[0]}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setLangOption(1)}>{langOptions[1]}</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
   );
 };
 
