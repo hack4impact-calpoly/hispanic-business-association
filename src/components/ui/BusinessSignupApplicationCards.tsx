@@ -146,6 +146,18 @@ const BusinessSignupApplication = () => {
         return (
           <div>
             <h1>Step = {step}</h1>
+            <div className="absolute bottom-0 left-0 right-0 p-4 flex flex-row items-end justify-between">
+              <Button
+                className="bg-white text-[#405BA9] border border-[#405BA9] rounded-3xl"
+                type="button"
+                onClick={prevStep}
+              >
+                Back
+              </Button>
+              <Button className="bg-[#405BA9] rounded-3xl" type="button" onClick={nextStep}>
+                Next
+              </Button>
+            </div>
           </div>
         );
       case 3:
