@@ -57,24 +57,26 @@ const BusinessSignupApplication = () => {
 
   // page subtitles by language
   const englishPageSubtitles = [
-    "Social Links",
-    "Contact Information",
     "Business Information",
+    "Contact Information",
+    "Social Links",
     "Payment Information",
     "Payment Method",
   ];
   const spanishPageSubtitles = [
-    "Enlaces Sociales",
-    "Información del Contacto",
     "Información Comercial",
+    "Información del Contacto",
+    "Enlaces Sociales",
     "Información de Pago",
     "Método de Pago",
   ];
+  const numPages = 6;
   const pageSubtitles = [englishPageSubtitles, spanishPageSubtitles];
 
   // for navigation buttons
   const englishNav = ["Back", "Next"];
   const spanishNav = ["Atrás", "Próximo"];
+  const navSubmit = ["Submit", "Finalizar"];
   const navTitles = [englishNav, spanishNav];
 
   const [step, setStep] = useState(1);
@@ -100,7 +102,7 @@ const BusinessSignupApplication = () => {
   });
 
   // Step navigation (step # corresponds to which modal displays)
-  const nextStep = () => setStep(Math.min(pageSubtitles.length, step + 1));
+  const nextStep = () => setStep(Math.min(numPages, step + 1));
   const prevStep = () => setStep(Math.max(1, step - 1));
 
   const onSubmit: SubmitHandler<BusinessSignupAppInfo> = (data) => {
@@ -121,9 +123,71 @@ const BusinessSignupApplication = () => {
     console.log(getValues("socialLinks")); // logging to check values
   };
 
+  // handle rendering of nav buttons with defaults set
+  const renderNavButtons = (back: boolean = true, submit: boolean = false) => {
+    // most standard case of both 'Back' and 'Next' displayed
+    if (back && !submit) {
+      return (
+        <div className="absolute bottom-0 left-0 right-0 p-4 flex flex-row items-end justify-between">
+          <Button
+            className="bg-white text-[#405BA9] border border-[#405BA9] rounded-3xl"
+            type="button"
+            onClick={prevStep}
+          >
+            {navTitles[langOption][0]}
+          </Button>
+          <Button className="bg-[#405BA9] rounded-3xl" type="button" onClick={nextStep}>
+            {navTitles[langOption][1]}
+          </Button>
+        </div>
+      );
+    }
+    // just 'Next' displayed
+    if (!back && !submit) {
+      return (
+        <div className="absolute bottom-0 left-0 right-0 p-4 flex flex-row items-end justify-end">
+          <Button className="bg-[#405BA9] rounded-3xl" type="button" onClick={nextStep}>
+            {navTitles[langOption][1]}
+          </Button>
+        </div>
+      );
+    }
+    // 'Back' and 'Submit' displayed
+    if (back && submit) {
+      return (
+        <div className="absolute bottom-0 left-0 right-0 p-4 flex flex-row items-end justify-between">
+          <Button
+            className="bg-white text-[#405BA9] border border-[#405BA9] rounded-3xl"
+            type="button"
+            onClick={prevStep}
+          >
+            {navTitles[langOption][0]}
+          </Button>
+          <Button className="bg-[#405BA9] rounded-3xl" type="button" onClick={nextStep}>
+            {navSubmit[langOption]}
+          </Button>
+        </div>
+      );
+    }
+  };
+
   const renderStepForm = () => {
     switch (step) {
       case 1:
+        return (
+          <div>
+            <h1>Step = {step}</h1>
+            {renderNavButtons(true, false)}
+          </div>
+        );
+      case 2:
+        return (
+          <div>
+            <h1>Step = {step}</h1>
+            {renderNavButtons(true, false)}
+          </div>
+        );
+      case 3:
         return (
           <div>
             <div className="grid grid-cols-2 gap-6 mt-[80px]">
@@ -164,39 +228,24 @@ const BusinessSignupApplication = () => {
                 />
               </div>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 p-4 flex flex-row items-end justify-between">
-              <Button
-                className="bg-white text-[#405BA9] border border-[#405BA9] rounded-3xl"
-                type="button"
-                onClick={prevStep}
-              >
-                {navTitles[langOption][0]}
-              </Button>
-              <Button className="bg-[#405BA9] rounded-3xl" type="button" onClick={nextStep}>
-                {navTitles[langOption][1]}
-              </Button>
-            </div>
+            {renderNavButtons(true, false)}
           </div>
         );
-      case 2:
+      case 4:
         return (
           <div>
             <h1>Step = {step}</h1>
-            <div className="absolute bottom-0 left-0 right-0 p-4 flex flex-row items-end justify-between">
-              <Button
-                className="bg-white text-[#405BA9] border border-[#405BA9] rounded-3xl"
-                type="button"
-                onClick={prevStep}
-              >
-                {navTitles[langOption][0]}
-              </Button>
-              <Button className="bg-[#405BA9] rounded-3xl" type="button" onClick={nextStep}>
-                {navTitles[langOption][1]}
-              </Button>
-            </div>
+            {renderNavButtons(true, false)}
           </div>
         );
-      case 3:
+      case 5:
+        return (
+          <div>
+            <h1>Step = {step}</h1>
+            {renderNavButtons(true, true)}
+          </div>
+        );
+      case 6:
         return (
           <div>
             <h1>Step = {step}</h1>
