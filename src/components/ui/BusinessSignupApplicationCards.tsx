@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Card, CardHeader, CardContent } from "./card";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm, SubmitHandler, FieldValues } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { Input } from "./input";
 import { Button } from "./button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
@@ -105,6 +105,17 @@ const BusinessSignupApplication = () => {
   ];
   const businessInfoFieldNames = [englishBusinessInfo, spanishBusinessInfo];
 
+  // for contact info page
+  const englishContactInfo = ["Contact Name*", "Title*", "Phone Number*", "Cell Phone Number", "Email Address*"];
+  const spanishContactInfo = [
+    "Nombre de Contacto*",
+    "Título*",
+    "Número de Teléfono*",
+    "Número de Teléfono Celular",
+    "Dirección de Correo Electrónico*",
+  ];
+  const contactInfoFieldNames = [englishContactInfo, spanishContactInfo];
+
   // for app submission page
   const submissionTitle = ["Application Submitted", "Solicitud Enviada"];
   const submissionSubtitle = [
@@ -155,17 +166,14 @@ const BusinessSignupApplication = () => {
       .then((result) => {
         if (!result) {
           setFirstErrorMessage(msgs[langOption]);
-          return false;
         } else {
           setFirstErrorMessage("");
           setStep(Math.min(numPages, step + 1));
-          return true;
         }
       })
       .catch((error) => {
         console.error("Validation error:", error);
         setFirstErrorMessage("An unexpected error occurred during validation.");
-        return false;
       });
   };
 
@@ -174,8 +182,6 @@ const BusinessSignupApplication = () => {
     switch (step) {
       // business information page
       case 1:
-        console.log("case 1");
-
         if (isMailingAddressSame) {
           // Copy values from physical address to mailing address if checkbox is checked
           setValue("businessInfo.mailingAddress.address", getValues("businessInfo.physicalAddress.address"));
@@ -185,10 +191,10 @@ const BusinessSignupApplication = () => {
         }
         validateData();
         break;
-
       // contact information page
       case 2:
-        setStep(Math.min(numPages, step + 1));
+        validateData();
+        break;
 
       // social links page
       case 3:
@@ -203,7 +209,10 @@ const BusinessSignupApplication = () => {
         setStep(Math.min(numPages, step + 1));
     }
   };
-  const prevStep = () => setStep(Math.max(1, step - 1));
+  const prevStep = () => {
+    setFirstErrorMessage("");
+    setStep(Math.max(1, step - 1));
+  };
 
   // handle business addresses
   const [isMailingAddressSame, setIsMailingAddressSame] = useState(false);
@@ -279,6 +288,7 @@ const BusinessSignupApplication = () => {
             <div className="grid gap-4 mt-[20px] justify-start items-start">
               <div>
                 <Input
+                  key={`businessName-${step}`}
                   className="w-[550px] border-[#8C8C8C]"
                   type="text"
                   id="BusinessName"
@@ -289,6 +299,7 @@ const BusinessSignupApplication = () => {
 
               <div className="flex items-center gap-2">
                 <Input
+                  key={`websiteURL-${step}`}
                   className="w-[356px] border-[#8C8C8C]"
                   type="text"
                   id="WebsiteURL"
@@ -296,6 +307,7 @@ const BusinessSignupApplication = () => {
                   {...register("businessInfo.websiteURL", { required: "Website URL is required" })}
                 />
                 <Input
+                  key={`numEmployees-${step}`}
                   className="w-[186px] border-[#8C8C8C]"
                   type="text"
                   id="NumEmployees"
@@ -308,6 +320,7 @@ const BusinessSignupApplication = () => {
 
               <div className="flex items-center gap-2">
                 <Input
+                  key={`physicalAddress-Addr-${step}`}
                   className="w-[264px] border-[#8C8C8C]"
                   type="text"
                   id="PhysicalAddress-Addr"
@@ -315,6 +328,7 @@ const BusinessSignupApplication = () => {
                   {...register("businessInfo.physicalAddress.address", { required: "Address is required" })}
                 />
                 <Input
+                  key={`physicalAddress-City-${step}`}
                   className="w-[130px] border-[#8C8C8C]"
                   type="text"
                   id="PhysicalAddress-City"
@@ -322,6 +336,7 @@ const BusinessSignupApplication = () => {
                   {...register("businessInfo.physicalAddress.city", { required: "City is required" })}
                 />
                 <Input
+                  key={`physicalAddress-State-${step}`}
                   className="w-[72px] border-[#8C8C8C]"
                   type="text"
                   id="PhysicalAddress-State"
@@ -329,6 +344,7 @@ const BusinessSignupApplication = () => {
                   {...register("businessInfo.physicalAddress.state", { required: "State is required" })}
                 />
                 <Input
+                  key={`physicalAddress-ZIP-${step}`}
                   className="w-[60px] border-[#8C8C8C]"
                   type="text"
                   id="PhysicalAddress-ZIP"
@@ -350,6 +366,7 @@ const BusinessSignupApplication = () => {
 
               <div className="flex items-center gap-2">
                 <Input
+                  key={`mailingAddress-Addr-${step}`}
                   className="w-[264px] border-[#8C8C8C]"
                   type="text"
                   id="MailAddress-Addr"
@@ -357,6 +374,7 @@ const BusinessSignupApplication = () => {
                   {...register("businessInfo.mailingAddress.address", { required: "Address is required" })}
                 />
                 <Input
+                  key={`mailingAddress-City-${step}`}
                   className="w-[130px] border-[#8C8C8C]"
                   type="text"
                   id="MailAddress-City"
@@ -364,6 +382,7 @@ const BusinessSignupApplication = () => {
                   {...register("businessInfo.mailingAddress.city", { required: "City is required" })}
                 />
                 <Input
+                  key={`mailingAddress-State-${step}`}
                   className="w-[72px] border-[#8C8C8C]"
                   type="text"
                   id="MailAddress-State"
@@ -371,6 +390,7 @@ const BusinessSignupApplication = () => {
                   {...register("businessInfo.mailingAddress.state", { required: "State is required" })}
                 />
                 <Input
+                  key={`mailingAddress-ZIP-${step}`}
                   className="w-[60px] border-[#8C8C8C]"
                   type="text"
                   id="MailAddress-ZIP"
@@ -386,7 +406,57 @@ const BusinessSignupApplication = () => {
       case 2:
         return (
           <div>
-            <h1>Step = {step}</h1>
+            <div className="grid gap-4 mt-[60px] justify-start items-start">
+              <div className="flex items-center gap-2">
+                <Input
+                  key={`contactName-${step}`}
+                  className="w-[356px] border-[#8C8C8C]"
+                  type="text"
+                  id="ContactName"
+                  placeholder={contactInfoFieldNames[langOption][0]}
+                  {...register("contactInfo.name", { required: "Contact Name is required" })}
+                />
+                <Input
+                  key={`contactTitle-${step}`}
+                  className="w-[186px] border-[#8C8C8C]"
+                  type="text"
+                  id="ContactTitle"
+                  placeholder={contactInfoFieldNames[langOption][1]}
+                  {...register("contactInfo.title", { required: "Title is required" })}
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Input
+                  key={`contactPhoneNumber-${step}`}
+                  className="w-[271px] border-[#8C8C8C]"
+                  type="text"
+                  id="PhoneNumber"
+                  placeholder={contactInfoFieldNames[langOption][2]}
+                  {...register("contactInfo.phoneNumber", { required: "Phone Number is required" })}
+                />
+                <Input
+                  key={`contactCellNumber-${step}`}
+                  className="w-[271px] border-[#8C8C8C]"
+                  type="text"
+                  id="CellNumber"
+                  placeholder={contactInfoFieldNames[langOption][3]}
+                  {...register("contactInfo.cellNumber")}
+                />
+              </div>
+
+              <div>
+                <Input
+                  key={`contactEmail-${step}`}
+                  className="w-[550px] border-[#8C8C8C]"
+                  type="text"
+                  id="ContactEmail"
+                  placeholder={contactInfoFieldNames[langOption][4]}
+                  {...register("contactInfo.email", { required: "Email is required" })}
+                />
+              </div>
+              {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
+            </div>
             {renderNavButtons(true, false)}
           </div>
         );
