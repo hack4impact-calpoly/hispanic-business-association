@@ -14,6 +14,7 @@ interface BusinessSignupAppInfo {
   contactInfo: BusinessContactInfo;
   businessInfo: BusinessInfo;
   socialLinks?: SocialLink[];
+  amountPaid: string;
 }
 
 interface BusinessContactInfo {
@@ -152,10 +153,40 @@ const BusinessSignupApplication = () => {
         mailingAddress: { address: "", city: "", state: "", zip: "" },
       },
       socialLinks: [],
+      amountPaid: "",
     },
   });
 
   const [firstErrorMessage, setFirstErrorMessage] = useState("");
+
+  const displayPaymentInfo = () => {
+    const englishPlans = ["Annual Membership Investment", "Ribbon Cutting", "Additional Category"];
+    const spanishPlans = ["Inversión Anual de Membresía", "Corte de Cinta", "Categoría Adicional"];
+    const langPlans = [englishPlans, spanishPlans];
+
+    const pricesInOrder = ["$250", "$50", "$20"];
+
+    if (step == 4) {
+      return (
+        <div className="flex flex-row w-[92%] h-[full] bg-[#3F5EBB] text-white p-1 rounded-lg mt-4 text-[14px]">
+          {/* <div className="flex flex-row justify-between p-1 w-full"> */}
+          <div className="flex flex-col items-start w-[80%] pl-2">
+            <p>{langPlans[langOption][0]}</p>
+            <p>{langPlans[langOption][1]}</p>
+            <p>{langPlans[langOption][2]}</p>
+          </div>
+          <div className="flex flex-col items-end w-[20%] pr-2">
+            <p>{pricesInOrder[0]}</p>
+            <p>{pricesInOrder[1]}</p>
+            <p>{pricesInOrder[2]}</p>
+          </div>
+          {/* </div> */}
+        </div>
+      );
+    } else {
+      return <div></div>;
+    }
+  };
 
   const validateData = () => {
     const msgs = [
@@ -180,8 +211,7 @@ const BusinessSignupApplication = () => {
   // Step navigation (step # corresponds to which modal displays)
   const nextStep = () => {
     switch (step) {
-      // business information page
-      case 1:
+      case 1: // business information page
         if (isMailingAddressSame) {
           // Copy values from physical address to mailing address if checkbox is checked
           setValue("businessInfo.mailingAddress.address", getValues("businessInfo.physicalAddress.address"));
@@ -191,21 +221,16 @@ const BusinessSignupApplication = () => {
         }
         validateData();
         break;
-      // contact information page
-      case 2:
+      case 2: // contact information page
         validateData();
         break;
-
-      // social links page
-      case 3:
+      case 3: // social links page
         setStep(Math.min(numPages, step + 1));
-
-      // payment information page
-      case 4:
-        setStep(Math.min(numPages, step + 1));
-
-      // payment method page
-      case 5:
+        break;
+      case 4: // payment information page
+        validateData();
+        break;
+      case 5: // payment method page
         setStep(Math.min(numPages, step + 1));
     }
   };
@@ -506,8 +531,18 @@ const BusinessSignupApplication = () => {
         );
       case 4:
         return (
-          <div>
-            <h1>Step = {step}</h1>
+          <div className="w-full flex flex-col items-start justify-start">
+            <Input
+              key={`amountPaid-${step}`}
+              className="w-[350px] border-[#8C8C8C] mt-[140px] ml-[40px]"
+              type="text"
+              id="AmountPaid"
+              placeholder={langOption == 0 ? "Amount Paid*" : "Monto Pagado*"}
+              {...register("amountPaid", { required: "Amount Paid is required" })}
+            />
+            <div className="w-[350px] mt-[10px] ml-[25px]">
+              {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
+            </div>
             {renderNavButtons(true, false)}
           </div>
         );
@@ -532,6 +567,7 @@ const BusinessSignupApplication = () => {
                 <strong className="text-[24px]">{formTitle[langOption]}</strong>
                 <h4 className="pt-2 text-[16px]">{pageSubtitles[langOption][step - 1]}</h4>
               </div>
+              {displayPaymentInfo()}
             </div>
             <div className="w-[65%] flex justify-center">{renderStepForm()}</div>
           </CardContent>
