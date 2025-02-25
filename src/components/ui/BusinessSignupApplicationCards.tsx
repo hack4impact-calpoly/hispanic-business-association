@@ -27,7 +27,7 @@ interface BusinessContactInfo {
 interface BusinessInfo {
   name: string;
   websiteURL?: string;
-  numEmployees?: number;
+  numEmployees?: string;
   physicalAddress: Address;
   mailingAddress: Address;
 }
@@ -80,6 +80,31 @@ const BusinessSignupApplication = () => {
   const navSubmit = ["Submit", "Finalizar"];
   const navTitles = [englishNav, spanishNav];
 
+  // for business info page
+  const englishBusinessInfo = [
+    "Business Name*",
+    "Website URL*",
+    "Number of Employees",
+    "Physical Address*",
+    "Mailing Address*",
+    "City*",
+    "State*",
+    "ZIP*",
+    "Mailing address is the same as physical address",
+  ];
+  const spanishBusinessInfo = [
+    "Nombre Comercial*",
+    "URL del Sitio Web*",
+    "Numero de Empleados",
+    "Dirección Física*",
+    "Dirección de Envio",
+    "Ciudad*",
+    "Estado*",
+    "ZIP*",
+    "La dirección de envio es la misma que la dirección física",
+  ];
+  const businessInfoFieldNames = [englishBusinessInfo, spanishBusinessInfo];
+
   // for app submission page
   const submissionTitle = ["Application Submitted", "Solicitud Enviada"];
   const submissionSubtitle = [
@@ -101,7 +126,6 @@ const BusinessSignupApplication = () => {
   const [step, setStep] = useState(1);
   const {
     register,
-    handleSubmit,
     formState: { errors },
     setValue,
     getValues,
@@ -112,22 +136,79 @@ const BusinessSignupApplication = () => {
       businessInfo: {
         name: "",
         websiteURL: "",
-        numEmployees: 0,
-        physicalAddress: { address: "string", city: "", state: "", zip: "" },
-        mailingAddress: { address: "string", city: "", state: "", zip: "" },
+        numEmployees: "",
+        physicalAddress: { address: "", city: "", state: "", zip: "" },
+        mailingAddress: { address: "", city: "", state: "", zip: "" },
       },
       socialLinks: [],
     },
   });
 
+  const [firstErrorMessage, setFirstErrorMessage] = useState("");
+
+  const validateData = () => {
+    const msgs = [
+      "Missing data or data is improperly formatted.",
+      "Faltan datos o los datos tienen un formato incorrecto.",
+    ];
+    trigger()
+      .then((result) => {
+        if (!result) {
+          setFirstErrorMessage(msgs[langOption]);
+          return false;
+        } else {
+          setFirstErrorMessage("");
+          setStep(Math.min(numPages, step + 1));
+          return true;
+        }
+      })
+      .catch((error) => {
+        console.error("Validation error:", error);
+        setFirstErrorMessage("An unexpected error occurred during validation.");
+        return false;
+      });
+  };
+
   // Step navigation (step # corresponds to which modal displays)
-  const nextStep = () => setStep(Math.min(numPages, step + 1));
+  const nextStep = () => {
+    switch (step) {
+      // business information page
+      case 1:
+        console.log("case 1");
+
+        if (isMailingAddressSame) {
+          // Copy values from physical address to mailing address if checkbox is checked
+          setValue("businessInfo.mailingAddress.address", getValues("businessInfo.physicalAddress.address"));
+          setValue("businessInfo.mailingAddress.city", getValues("businessInfo.physicalAddress.city"));
+          setValue("businessInfo.mailingAddress.state", getValues("businessInfo.physicalAddress.state"));
+          setValue("businessInfo.mailingAddress.zip", getValues("businessInfo.physicalAddress.zip"));
+        }
+        validateData();
+        break;
+
+      // contact information page
+      case 2:
+        setStep(Math.min(numPages, step + 1));
+
+      // social links page
+      case 3:
+        setStep(Math.min(numPages, step + 1));
+
+      // payment information page
+      case 4:
+        setStep(Math.min(numPages, step + 1));
+
+      // payment method page
+      case 5:
+        setStep(Math.min(numPages, step + 1));
+    }
+  };
   const prevStep = () => setStep(Math.max(1, step - 1));
 
-  const onSubmit: SubmitHandler<BusinessSignupAppInfo> = (data) => {
-    // TODO: process form data
-    console.log(data);
-  };
+  // handle business addresses
+  const [isMailingAddressSame, setIsMailingAddressSame] = useState(false);
+
+  // populate the businessInfo structure with inputs form the form
 
   // populate the socialLinks list with inputs from the form
   const handleSocialLinkInputs = (platform: SocialPlatform, str: string) => {
@@ -195,7 +276,110 @@ const BusinessSignupApplication = () => {
       case 1:
         return (
           <div>
-            <h1>Step = {step}</h1>
+            <div className="grid gap-4 mt-[20px] justify-start items-start">
+              <div>
+                <Input
+                  className="w-[550px] border-[#8C8C8C]"
+                  type="text"
+                  id="BusinessName"
+                  placeholder={businessInfoFieldNames[langOption][0]}
+                  {...register("businessInfo.name", { required: "Business name is required" })}
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Input
+                  className="w-[356px] border-[#8C8C8C]"
+                  type="text"
+                  id="WebsiteURL"
+                  placeholder={businessInfoFieldNames[langOption][1]}
+                  {...register("businessInfo.websiteURL", { required: "Website URL is required" })}
+                />
+                <Input
+                  className="w-[186px] border-[#8C8C8C]"
+                  type="text"
+                  id="NumEmployees"
+                  placeholder={businessInfoFieldNames[langOption][2]}
+                  {...register("businessInfo.numEmployees", {
+                    validate: (value) => value === "" || Number(value) >= 0 || "Number of employees cannot be negative",
+                  })}
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Input
+                  className="w-[264px] border-[#8C8C8C]"
+                  type="text"
+                  id="PhysicalAddress-Addr"
+                  placeholder={businessInfoFieldNames[langOption][3]}
+                  {...register("businessInfo.physicalAddress.address", { required: "Address is required" })}
+                />
+                <Input
+                  className="w-[130px] border-[#8C8C8C]"
+                  type="text"
+                  id="PhysicalAddress-City"
+                  placeholder={businessInfoFieldNames[langOption][5]}
+                  {...register("businessInfo.physicalAddress.city", { required: "City is required" })}
+                />
+                <Input
+                  className="w-[72px] border-[#8C8C8C]"
+                  type="text"
+                  id="PhysicalAddress-State"
+                  placeholder={businessInfoFieldNames[langOption][6]}
+                  {...register("businessInfo.physicalAddress.state", { required: "State is required" })}
+                />
+                <Input
+                  className="w-[60px] border-[#8C8C8C]"
+                  type="text"
+                  id="PhysicalAddress-ZIP"
+                  placeholder={businessInfoFieldNames[langOption][7]}
+                  {...register("businessInfo.physicalAddress.zip", { required: "ZIP is required" })}
+                />
+              </div>
+
+              <div className="flex items-center mt-[-8px] mb-[-8px] text-[13px]">
+                <label htmlFor="sameAddress" className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="sameAddress"
+                    onChange={(e) => setIsMailingAddressSame(e.target.checked)} // use state to track if the checkbox is checked
+                  />
+                  {businessInfoFieldNames[langOption][8]}
+                </label>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Input
+                  className="w-[264px] border-[#8C8C8C]"
+                  type="text"
+                  id="MailAddress-Addr"
+                  placeholder={businessInfoFieldNames[langOption][4]}
+                  {...register("businessInfo.mailingAddress.address", { required: "Address is required" })}
+                />
+                <Input
+                  className="w-[130px] border-[#8C8C8C]"
+                  type="text"
+                  id="MailAddress-City"
+                  placeholder={businessInfoFieldNames[langOption][5]}
+                  {...register("businessInfo.mailingAddress.city", { required: "City is required" })}
+                />
+                <Input
+                  className="w-[72px] border-[#8C8C8C]"
+                  type="text"
+                  id="MailAddress-State"
+                  placeholder={businessInfoFieldNames[langOption][6]}
+                  {...register("businessInfo.mailingAddress.state", { required: "State is required" })}
+                />
+                <Input
+                  className="w-[60px] border-[#8C8C8C]"
+                  type="text"
+                  id="MailAddress-ZIP"
+                  placeholder={businessInfoFieldNames[langOption][7]}
+                  {...register("businessInfo.mailingAddress.zip", { required: "ZIP is required" })}
+                />
+              </div>
+              {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
+            </div>
             {renderNavButtons(false, false)}
           </div>
         );
@@ -209,7 +393,7 @@ const BusinessSignupApplication = () => {
       case 3:
         return (
           <div>
-            <div className="grid grid-cols-2 gap-6 mt-[80px]">
+            <div className="grid grid-cols-2 gap-6 mt-[80px] justify-start">
               <div>
                 <Input
                   className="w-[250px] border-[#8C8C8C]"
