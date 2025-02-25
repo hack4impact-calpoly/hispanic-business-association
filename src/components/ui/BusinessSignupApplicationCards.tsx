@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Image from "next/image";
 import { Card, CardHeader, CardContent } from "./card";
 import { useRouter } from "next/navigation";
@@ -78,6 +79,24 @@ const BusinessSignupApplication = () => {
   const spanishNav = ["Atrás", "Próximo"];
   const navSubmit = ["Submit", "Finalizar"];
   const navTitles = [englishNav, spanishNav];
+
+  // for app submission page
+  const submissionTitle = ["Application Submitted", "Solicitud Enviada"];
+  const submissionSubtitle = [
+    "Your membership application is pending review, in the meantime:",
+    "Su solicitud de membresía está pendiente de revisión, mientras tanto:",
+  ];
+  const submissionEnglishSteps = [
+    "Check your email for confirmation details",
+    "Our team will review your application within 2-3 business days",
+    "Once approved, you will receive access to your membership dashboard",
+  ];
+  const submissionSpanishSteps = [
+    "Revise su correo electrónico para obtener detalles de confirmación",
+    "Nuestro equipo revisará su solicitud dentro de 2-3 días hábiles",
+    "Una vez aprobado, recibirá acceso a su panel de membresía",
+  ];
+  const submissionSteps = [submissionEnglishSteps, submissionSpanishSteps];
 
   const [step, setStep] = useState(1);
   const {
@@ -177,7 +196,7 @@ const BusinessSignupApplication = () => {
         return (
           <div>
             <h1>Step = {step}</h1>
-            {renderNavButtons(true, false)}
+            {renderNavButtons(false, false)}
           </div>
         );
       case 2:
@@ -245,48 +264,85 @@ const BusinessSignupApplication = () => {
             {renderNavButtons(true, true)}
           </div>
         );
-      case 6:
-        return (
-          <div>
-            <h1>Step = {step}</h1>
-          </div>
-        );
     }
   };
 
-  return (
-    <div className="w-[70vw] h-[300px]">
-      <Card className="relative bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg">
-        <CardContent className="flex w-full h-[320px] mt-[15px] p-1">
-          <div className="w-[35%] flex flex-col items-start text-left p-4">
-            <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
-            <div className="mt-[40px]">
-              <strong className="text-[24px]">{formTitle[langOption]}</strong>
-              <h4 className="pt-2 text-[16px]">{pageSubtitles[langOption][step - 1]}</h4>
+  if (step < 6) {
+    return (
+      <div className="w-[70vw] h-[300px]">
+        <Card className="relative bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg">
+          <CardContent className="flex w-full h-[320px] mt-[15px] p-1">
+            <div className="w-[35%] flex flex-col items-start text-left p-4">
+              <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
+              <div className="mt-[40px]">
+                <strong className="text-[24px]">{formTitle[langOption]}</strong>
+                <h4 className="pt-2 text-[16px]">{pageSubtitles[langOption][step - 1]}</h4>
+              </div>
             </div>
-          </div>
-          <div className="w-[65%] flex justify-center">{renderStepForm()}</div>
-        </CardContent>
-      </Card>
-      <div className="flex flex-row justify-start">
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button
-              className="bg-white text-[#405BA9] hover:bg-white hover:opacity-100 hover:shadow-none"
-              type="button"
-            >
-              {langOptions[langOption]}
-              <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => setLangOption(0)}>{langOptions[0]}</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setLangOption(1)}>{langOptions[1]}</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <div className="w-[65%] flex justify-center">{renderStepForm()}</div>
+          </CardContent>
+        </Card>
+        <div className="flex flex-row justify-start">
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button
+                className="bg-white text-[#405BA9] hover:bg-white hover:opacity-100 hover:shadow-none"
+                type="button"
+              >
+                {langOptions[langOption]}
+                <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => setLangOption(0)}>{langOptions[0]}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLangOption(1)}>{langOptions[1]}</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
-    </div>
-  );
+    );
+  } else {
+    return (
+      <div className="w-[70vw] h-[300px]">
+        <Card className="relative bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg">
+          <CardContent className="flex flex-col w-full h-[320px] mt-[15px] p-1 items-center">
+            <div className="w-full flex items-start p-4">
+              <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
+            </div>
+            <div className="flex flex-col justify-center items-center w-full h-[60%]">
+              <Image src="/icons/Request Approved.png" alt="Checkmark" width={60} height={60} />
+              <strong className="text-[18px]">{submissionTitle[langOption]}</strong>
+              <h5>{submissionSubtitle[langOption]}</h5>
+              <div className="bg-[#3F5EBB] text-white p-4 rounded-lg mt-4">
+                <ol className="list-decimal list-inside space-y-2 text-left text-[14px]">
+                  <li>{submissionSteps[langOption][0]}</li>
+                  <li>{submissionSteps[langOption][1]}</li>
+                  <li>{submissionSteps[langOption][2]}</li>
+                </ol>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <div className="flex flex-row justify-start">
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button
+                className="bg-white text-[#405BA9] hover:bg-white hover:opacity-100 hover:shadow-none"
+                type="button"
+              >
+                {langOptions[langOption]}
+                <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => setLangOption(0)}>{langOptions[0]}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLangOption(1)}>{langOptions[1]}</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    );
+  }
 };
 
 export default BusinessSignupApplication;
