@@ -158,7 +158,14 @@ const BusinessSignupApplication = () => {
   });
 
   const [firstErrorMessage, setFirstErrorMessage] = useState("");
+  const changeLanguage = (val: number) => {
+    setLangOption(val);
+    if (firstErrorMessage !== "") {
+      setFirstErrorMessage(errorMsgs[val]);
+    }
+  };
 
+  // for fourth page: Payment Information
   const displayPaymentInfo = () => {
     const englishPlans = ["Annual Membership Investment", "Ribbon Cutting", "Additional Category"];
     const spanishPlans = ["Inversión Anual de Membresía", "Corte de Cinta", "Categoría Adicional"];
@@ -188,15 +195,16 @@ const BusinessSignupApplication = () => {
     }
   };
 
+  // validate form entries
+  const errorMsgs = [
+    "Missing data or data is improperly formatted.",
+    "Faltan datos o los datos tienen un formato incorrecto.",
+  ];
   const validateData = () => {
-    const msgs = [
-      "Missing data or data is improperly formatted.",
-      "Faltan datos o los datos tienen un formato incorrecto.",
-    ];
     trigger()
       .then((result) => {
         if (!result) {
-          setFirstErrorMessage(msgs[langOption]);
+          setFirstErrorMessage(errorMsgs[langOption]);
         } else {
           setFirstErrorMessage("");
           setStep(Math.min(numPages, step + 1));
@@ -584,8 +592,10 @@ const BusinessSignupApplication = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setLangOption(0)}>{langOptions[0]}</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setLangOption(1)}>{langOptions[1]}</DropdownMenuItem>
+              {/* <DropdownMenuItem onClick={() => setLangOption(0)}>{langOptions[0]}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLangOption(1)}>{langOptions[1]}</DropdownMenuItem> */}
+              <DropdownMenuItem onClick={() => changeLanguage(0)}>{langOptions[0]}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => changeLanguage(1)}>{langOptions[1]}</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
