@@ -195,6 +195,15 @@ const BusinessSignupApplication = () => {
     }
   };
 
+  const formatMoneyValue = (input: string) => {
+    // Remove $ and commas
+    const cleaned = input.replace(/[$,]/g, "");
+    // Ensure valid float format
+    const floatVal = parseFloat(cleaned);
+    // Return as string with two decimal places
+    return isNaN(floatVal) ? "" : floatVal.toFixed(2);
+  };
+
   // validate form entries
   const errorMsgs = [
     "Missing data or data is improperly formatted.",
@@ -314,6 +323,7 @@ const BusinessSignupApplication = () => {
   };
 
   const renderStepForm = () => {
+    console.log(getValues("contactInfo.phoneNumber"));
     switch (step) {
       case 1:
         return (
@@ -382,7 +392,13 @@ const BusinessSignupApplication = () => {
                   type="text"
                   id="PhysicalAddress-ZIP"
                   placeholder={businessInfoFieldNames[langOption][7]}
-                  {...register("businessInfo.physicalAddress.zip", { required: "ZIP is required" })}
+                  {...register("businessInfo.physicalAddress.zip", {
+                    required: "ZIP is required",
+                    pattern: {
+                      value: /^\d{5}$/, // Ensures exactly 5 digits
+                      message: "ZIP code must be exactly 5 digits",
+                    },
+                  })}
                 />
               </div>
 
@@ -466,7 +482,16 @@ const BusinessSignupApplication = () => {
                   type="text"
                   id="PhoneNumber"
                   placeholder={contactInfoFieldNames[langOption][2]}
-                  {...register("contactInfo.phoneNumber", { required: "Phone Number is required" })}
+                  {...register("contactInfo.phoneNumber", {
+                    required: "Phone Number is required",
+                    pattern: {
+                      value: /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
+                      message: "Phone Number must have nine digits.",
+                    },
+                    onChange: (e) => {
+                      e.target.value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+                    },
+                  })}
                 />
                 <Input
                   key={`contactCellNumber-${step}`}
@@ -474,7 +499,15 @@ const BusinessSignupApplication = () => {
                   type="text"
                   id="CellNumber"
                   placeholder={contactInfoFieldNames[langOption][3]}
-                  {...register("contactInfo.cellNumber")}
+                  {...register("contactInfo.cellNumber", {
+                    pattern: {
+                      value: /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
+                      message: "Cell Number must have ten digits.",
+                    },
+                    onChange: (e) => {
+                      e.target.value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+                    },
+                  })}
                 />
               </div>
 
@@ -545,8 +578,14 @@ const BusinessSignupApplication = () => {
               className="w-[350px] border-[#8C8C8C] mt-[140px] ml-[40px]"
               type="text"
               id="AmountPaid"
-              placeholder={langOption == 0 ? "Amount Paid*" : "Monto Pagado*"}
-              {...register("amountPaid", { required: "Amount Paid is required" })}
+              placeholder={langOption == 0 ? "Amount Paid ($)*" : "Monto Pagado ($)*"}
+              {...register("amountPaid", {
+                required: "Amount Paid is required",
+                pattern: {
+                  value: /^\$?\d{1,3}(,\d{3})*(\.\d{2})?$/,
+                  message: "Not in familiar format.",
+                },
+              })}
             />
             <div className="w-[350px] mt-[10px] ml-[25px]">
               {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
