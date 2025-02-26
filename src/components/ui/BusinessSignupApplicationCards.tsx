@@ -731,7 +731,7 @@ const BusinessSignupApplication = () => {
           <DropdownMenu>
             <DropdownMenuTrigger>
               <Button
-                className="bg-white text-[#405BA9] hover:bg-white hover:opacity-100 hover:shadow-none"
+                className="bg-[#293241] text-white hover:text-blue-500 hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
                 type="button"
               >
                 {langOptions[langOption]}
@@ -774,7 +774,7 @@ const BusinessSignupApplication = () => {
           <DropdownMenu>
             <DropdownMenuTrigger>
               <Button
-                className="bg-white text-[#405BA9] hover:bg-white hover:opacity-100 hover:shadow-none"
+                className="bg-[#293241] text-white hover:text-blue-500 hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
                 type="button"
               >
                 {langOptions[langOption]}
