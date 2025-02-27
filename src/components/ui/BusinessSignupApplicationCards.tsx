@@ -11,38 +11,36 @@ import { Button } from "./button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
 
 interface BusinessSignupAppInfo {
-  contactInfo: BusinessContactInfo;
-  businessInfo: BusinessInfo;
-  socialLinks?: SocialLink[];
-}
-
-interface BusinessContactInfo {
-  name: string;
-  title: string;
-  phoneNumber?: string;
-  cellNumber?: string;
-  email: string;
-}
-
-interface BusinessInfo {
-  name: string;
-  websiteURL?: string;
-  numEmployees?: string;
-  physicalAddress: Address;
-  mailingAddress: Address;
-}
-
-interface Address {
-  address: string;
-  city: string;
-  state: string;
-  zip: string;
-}
-
-type SocialPlatform = "Facebook" | "Instagram" | "X" | "LinkedIn";
-interface SocialLink {
-  platform: SocialPlatform;
-  handle: string;
+  contactInfo: {
+    name: string;
+    title: string;
+    phoneNumber?: string;
+    cellNumber?: string;
+    email: string;
+  };
+  businessInfo: {
+    name: string;
+    websiteURL?: string;
+    numEmployees?: string;
+    physicalAddress: {
+      address: string;
+      city: string;
+      state: string;
+      zip: string;
+    };
+    mailingAddress: {
+      address: string;
+      city: string;
+      state: string;
+      zip: string;
+    };
+  };
+  socialLinks: {
+    Instagram?: string;
+    X?: string;
+    Facebook?: string;
+    LinkedIn?: string;
+  };
 }
 
 const BusinessSignupApplication = () => {
@@ -169,7 +167,7 @@ const BusinessSignupApplication = () => {
         physicalAddress: { address: "", city: "", state: "", zip: "" },
         mailingAddress: { address: "", city: "", state: "", zip: "" },
       },
-      socialLinks: [],
+      socialLinks: { Instagram: "", Facebook: "", X: "", LinkedIn: "" },
     },
   });
 
@@ -241,9 +239,32 @@ const BusinessSignupApplication = () => {
       });
   };
 
+  const gatherAllData = async () => {
+    const isValid = await trigger();
+
+    if (!isValid) throw new Error("Problem getting inputs from form.");
+
+    const formValues = getValues();
+    const businessData = {
+      ...formValues,
+      businessInfo: {
+        ...formValues.businessInfo,
+        physicalAddress: {
+          ...formValues.businessInfo.physicalAddress,
+          zip: Number(formValues.businessInfo.physicalAddress.zip),
+        },
+        mailingAddress: {
+          ...formValues.businessInfo.mailingAddress,
+          zip: Number(formValues.businessInfo.mailingAddress.zip),
+        },
+      },
+    };
+
+    console.log(formValues);
+  };
+
   // Step navigation (step # corresponds to which modal displays)
   const nextStep = () => {
-    console.log(getValues());
     switch (step) {
       case 1: // business information page
         if (isMailingAddressSame) {
@@ -265,6 +286,7 @@ const BusinessSignupApplication = () => {
         validateData();
         break;
       case 5: // payment method page
+        gatherAllData();
         setStep(Math.min(numPages, step + 1));
     }
   };
@@ -275,20 +297,6 @@ const BusinessSignupApplication = () => {
 
   // handle business addresses
   const [isMailingAddressSame, setIsMailingAddressSame] = useState(false);
-
-  // populate the businessInfo structure with inputs form the form
-
-  // populate the socialLinks list with inputs from the form
-  const handleSocialLinkInputs = (platform: SocialPlatform, str: string) => {
-    const updatedLinks = getValues("socialLinks") || [];
-    const newLinks = updatedLinks.filter((link) => link.platform !== platform);
-
-    if (str) {
-      newLinks.push({ platform, handle: str });
-    }
-
-    setValue("socialLinks", newLinks);
-  };
 
   // handle rendering of nav buttons with defaults set
   const renderNavButtons = (back: boolean = true, submit: boolean = false) => {
@@ -557,7 +565,12 @@ const BusinessSignupApplication = () => {
                   type="text"
                   id="Facebook"
                   placeholder="Facebook"
-                  onChange={(e) => handleSocialLinkInputs("Facebook", e.target.value)}
+                  {...register("socialLinks.Facebook", {
+                    pattern: {
+                      value: /^@/,
+                      message: "Not in a familiar format.",
+                    },
+                  })}
                 />
               </div>
               <div>
@@ -566,7 +579,12 @@ const BusinessSignupApplication = () => {
                   type="text"
                   id="Instagram"
                   placeholder="Instagram"
-                  onChange={(e) => handleSocialLinkInputs("Instagram", e.target.value)}
+                  {...register("socialLinks.Instagram", {
+                    pattern: {
+                      value: /^@/,
+                      message: "Not in a familiar format.",
+                    },
+                  })}
                 />
               </div>
               <div>
@@ -575,16 +593,12 @@ const BusinessSignupApplication = () => {
                   type="text"
                   id="X"
                   placeholder="X"
-                  onChange={(e) => handleSocialLinkInputs("X", e.target.value)}
-                />
-              </div>
-              <div>
-                <Input
-                  className="w-[250px] border-[#8C8C8C]"
-                  type="text"
-                  id="LinkedIn"
-                  placeholder="LinkedIn"
-                  onChange={(e) => handleSocialLinkInputs("LinkedIn", e.target.value)}
+                  {...register("socialLinks.X", {
+                    pattern: {
+                      value: /^@/,
+                      message: "Not in a familiar format.",
+                    },
+                  })}
                 />
               </div>
             </div>
