@@ -1,19 +1,44 @@
 import mongoose from "mongoose";
 
-const url: string = process.env.MONGO_URI as string;
-let connection: typeof mongoose;
+const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/hba_dev";
+let connection: typeof mongoose | null = null;
 
-/**
- * Makes a connection to a MongoDB database. If a connection already exists, does nothing
- * Call this function before all api routes
- * @returns {Promise<typeof mongoose>}
- */
 const connectDB = async () => {
-  if (!connection) {
-    // uncomment this line once you have the MONGO_URI set up
-    // connection = await mongoose.connect(url);
-    connection = "remove me" as any; // remove me
+  try {
+    if (connection) {
+      return connection;
+    }
+
+    if (!process.env.MONGO_URI) {
+      if (process.env.NODE_ENV === "development") {
+        connection = mongoose;
+        return connection;
+      }
+    }
+
+    const opts = {
+      serverSelectionTimeoutMS: 5000,
+      maxPoolSize: 10,
+    };
+
+    connection = await mongoose.connect(MONGO_URI, opts);
+
+    mongoose.connection.on("error", (err) => {
+      console.error(`MongoDB connection error: ${err.message}`);
+    });
+
     return connection;
+  } catch (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error connecting to MongoDB:", error);
+    }
+
+    if (process.env.NODE_ENV === "development") {
+      connection = mongoose;
+      return connection;
+    }
+
+    throw error;
   }
 };
 
