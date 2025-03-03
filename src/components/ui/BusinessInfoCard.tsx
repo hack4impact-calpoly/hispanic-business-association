@@ -20,88 +20,73 @@ interface BusinessInfo {
 
 interface BusinessInfoCardProps {
   info?: BusinessInfo;
+  className?: string;
 }
 
-const BusinessInfoCard = ({ info }: BusinessInfoCardProps) => {
+const BusinessInfoCard = ({ info, className = "" }: BusinessInfoCardProps) => {
   const router = useRouter();
 
-  const businessInfo = info ?? {
-    name: "HALO Hair Studio",
-    type: "Beauty & Personal Care",
-    owner: "Selena Lilies",
-    website: "https://halohairpasorobles.com/",
-    address: {
-      street: "1413 Riverside Ave.",
-      suite: "Suite G",
-      city: "Paso Robles",
-      state: "CA",
-      zip: "93446",
-    },
-  };
-
   return (
-    <Card className="relative w-[544px] h-[292px] border border-[#8C8C8C] bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg">
+    <Card
+      className={`relative w-full md:w-[544px] h-[292px] border border-[#8C8C8C] bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg overflow-hidden ${className}`}
+    >
       <CardHeader className="relative w-full px-[21px] pt-[19px] pb-0">
         <div>
           <div className="flex justify-between items-center">
             <h2 className="w-[298.72px] h-[21px] text-[16px] font-bold text-[#293241] font-['Futura'] leading-[21.26px] truncate">
               BUSINESS INFORMATION
             </h2>
-            <button onClick={() => router.push("/dashboard-edit-about")} className="absolute top-5 right-6">
+            <button onClick={() => router.push("/business/edit")} className="absolute top-5 right-6">
               <Image src="/icons/Edit.png" alt="Edit" width={20} height={20} />
             </button>
           </div>
-          <div className="h-[1px] bg-[#BEBEBE] mt-4 mb-6 w-[503px]" />
+          <div className="h-[1px] bg-[#BEBEBE] mt-4 mb-6 w-full max-w-[503px]" />
         </div>
       </CardHeader>
-      <CardContent className="px-[27.38px] pt-0">
-        <div className="flex justify-between">
+      <CardContent className="px-[27.38px] pt-0 pb-[31px]">
+        <div className="grid grid-cols-2 gap-x-4">
           <div className="space-y-[26px]">
             <div>
-              <p className="w-[134.29px] h-[16px] text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px] truncate">
-                Business Name
-              </p>
-              <p className="w-[182.25px] h-[19px] text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] truncate">
-                {businessInfo.name}
+              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">Business Name</p>
+              <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words pr-2">
+                {info?.name || <span className="text-gray-400 italic">Not provided</span>}
               </p>
             </div>
             <div>
-              <p className="w-[123.32px] h-[16px] text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px] truncate">
-                Business Type
-              </p>
-              <p className="w-[246.65px] h-[19px] text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] truncate">
-                {businessInfo.type}
+              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">Business Type</p>
+              <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words pr-2">
+                {info?.type || <span className="text-gray-400 italic">Not provided</span>}
               </p>
             </div>
             <div>
-              <p className="w-[61.66px] h-[16px] text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px] truncate">
-                Owner
-              </p>
-              <p className="w-[126.07px] h-[19px] text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] truncate">
-                {businessInfo.owner}
+              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">Owner</p>
+              <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words pr-2">
+                {info?.owner || <span className="text-gray-400 italic">Not provided</span>}
               </p>
             </div>
           </div>
           <div className="space-y-[26px]">
             <div>
-              <p className="w-[72.62px] h-[16px] text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px] truncate">
-                Website
-              </p>
-              <p className="w-[238.43px] h-[38px] text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
-                {businessInfo.website}
+              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">Website</p>
+              <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
+                {info?.website || <span className="text-gray-400 italic">Not provided</span>}
               </p>
             </div>
             <div>
-              <p className="w-[72.62px] h-[16px] text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px] truncate">
-                Address
-              </p>
-              <p className="w-[238.43px] h-[57px] text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] overflow-hidden">
-                {businessInfo.address.street}
-                <br />
-                {businessInfo.address.suite}
-                <br />
-                {businessInfo.address.city}, {businessInfo.address.state} {businessInfo.address.zip}
-              </p>
+              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">Address</p>
+              {info?.address ? (
+                <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
+                  {info.address.street}
+                  {info.address.suite && <br />}
+                  {info.address.suite}
+                  <br />
+                  {info.address.city}, {info.address.state} {info.address.zip}
+                </p>
+              ) : (
+                <p className="text-[14px] font-bold text-gray-400 italic font-['Futura'] leading-[18.61px]">
+                  Address not available
+                </p>
+              )}
             </div>
           </div>
         </div>
