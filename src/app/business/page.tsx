@@ -106,6 +106,7 @@ export default function BusinessDashboardPage() {
   const { userId, isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
 
+  // Modify this when schema supports join date
   const memberSince = "November 2023";
 
   const fetchBusinessData = async () => {
@@ -244,7 +245,7 @@ export default function BusinessDashboardPage() {
         <div className="mx-5 md:ml-[60px] md:mr-[40px] max-w-full mt-[90px]">
           <div className="flex flex-wrap justify-between items-start md:w-[1155px] w-full">
             <h2 className="text-2xl font-medium text-black">Welcome, {businessData.businessName}</h2>
-            <div className="text-sm text-zinc-500 text-right">Member since {memberSince}</div>
+            <div className="text-sm text-zinc-500 text-right mr-1 pt-2">Member since {memberSince}</div>
           </div>
 
           <div className="flex items-center gap-2 px-5 py-3 mt-5 w-full md:w-[1155px] h-[38px] text-sm font-medium text-red-600 rounded-[15px] bg-red-100 border border-red-200">
