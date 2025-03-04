@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 type NavigationItem = {
@@ -16,33 +16,82 @@ type NavigationItem = {
 export default function DesktopSidebar() {
   const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [userRole, setUserRole] = useState<string>("business");
 
-  const navigation: NavigationItem[] = [
-    {
-      name: "Dashboard",
-      href: "/business",
-      icon: "/icons/Home.png",
-      current: pathname === "/business",
-    },
-    {
-      name: "Inbox",
-      href: "/business/inbox",
-      icon: "/icons/Check Inbox.png",
-      current: pathname === "/business/inbox",
-    },
-    {
-      name: "Update Information",
-      href: "/business/update",
-      icon: "/icons/Change.png",
-      current: pathname === "/business/update",
-    },
-    {
-      name: "Application",
-      href: "/business/application",
-      icon: "/icons/Application Form.png",
-      current: pathname === "/business/application",
-    },
-  ];
+  useEffect(() => {
+    async function fetchUserRole() {
+      try {
+        const response = await fetch(`${window.location.origin}/api/user`, {
+          method: "GET",
+        });
+        if (!response.ok) throw new Error("Failed to fetch role");
+
+        const data = await response.json();
+        setUserRole(data.role);
+      } catch (error) {
+        console.error("Error fetching user role:", error);
+      }
+    }
+
+    fetchUserRole();
+  }, []);
+
+  const navigationItems: Record<string, NavigationItem[]> = {
+    business: [
+      {
+        name: "Dashboard",
+        href: "/business",
+        icon: "/icons/Home.png",
+        current: pathname === "/business",
+      },
+      {
+        name: "Inbox",
+        href: "/business/inbox",
+        icon: "/icons/Check Inbox.png",
+        current: pathname === "/business/inbox",
+      },
+      {
+        name: "Update Information",
+        href: "/business/update",
+        icon: "/icons/Change.png",
+        current: pathname === "/business/update",
+      },
+      {
+        name: "Application",
+        href: "/business/application",
+        icon: "/icons/Application Form.png",
+        current: pathname === "/business/application",
+      },
+    ],
+    admin: [
+      {
+        name: "Dashboard",
+        href: "/admin",
+        icon: "/icons/Home.png",
+        current: pathname === "/admin",
+      },
+      {
+        name: "Analytics",
+        href: "/admin/analytics",
+        icon: "/icons/Analytics.png",
+        current: pathname === "/admin/analytics",
+      },
+      {
+        name: "Requests",
+        href: "/admin/requests",
+        icon: "/icons/Requests.png",
+        current: pathname === "/admin/requests",
+      },
+      {
+        name: "Automations",
+        href: "/admin/automations",
+        icon: "/icons/Automation.png",
+        current: pathname === "/admin/automations",
+      },
+    ],
+  };
+
+  const navigation = navigationItems[userRole] || navigationItems.business;
 
   return (
     <div className="hidden md:flex md:flex-col md:fixed md:inset-y-0">
