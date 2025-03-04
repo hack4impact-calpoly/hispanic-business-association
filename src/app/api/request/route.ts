@@ -1,6 +1,7 @@
 import connectDB from "@/database/db";
 import { NextRequest, NextResponse } from "next/server";
 import requestSchema from "@/database/requestSchema";
+import { currentUser } from "@clerk/nextjs/server";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -42,4 +43,19 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     return NextResponse.json({ message: "Error occurred" }, { status: 500 });
   }
+}
+
+// get all requests in order of recency
+export async function GET() {
+  await connectDB();
+  const clerkUser = await currentUser();
+  if (!clerkUser) {
+    return NextResponse.json({ message: "User not logged in" }, { status: 401 });
+  }
+
+  const dbRequests = await requestSchema.find().sort({ date: -1 });
+  if (!dbRequests) {
+    return NextResponse.json({ message: "Requests not found" }, { status: 404 });
+  }
+  return NextResponse.json(dbRequests, { status: 200 });
 }
