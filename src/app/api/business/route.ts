@@ -45,3 +45,16 @@ export async function POST(req: Request) {
     return NextResponse.json(error, { status: 500 });
   }
 }
+
+// get business based on id
+export async function GET(req: Request) {
+  await connectDB();
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("clerkId");
+  const query = { clerkUserID: id };
+  const business = await Business.findOne(query);
+  if (!business) {
+    return NextResponse.json({ message: "Business not found" }, { status: 404 });
+  }
+  return NextResponse.json(business, { status: 200 });
+}
