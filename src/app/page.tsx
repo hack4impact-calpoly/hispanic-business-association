@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 let useSignIn: any;
 let useClerk: any;
@@ -22,7 +22,24 @@ if (typeof window !== "undefined") {
   useAuth = () => ({ isLoaded: false, userId: null, isSignedIn: false });
 }
 
-export default function Login() {
+function LoginLoading() {
+  return (
+    <div className="flex h-screen items-center justify-center bg-gray-900">
+      <Card className="w-full max-w-md">
+        <CardContent className="p-8 flex justify-center items-center">
+          <div className="text-center">
+            <div className="animate-pulse mb-4">
+              <div className="w-32 h-32 bg-gray-300 rounded-full mx-auto"></div>
+            </div>
+            <p className="text-gray-400">Loading...</p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function LoginContent() {
   const [formData, setFormData] = useState<{ username: string; password: string }>({
     username: "",
     password: "",
@@ -30,13 +47,22 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
+  const [redirectUrl, setRedirectUrl] = useState("/business");
 
   const { signIn, isLoaded: signInLoaded } = useSignIn();
   const { isLoaded: authLoaded, userId, isSignedIn } = useAuth();
   const clerk = useClerk();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get("redirect_url") || "/business";
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get("redirect_url");
+      if (redirect) {
+        setRedirectUrl(redirect);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -184,5 +210,13 @@ export default function Login() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function Login() {
+  return (
+    <Suspense fallback={<LoginLoading />}>
+      <LoginContent />
+    </Suspense>
   );
 }
