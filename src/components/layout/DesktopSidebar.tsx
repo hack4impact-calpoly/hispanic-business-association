@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 
 type NavigationItem = {
@@ -13,85 +13,125 @@ type NavigationItem = {
   current: boolean;
 };
 
+const USER_ROLE_KEY = "hba_user_role";
+
 export default function DesktopSidebar() {
   const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(false);
   const [userRole, setUserRole] = useState<string>("business");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchUserRole() {
       try {
-        const response = await fetch(`${window.location.origin}/api/user`, {
+        const cachedRole = sessionStorage.getItem(USER_ROLE_KEY);
+        if (cachedRole) {
+          setUserRole(cachedRole);
+          setIsLoading(false);
+          return;
+        }
+
+        const timestamp = new Date().getTime();
+        const response = await fetch(`${window.location.origin}/api/user?_t=${timestamp}`, {
           method: "GET",
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            Pragma: "no-cache",
+          },
         });
+
         if (!response.ok) throw new Error("Failed to fetch role");
 
         const data = await response.json();
         setUserRole(data.role);
+
+        sessionStorage.setItem(USER_ROLE_KEY, data.role);
       } catch (error) {
         console.error("Error fetching user role:", error);
+      } finally {
+        setIsLoading(false);
       }
     }
 
     fetchUserRole();
   }, []);
 
-  const navigationItems: Record<string, NavigationItem[]> = {
-    business: [
-      {
-        name: "Dashboard",
-        href: "/business",
-        icon: "/icons/Home.png",
-        current: pathname === "/business",
-      },
-      {
-        name: "Inbox",
-        href: "/business/inbox",
-        icon: "/icons/Check Inbox.png",
-        current: pathname === "/business/inbox",
-      },
-      {
-        name: "Update Information",
-        href: "/business/update",
-        icon: "/icons/Change.png",
-        current: pathname === "/business/update",
-      },
-      {
-        name: "Application",
-        href: "/business/application",
-        icon: "/icons/Application Form.png",
-        current: pathname === "/business/application",
-      },
-    ],
-    admin: [
-      {
-        name: "Dashboard",
-        href: "/admin",
-        icon: "/icons/Home.png",
-        current: pathname === "/admin",
-      },
-      {
-        name: "Analytics",
-        href: "/admin/analytics",
-        icon: "/icons/Analytics.png",
-        current: pathname === "/admin/analytics",
-      },
-      {
-        name: "Requests",
-        href: "/admin/requests",
-        icon: "/icons/Requests.png",
-        current: pathname === "/admin/requests",
-      },
-      {
-        name: "Automations",
-        href: "/admin/automations",
-        icon: "/icons/Automation.png",
-        current: pathname === "/admin/automations",
-      },
-    ],
-  };
+  const navigationItems = useMemo(() => {
+    const items: Record<string, NavigationItem[]> = {
+      business: [
+        {
+          name: "Dashboard",
+          href: "/business",
+          icon: "/icons/Home.png",
+          current: pathname === "/business",
+        },
+        {
+          name: "Inbox",
+          href: "/business/inbox",
+          icon: "/icons/Check Inbox.png",
+          current: pathname === "/business/inbox",
+        },
+        {
+          name: "Update Information",
+          href: "/business/update",
+          icon: "/icons/Change.png",
+          current: pathname === "/business/update",
+        },
+        {
+          name: "Application",
+          href: "/business/application",
+          icon: "/icons/Application Form.png",
+          current: pathname === "/business/application",
+        },
+      ],
+      admin: [
+        {
+          name: "Dashboard",
+          href: "/admin",
+          icon: "/icons/Home.png",
+          current: pathname === "/admin",
+        },
+        {
+          name: "Analytics",
+          href: "/admin/analytics",
+          icon: "/icons/Analytics.png",
+          current: pathname === "/admin/analytics",
+        },
+        {
+          name: "Requests",
+          href: "/admin/requests",
+          icon: "/icons/Requests.png",
+          current: pathname === "/admin/requests",
+        },
+        {
+          name: "Automations",
+          href: "/admin/automations",
+          icon: "/icons/Automation.png",
+          current: pathname === "/admin/automations",
+        },
+      ],
+    };
 
-  const navigation = navigationItems[userRole] || navigationItems.business;
+    return items[userRole] || items.business;
+  }, [userRole, pathname]);
+
+  if (isLoading) {
+    return (
+      <div className="hidden md:flex md:flex-col md:fixed md:inset-y-0">
+        <div className={cn("flex flex-col h-screen transition-all duration-300 w-[99px] bg-[#293241]")}>
+          <div className="flex justify-center mt-8">
+            <div className="w-8 h-8 bg-gray-600 rounded-md animate-pulse"></div>
+          </div>
+          <div className="flex flex-col items-center mt-12 space-y-8">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="w-8 h-8 bg-gray-600 rounded-md animate-pulse"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="hidden md:flex md:flex-col md:fixed md:inset-y-0">
@@ -126,7 +166,7 @@ export default function DesktopSidebar() {
             isExpanded && "ml-0 space-y-[30px]",
           )}
         >
-          {navigation.map((item) => (
+          {navigationItems.map((item) => (
             <Link
               key={item.name}
               href={item.href}
@@ -135,8 +175,8 @@ export default function DesktopSidebar() {
                 isExpanded
                   ? "ml-[16px] w-[328px] h-[45px] rounded-[5px] pl-[18px]"
                   : "w-[30px] h-[30px] space-y-[100px]",
-                isExpanded && item.name === "Dashboard" && "bg-[#3E495C]",
-                isExpanded && item.name !== "Dashboard" && "bg-[#293241]",
+                isExpanded && item.current && "bg-[#3E495C]",
+                isExpanded && !item.current && "bg-[#293241]",
                 "hover:bg-[#1F2530]",
               )}
             >
