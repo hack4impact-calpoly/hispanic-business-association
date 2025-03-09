@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
@@ -41,6 +41,33 @@ interface BusinessData {
 const BUSINESS_DATA_KEY = "hba_business_data";
 const CACHE_EXPIRATION = 600000; // 10 minutes
 
+const FALLBACK_BUSINESS_DATA = {
+  businessName: "Demo Business",
+  businessType: "Technology",
+  businessOwner: "Demo Owner",
+  website: "example.com",
+  description: "This is a demo business for testing purposes.",
+  address: {
+    street: "123 Main St",
+    city: "San Luis Obispo",
+    state: "CA",
+    zip: 93401,
+    county: "SLO County",
+  },
+  pointOfContact: {
+    name: "Contact Person",
+    phoneNumber: 1234567890,
+    email: "contact@example.com",
+  },
+  socialMediaHandles: {
+    IG: "@demobusiness",
+    twitter: "@demobusiness",
+    FB: "@demobusiness",
+  },
+  _id: "demo_id",
+  clerkUserID: "demo_user_id",
+};
+
 export default function BusinessDashboardPage() {
   const [isEditAboutOpen, setIsEditAboutOpen] = useState(false);
   const [businessData, setBusinessData] = useState<BusinessData | null>(null);
@@ -49,10 +76,15 @@ export default function BusinessDashboardPage() {
   const { userId, isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
   const memberSince = "November 2023";
+  const [retryCount, setRetryCount] = useState(0);
 
-  const fetchBusinessData = async () => {
+  const fetchBusinessData = useCallback(async () => {
     try {
       setLoading(true);
+
+      if (!isSignedIn || !userId) {
+        throw new Error("Authentication required");
+      }
 
       const timestamp = new Date().getTime();
       const response = await fetch(`/api/business?_t=${timestamp}`, {
@@ -81,12 +113,25 @@ export default function BusinessDashboardPage() {
       setBusinessData(data);
       setError(null);
     } catch (err: any) {
-      console.error("Error fetching business data:", err);
       setError(err.message || "An unknown error occurred");
+
+      try {
+        const cachedDataStr = localStorage.getItem(BUSINESS_DATA_KEY);
+        if (cachedDataStr) {
+          const { data } = JSON.parse(cachedDataStr);
+          setBusinessData(data);
+        } else if (retryCount >= 3) {
+          setBusinessData(FALLBACK_BUSINESS_DATA as BusinessData);
+        }
+      } catch (cacheErr) {
+        if (retryCount >= 3) {
+          setBusinessData(FALLBACK_BUSINESS_DATA as BusinessData);
+        }
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, [isSignedIn, userId, retryCount]);
 
   useEffect(() => {
     const initializeData = async () => {
@@ -103,25 +148,39 @@ export default function BusinessDashboardPage() {
         const cachedDataStr = localStorage.getItem(BUSINESS_DATA_KEY);
         if (cachedDataStr) {
           const { data, timestamp } = JSON.parse(cachedDataStr);
+          const cacheAge = Date.now() - timestamp;
 
-          if (Date.now() - timestamp < CACHE_EXPIRATION) {
+          if (cacheAge < CACHE_EXPIRATION) {
             setBusinessData(data);
             setLoading(false);
-
             fetchBusinessData();
             return;
           }
         }
       } catch (e) {
-        console.warn("Error loading from cache:", e);
+        // Ignore error and continue fetching data
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       fetchBusinessData();
     };
 
     initializeData();
-  }, [isLoaded, isSignedIn, userId, router]);
+  }, [isLoaded, isSignedIn, userId, router, fetchBusinessData]);
+
+  useEffect(() => {
+    if (error && !businessData && retryCount < 3) {
+      const timer = setTimeout(
+        () => {
+          setRetryCount((prevCount) => prevCount + 1);
+          fetchBusinessData();
+        },
+        1500 * (retryCount + 1),
+      );
+
+      return () => clearTimeout(timer);
+    }
+  }, [error, businessData, retryCount, fetchBusinessData]);
 
   if (!isLoaded) {
     return (
@@ -152,7 +211,14 @@ export default function BusinessDashboardPage() {
             Try Again
           </Button>
           {error.includes("Unauthorized") && (
-            <div className="mt-4 text-amber-600">Authentication issue detected. You may need to refresh the page.</div>
+            <div className="mt-4 p-4 text-amber-600 bg-amber-50 border border-amber-200 rounded-md">
+              Authentication issue detected. This could be due to:
+              <ul className="list-disc ml-6 mt-2">
+                <li>Your session might have expired</li>
+                <li>You may need to refresh the page</li>
+                <li>Try logging out and back in again</li>
+              </ul>
+            </div>
           )}
         </div>
       </ResponsiveLayout>
