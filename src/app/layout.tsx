@@ -3,11 +3,7 @@ import "@/styles/global.css";
 
 const isStaticBuild = process.env.NEXT_PHASE === "phase-production-build";
 
-function AuthWrapper({ children }: { children: React.ReactNode }) {
-  if (isStaticBuild) {
-    return <>{children}</>;
-  }
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider
       appearance={{
@@ -16,18 +12,13 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
           colorPrimary: "#405BA9",
         },
       }}
+      publishableKey={
+        isStaticBuild ? "pk_test_Y2xlcmsuYmVzdC5wYXRoLTcxLmxjbC5kZXYk" : process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+      }
     >
-      {children}
+      <html lang="en">
+        <body>{children}</body>
+      </html>
     </ClerkProvider>
-  );
-}
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body>
-        <AuthWrapper>{children}</AuthWrapper>
-      </body>
-    </html>
   );
 }

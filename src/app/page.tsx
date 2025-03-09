@@ -5,22 +5,8 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { useSignIn, useClerk, useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-
-let useSignIn: any;
-let useClerk: any;
-let useAuth: any;
-
-if (typeof window !== "undefined") {
-  const clerk = require("@clerk/nextjs");
-  useSignIn = clerk.useSignIn;
-  useClerk = clerk.useClerk;
-  useAuth = clerk.useAuth;
-} else {
-  useSignIn = () => ({ isLoaded: false, signIn: null });
-  useClerk = () => ({});
-  useAuth = () => ({ isLoaded: false, userId: null, isSignedIn: false });
-}
 
 function LoginLoading() {
   return (
@@ -49,9 +35,17 @@ function LoginContent() {
   const [status, setStatus] = useState<string | null>(null);
   const [redirectUrl, setRedirectUrl] = useState("/business");
 
-  const { signIn, isLoaded: signInLoaded } = useSignIn();
-  const { isLoaded: authLoaded, userId, isSignedIn } = useAuth();
-  const clerk = useClerk();
+  const signInHook = useSignIn();
+  const authHook = useAuth();
+  const clerkHook = useClerk();
+
+  const signIn = signInHook?.signIn;
+  const signInLoaded = signInHook?.isLoaded || false;
+  const authLoaded = authHook?.isLoaded || false;
+  const userId = authHook?.userId;
+  const isSignedIn = authHook?.isSignedIn || false;
+  const clerk = clerkHook;
+
   const router = useRouter();
 
   useEffect(() => {
@@ -66,8 +60,9 @@ function LoginContent() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (!authLoaded) return;
 
-    if (authLoaded && isSignedIn) {
+    if (isSignedIn) {
       setStatus("Already signed in! Redirecting to dashboard...");
 
       const redirectTimer = setTimeout(() => {
@@ -84,7 +79,7 @@ function LoginContent() {
   };
 
   const handleSignOut = async () => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !clerk) return;
 
     setIsLoading(true);
     setError(null);
@@ -101,9 +96,9 @@ function LoginContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !signIn) return;
 
-    if (!signInLoaded || !signIn) {
+    if (!signInLoaded) {
       setError("Authentication system is still initializing. Please try again.");
       return;
     }
@@ -120,7 +115,7 @@ function LoginContent() {
       if (result.status === "complete") {
         setStatus("Sign-in successful! Redirecting...");
 
-        if (result.createdSessionId) {
+        if (result.createdSessionId && clerk) {
           await clerk.setActive({ session: result.createdSessionId });
 
           setTimeout(() => {
@@ -214,9 +209,14 @@ function LoginContent() {
 }
 
 export default function Login() {
-  return (
-    <Suspense fallback={<LoginLoading />}>
-      <LoginContent />
-    </Suspense>
-  );
+  try {
+    return (
+      <Suspense fallback={<LoginLoading />}>
+        <LoginContent />
+      </Suspense>
+    );
+  } catch (error) {
+    console.error("Login component error:", error);
+    return <LoginLoading />;
+  }
 }
