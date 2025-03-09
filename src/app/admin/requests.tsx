@@ -1,40 +1,86 @@
 "use client";
 
-/**
- * TODO: Architectural Decision Needed
- *
- * This code currently exists as /admin/requests.tsx but needs proper placement in the Next.js app router structure.
- *
- * Options:
- * 1. If this is meant to be a standalone page for reviewing all requests:
- *    - Move to: /src/app/admin/requests/page.tsx
- *
- * 2. If this is meant to be a detailed view of a specific request:
- *    - Move to: /src/app/admin/requests/[id]/page.tsx
- *    - Add a parent route at /src/app/admin/requests/page.tsx that shows a list of requests
- *
- * 3. If this is meant to be a component used within other pages:
- *    - Move to: /src/components/admin/RequestsReview.tsx
- *
- * Current code shows a comparison view of old vs new business information with approve/deny actions.
- * Need to determine the proper user flow to decide placement.
- */
-
 import React from "react";
 import { useRouter } from "next/navigation";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import InformationCard from "@/components/ui/InformationCard";
 
+interface BusinessInfo {
+  businessName: string;
+  businessType: string;
+  businessOwner: string;
+  website: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zip: number;
+    county: string;
+  };
+  pointOfContact: {
+    name: string;
+    phoneNumber: number;
+    email: string;
+  };
+  socialMediaHandles: {
+    IG: string;
+    twitter: string;
+    FB: string;
+  };
+  description: string;
+}
+
 export default function RequestsPage() {
   const router = useRouter();
 
-  // TODO: replace placeholder with data
-  const oldInfo = {
+  const oldInfo: BusinessInfo = {
     businessName: "Business Name",
+    businessType: "Business Type",
+    businessOwner: "Business Owner",
+    website: "example.com",
+    address: {
+      street: "123 Main St",
+      city: "City",
+      state: "State",
+      zip: 12345,
+      county: "County",
+    },
+    pointOfContact: {
+      name: "Contact Name",
+      phoneNumber: 1234567890,
+      email: "contact@example.com",
+    },
+    socialMediaHandles: {
+      IG: "@instagram",
+      twitter: "@twitter",
+      FB: "@facebook",
+    },
+    description: "Business description",
   };
 
-  const newInfo = {
+  const newInfo: BusinessInfo = {
     businessName: "Business Name",
+    businessType: "Business Type",
+    businessOwner: "Business Owner",
+    website: "example.com",
+    address: {
+      street: "123 Main St",
+      city: "City",
+      state: "State",
+      zip: 12345,
+      county: "County",
+    },
+    pointOfContact: {
+      name: "Contact Name",
+      phoneNumber: 1234567890,
+      email: "contact@example.com",
+    },
+    socialMediaHandles: {
+      IG: "@instagram",
+      twitter: "@twitter",
+      FB: "@facebook",
+    },
+    description: "Business description",
   };
 
   return (
