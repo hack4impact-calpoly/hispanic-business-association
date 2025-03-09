@@ -1,18 +1,11 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import "@/styles/global.css";
 
-const DUMMY_PUBLISHABLE_KEY = "pk_test_dummy-key-for-ci-build";
+const isStaticBuild = process.env.NEXT_PHASE === "phase-production-build";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const publishableKey =
-    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
-    (process.env.NODE_ENV === "production" ? DUMMY_PUBLISHABLE_KEY : undefined);
-
-  if (!publishableKey && process.env.NODE_ENV === "development") {
-    console.warn(
-      "Warning: No NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY provided. " +
-        "Authentication features will not work properly in development mode.",
-    );
+function AuthWrapper({ children }: { children: React.ReactNode }) {
+  if (isStaticBuild) {
+    return <>{children}</>;
   }
 
   return (
@@ -23,11 +16,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           colorPrimary: "#405BA9",
         },
       }}
-      publishableKey={publishableKey}
     >
-      <html lang="en">
-        <body>{children}</body>
-      </html>
+      {children}
     </ClerkProvider>
+  );
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <AuthWrapper>{children}</AuthWrapper>
+      </body>
+    </html>
   );
 }
