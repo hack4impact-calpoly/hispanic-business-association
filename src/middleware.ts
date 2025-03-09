@@ -1,7 +1,5 @@
 import { getAuth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
-import connectDB from "@/database/db";
-import User from "@/database/userSchema";
 
 const isStaticBuild = process.env.NEXT_PHASE === "phase-production-build";
 
@@ -17,16 +15,7 @@ export default async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL("/sign-in", req.url));
     }
 
-    await connectDB();
-
-    const userObj = await User.findOne({ clerkUserId: userId });
-
-    if (!userObj) {
-      return NextResponse.redirect(new URL("/sign-in", req.url));
-    }
-
-    if (req.nextUrl.pathname.startsWith("/admin") && userObj.role !== "admin") {
-      return NextResponse.redirect(new URL("/business", req.url));
+    if (req.nextUrl.pathname.startsWith("/admin")) {
     }
 
     return NextResponse.next();
