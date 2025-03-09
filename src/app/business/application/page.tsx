@@ -4,8 +4,33 @@ import { useState } from "react";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import axios from "axios";
 
+interface FormData {
+  businessName: string;
+  businessType: string;
+  businessOwner: string;
+  website: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+    county: string;
+  };
+  pointOfContact: {
+    name: string;
+    phoneNumber: string;
+    email: string;
+  };
+  socialMediaHandles: {
+    IG: string;
+    twitter: string;
+    FB: string;
+  };
+  description: string;
+}
+
 export default function Page() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     businessName: "",
     businessType: "",
     businessOwner: "",
@@ -32,25 +57,48 @@ export default function Page() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    const keys = name.split("."); // Split the name to handle nested fields
+    const keys = name.split(".");
 
     if (keys.length === 1) {
-      // Top-level key (e.g., businessName)
       setFormData((prev) => ({
         ...prev,
         [name]: value,
       }));
     } else if (keys.length === 2) {
-      // Nested key (e.g., address.street or pointOfContact.name)
       const [parentKey, nestedKey] = keys;
 
-      setFormData((prev) => ({
-        ...prev,
-        [parentKey]: {
-          ...prev[parentKey as keyof FormData],
-          [nestedKey]: value,
-        },
-      }));
+      setFormData((prev) => {
+        if (parentKey === "address") {
+          return {
+            ...prev,
+            address: {
+              ...prev.address,
+              [nestedKey]: value,
+            },
+          };
+        } else if (parentKey === "pointOfContact") {
+          return {
+            ...prev,
+            pointOfContact: {
+              ...prev.pointOfContact,
+              [nestedKey]: value,
+            },
+          };
+        } else if (parentKey === "socialMediaHandles") {
+          return {
+            ...prev,
+            socialMediaHandles: {
+              ...prev.socialMediaHandles,
+              [nestedKey]: value,
+            },
+          };
+        }
+
+        return {
+          ...prev,
+          [name]: value,
+        };
+      });
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -188,7 +236,7 @@ export default function Page() {
               ZIP Code
             </label>
             <input
-              type="number"
+              type="text"
               id="address.zip"
               name="address.zip"
               value={formData.address.zip}
