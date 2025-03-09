@@ -1,32 +1,19 @@
 import connectDB from "@/database/db";
 import Business from "@/database/businessSchema";
 import { NextRequest, NextResponse } from "next/server";
-import { currentUser } from "@clerk/nextjs/server";
-
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+import { auth } from "@clerk/nextjs/server";
 
 export async function GET(request: NextRequest) {
   try {
-    await delay(300);
+    const { userId } = await auth();
 
-    let user = await currentUser();
-    let attempts = 0;
-
-    while (!user && attempts < 3) {
-      attempts++;
-      const delayTime = 300 * attempts;
-      await delay(delayTime);
-      user = await currentUser();
-    }
-
-    if (!user) {
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = user.id;
-
     try {
       await connectDB();
+
       let business = await Business.findOne({ clerkUserID: userId });
 
       if (!business) {
@@ -34,7 +21,7 @@ export async function GET(request: NextRequest) {
           clerkUserID: userId,
           businessName: "Demo Business",
           businessType: "Technology",
-          businessOwner: user.firstName || "Owner",
+          businessOwner: "Business Owner",
           website: "example.com",
           address: {
             street: "123 Main St",
@@ -44,9 +31,9 @@ export async function GET(request: NextRequest) {
             county: "SLO County",
           },
           pointOfContact: {
-            name: user.firstName || "Contact Person",
+            name: "Contact Person",
             phoneNumber: 1234567890,
-            email: user.emailAddresses[0]?.emailAddress || "example@example.com",
+            email: "example@example.com",
           },
           socialMediaHandles: {
             IG: "@demobusiness",
@@ -59,57 +46,44 @@ export async function GET(request: NextRequest) {
         try {
           const newBusiness = new Business(dummyBusiness);
           business = await newBusiness.save();
-        } catch (saveError: any) {
-          if (process.env.NODE_ENV === "development") {
-            console.error("Error saving demo business:", saveError.message);
-          }
+        } catch (saveError) {
           return NextResponse.json(dummyBusiness);
         }
       }
 
       return NextResponse.json(business);
-    } catch (dbError: any) {
-      if (process.env.NODE_ENV === "development") {
-        console.error("Database error:", dbError.message);
-
-        return NextResponse.json({
-          clerkUserID: userId,
-          businessName: "Mock Business",
-          businessType: "Demo",
-          businessOwner: user.firstName || "Owner",
-          website: "mockbusiness.com",
-          address: {
-            street: "123 Mock St",
-            city: "Mock City",
-            state: "CA",
-            zip: 12345,
-            county: "Mock County",
-          },
-          pointOfContact: {
-            name: user.firstName || "Mock Person",
-            phoneNumber: 1234567890,
-            email: user.emailAddresses[0]?.emailAddress || "mock@example.com",
-          },
-          socialMediaHandles: {
-            IG: "@mockbusiness",
-            twitter: "@mockbusiness",
-            FB: "@mockbusiness",
-          },
-          description: "This is a mock business account created because the database connection failed.",
-        });
-      }
-      throw dbError;
+    } catch (dbError) {
+      return NextResponse.json({
+        clerkUserID: userId,
+        businessName: "Mock Business",
+        businessType: "Demo",
+        businessOwner: "Owner",
+        website: "mockbusiness.com",
+        address: {
+          street: "123 Mock St",
+          city: "Mock City",
+          state: "CA",
+          zip: 12345,
+          county: "Mock County",
+        },
+        pointOfContact: {
+          name: "Mock Person",
+          phoneNumber: 1234567890,
+          email: "mock@example.com",
+        },
+        socialMediaHandles: {
+          IG: "@mockbusiness",
+          twitter: "@mockbusiness",
+          FB: "@mockbusiness",
+        },
+        description: "This is a mock business account created because the database connection failed.",
+      });
     }
   } catch (error: any) {
-    if (process.env.NODE_ENV === "development") {
-      console.error("Error in business endpoint:", error);
-    }
-
     return NextResponse.json(
       {
         error: "Failed to fetch business data",
         details: error.message,
-        stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
       },
       { status: 500 },
     );
