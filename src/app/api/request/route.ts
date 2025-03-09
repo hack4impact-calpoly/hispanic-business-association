@@ -1,61 +1,63 @@
 import connectDB from "@/database/db";
+import Request from "@/database/requestSchema";
 import { NextRequest, NextResponse } from "next/server";
-import requestSchema from "@/database/requestSchema";
 import { currentUser } from "@clerk/nextjs/server";
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-
-  if (body == null) {
-    return NextResponse.json({ message: "Request is empty" }, { status: 400 });
-  }
-
   try {
-    const request = {
-      clerkUserID: body["clerkUserID"],
-      businessName: body["businessName"],
-      businessType: body["businessType"],
-      businessOwner: body["businessOwner"],
-      website: body["website"],
-      address: {
-        street: body["address"]["street"],
-        city: body["address"]["city"],
-        state: body["address"]["state"],
-        zip: body["address"]["zip"],
-        county: body["address"]["county"],
-      },
-      pointOfContact: {
-        name: body["pointOfContact"]["name"],
-        phoneNumber: body["pointOfContact"]["phoneNumber"],
-        email: body["pointOfContact"]["email"],
-      },
-      socialMediaHandles: {
-        IG: body["socialMediaHandles"]["IG"],
-        twitter: body["socialMediaHandles"]["twitter"],
-        FB: body["socialMediaHandles"]["FB"],
-      },
-      description: body["description"],
-      date: body["date"],
-    };
+    const user = await currentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    if (!body) {
+      return NextResponse.json({ error: "Request body is missing" }, { status: 400 });
+    }
+
     await connectDB();
-    requestSchema.collection.insertOne(request);
-    return NextResponse.json(request, { status: 201 });
-  } catch (err) {
-    return NextResponse.json({ message: "Error occurred" }, { status: 500 });
+
+    const request = new Request({
+      clerkUserID: user.id,
+      description: body.description || null,
+      businessName: body.businessName || null,
+      businessType: body.businessType || null,
+      businessOwner: body.businessOwner || null,
+      website: body.website || null,
+      address: body.address || null,
+      pointOfContact: body.pointOfContact || null,
+      socialMediaHandles: body.socialMediaHandles || null,
+      date: new Date(),
+    });
+
+    await request.save();
+
+    return NextResponse.json(
+      {
+        message: "Change request submitted successfully",
+        requestId: request._id,
+      },
+      { status: 201 },
+    );
+  } catch (error: any) {
+    console.error("Error creating change request:", error);
+    return NextResponse.json({ error: "Failed to create change request", details: error.message }, { status: 500 });
   }
 }
 
-// get all requests in order of recency
-export async function GET() {
-  await connectDB();
-  const clerkUser = await currentUser();
-  if (!clerkUser) {
-    return NextResponse.json({ message: "User not logged in" }, { status: 401 });
-  }
+export async function GET(req: NextRequest) {
+  try {
+    const user = await currentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  const dbRequests = await requestSchema.find().sort({ date: -1 });
-  if (!dbRequests) {
-    return NextResponse.json({ message: "Requests not found" }, { status: 404 });
+    await connectDB();
+    const requests = await Request.find({ clerkUserID: user.id }).sort({ date: -1 });
+
+    return NextResponse.json(requests);
+  } catch (error: any) {
+    console.error("Error fetching requests:", error);
+    return NextResponse.json({ error: "Failed to fetch requests", details: error.message }, { status: 500 });
   }
-  return NextResponse.json(dbRequests, { status: 200 });
 }
