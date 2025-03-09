@@ -3,33 +3,42 @@
 import { useIsMobile } from "@/hooks/use-mobile";
 import DesktopLayout from "./DesktopLayout";
 import MobileLayout from "./MobileLayout";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo } from "react";
 
 interface ResponsiveLayoutProps {
   children: React.ReactNode;
   title: string;
 }
 
+const MemoizedDesktopLayout = memo(DesktopLayout);
+const MemoizedMobileLayout = memo(MobileLayout);
+
 export default function ResponsiveLayout({ children, title }: ResponsiveLayoutProps) {
   const isMobile = useIsMobile();
-  const [renderLayout, setRenderLayout] = useState(false); // Initially false
+  const [renderLayout, setRenderLayout] = useState(false);
 
   useEffect(() => {
-    // Delay the render slightly to avoid initial flicker
-    const timeoutId = setTimeout(() => {
-      setRenderLayout(true);
-    }, 50); // Adjust the delay as needed
+    const cachedLayoutType = sessionStorage.getItem("hba_layout_type");
 
-    return () => clearTimeout(timeoutId); // Cleanup timeout
-  }, []); // Run only once on mount
+    if (cachedLayoutType) {
+      setRenderLayout(true);
+    } else {
+      const timeoutId = setTimeout(() => {
+        setRenderLayout(true);
+        sessionStorage.setItem("hba_layout_type", isMobile ? "mobile" : "desktop");
+      }, 50);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isMobile]);
 
   if (!renderLayout) {
-    // Optionally, show a loading state or a blank screen
-    return null; // Or <LoadingIndicator />;
+    return <div className="h-screen w-screen bg-white"></div>;
   }
 
   if (isMobile) {
-    return <MobileLayout title={title}>{children}</MobileLayout>;
+    return <MemoizedMobileLayout title={title}>{children}</MemoizedMobileLayout>;
   }
-  return <DesktopLayout title={title}>{children}</DesktopLayout>;
+
+  return <MemoizedDesktopLayout title={title}>{children}</MemoizedDesktopLayout>;
 }

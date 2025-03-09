@@ -1,4 +1,3 @@
-// src/components/layout/DesktopHero.tsx
 "use client";
 
 import React from "react";
