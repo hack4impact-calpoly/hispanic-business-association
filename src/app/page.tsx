@@ -5,8 +5,22 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { useSignIn, useClerk, useAuth } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
+
+let useSignIn: any;
+let useClerk: any;
+let useAuth: any;
+
+if (typeof window !== "undefined") {
+  const clerk = require("@clerk/nextjs");
+  useSignIn = clerk.useSignIn;
+  useClerk = clerk.useClerk;
+  useAuth = clerk.useAuth;
+} else {
+  useSignIn = () => ({ isLoaded: false, signIn: null });
+  useClerk = () => ({});
+  useAuth = () => ({ isLoaded: false, userId: null, isSignedIn: false });
+}
 
 export default function Login() {
   const [formData, setFormData] = useState<{ username: string; password: string }>({
@@ -25,6 +39,8 @@ export default function Login() {
   const redirectUrl = searchParams.get("redirect_url") || "/business";
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     if (authLoaded && isSignedIn) {
       setStatus("Already signed in! Redirecting to dashboard...");
 
@@ -42,6 +58,8 @@ export default function Login() {
   };
 
   const handleSignOut = async () => {
+    if (typeof window === "undefined") return;
+
     setIsLoading(true);
     setError(null);
     try {
@@ -56,6 +74,8 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (typeof window === "undefined") return;
 
     if (!signInLoaded || !signIn) {
       setError("Authentication system is still initializing. Please try again.");
