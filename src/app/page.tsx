@@ -75,7 +75,7 @@ export default function Login() {
           </form>
 
           <div className="mt-4 text-center text-sm">
-            <a href="/signup" className="text-blue-600 hover:underline">
+            <a href="/business/signUp" className="text-blue-600 hover:underline">
               Sign up
             </a>{" "}
             |
