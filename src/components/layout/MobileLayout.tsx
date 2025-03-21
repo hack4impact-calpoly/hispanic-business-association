@@ -12,7 +12,9 @@ const MobileLayout = ({ children, title }: MobileLayoutProps) => {
     <div>
       <MobileHero title={title} />
       <main className="flex pt-4">{children}</main>
-      <MobileBottomNav />
+      <div className="h-[70px]">
+        <MobileBottomNav />
+      </div>
     </div>
   );
 };

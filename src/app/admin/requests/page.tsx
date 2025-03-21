@@ -109,7 +109,7 @@ export default function RequestsPage() {
   }, []);
 
   return (
-    <ResponsiveLayout title="Requests">
+    <ResponsiveLayout title="Request">
       <div className="min-h-screen bg-white p-4 md:p-0">
         <h2 className="font-futura font-bold text-[26px] leading-[34.55px] text-black mb-8">Business Name</h2>
 
@@ -123,7 +123,7 @@ export default function RequestsPage() {
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-4 mb-8">
           <h3 className="font-futura font-medium text-[24px] leading-[31.88px] text-black">Allow Changes?</h3>
 
           <div className="flex gap-4">
