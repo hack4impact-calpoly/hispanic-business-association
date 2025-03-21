@@ -15,7 +15,7 @@ const DesktopLayout = ({ children, title }: DesktopLayoutProps) => {
       </div>
       <div className="flex-1">
         <DesktopHero title={title} />
-        <main className="px-[131px] pt-8">{children}</main>
+        <main className="pt-8">{children}</main>
       </div>
     </div>
   );
