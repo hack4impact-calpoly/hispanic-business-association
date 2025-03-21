@@ -113,7 +113,7 @@ export default function RequestsPage() {
       <div className="min-h-screen bg-white p-4 md:p-0">
         <h2 className="font-futura font-bold text-[26px] leading-[34.55px] text-black mb-8">Business Name</h2>
 
-        <div className="flex flex-col md:flex-row gap-6 md:gap-x-24 mb-16 justify-center items-center">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-x-4 mb-16 justify-center items-center">
           <div className="w-full md:w-auto">
             <InformationCard type="old" businessInfo={oldInfo} />
           </div>
