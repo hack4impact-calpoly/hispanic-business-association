@@ -10,12 +10,12 @@ interface DesktopLayoutProps {
 const DesktopLayout = ({ children, title }: DesktopLayoutProps) => {
   return (
     <div className="flex min-h-screen bg-white">
-      <div className="z-50 pointer-events-auto">
+      <div className="z-50 lg:w-[130px] pointer-events-auto">
         <DesktopSidebar />
       </div>
       <div className="flex-1">
         <DesktopHero title={title} />
-        <main className="pt-8">{children}</main>
+        <main className="pt-8 mr-6">{children}</main>
       </div>
     </div>
   );

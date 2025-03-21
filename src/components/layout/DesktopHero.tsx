@@ -11,9 +11,7 @@ interface DesktopHeroProps {
 const DesktopHero = ({ title }: DesktopHeroProps) => {
   return (
     <div className="flex justify-between items-center mt-[18px]">
-      <h1 className="ml-[131px] font-futura font-medium text-[32px] leading-[42.5px] text-[#293241] h-[43px] mt-[7px]">
-        {title}
-      </h1>
+      <h1 className="font-futura font-medium text-[32px] leading-[42.5px] text-[#293241] h-[43px] mt-[7px]">{title}</h1>
 
       <div className="mr-[20px] flex items-center">
         <div className="flex items-center gap-[18px] mr-[23px]">
