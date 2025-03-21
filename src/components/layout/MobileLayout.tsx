@@ -9,9 +9,9 @@ interface MobileLayoutProps {
 
 const MobileLayout = ({ children, title }: MobileLayoutProps) => {
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div>
       <MobileHero title={title} />
-      <main className="flex-1 px-4 pt-4 pb-[92px]">{children}</main>
+      <main className="flex pt-4">{children}</main>
       <MobileBottomNav />
     </div>
   );
