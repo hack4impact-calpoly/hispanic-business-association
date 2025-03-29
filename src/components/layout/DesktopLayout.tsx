@@ -10,12 +10,17 @@ interface DesktopLayoutProps {
 const DesktopLayout = ({ children, title }: DesktopLayoutProps) => {
   return (
     <div className="flex min-h-screen bg-white">
-      <div className="z-50 lg:w-[130px] pointer-events-auto">
+      {/* Sidebar */}
+      <div className="fixed top-0 left-0 h-screen z-50">
         <DesktopSidebar />
       </div>
-      <div className="flex-1">
+
+      {/* Main content area */}
+      <div className="flex-1 ml-[99px]">
+        {" "}
+        {/* Width matches collapsed sidebar width */}
         <DesktopHero title={title} />
-        <main className="pt-8 mr-6">{children}</main>
+        <main>{children}</main>
       </div>
     </div>
   );
