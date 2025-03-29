@@ -1,4 +1,3 @@
-// src/components/layout/DesktopHero.tsx
 "use client";
 
 import React from "react";
@@ -10,15 +9,18 @@ interface DesktopHeroProps {
 
 const DesktopHero = ({ title }: DesktopHeroProps) => {
   return (
-    <div className="flex justify-between items-center mt-[18px]">
-      <h1 className="font-futura font-medium text-[32px] leading-[42.5px] text-[#293241] h-[43px] mt-[7px]">{title}</h1>
+    <div className="flex justify-between items-center py-4 px-6">
+      {/* TITLE: Page heading with consistent styling */}
+      <h1 className="font-futura font-medium text-[32px] leading-[42.5px] text-[#293241]">{title}</h1>
 
-      <div className="mr-[20px] flex items-center">
+      <div className="flex items-center">
+        {/* CONTROLS: Search and notification icons with consistent spacing */}
         <div className="flex items-center gap-[18px] mr-[23px]">
           <Image src="/icons/Search.png" alt="Search" width={25} height={25} className="cursor-pointer" />
           <Image src="/icons/Notification.png" alt="Notifications" width={25} height={25} className="cursor-pointer" />
         </div>
 
+        {/* PROFILE: User avatar and dropdown trigger */}
         <div className="flex items-center gap-[10px]">
           <div className="w-[50px] h-[50px] rounded-full border border-[#00000036] flex items-center justify-center overflow-hidden">
             <Image
