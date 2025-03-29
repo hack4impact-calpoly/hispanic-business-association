@@ -37,9 +37,26 @@ export default function BusinessDashboardPage() {
           setBusinessData(data);
         } else {
           console.error("Failed to fetch business data");
+
+          // DEMO: For demonstration, set mock data with the banner image
+          setBusinessData({
+            businessName: "HALO Hair Studio",
+            memberSince: "November 2023",
+            expiresInMonths: 1,
+            bannerImage: "/logo/Banner_Demo.png",
+          });
         }
       } catch (error) {
         console.error("Error fetching business data:", error);
+
+        // DEMO: For demonstration, set mock data with the banner image - DELETE AFTER DEMO
+        // TODO: Remove this mock data after demo and rely on actual API responses
+        setBusinessData({
+          businessName: "HALO Hair Studio",
+          memberSince: "November 2023",
+          expiresInMonths: 1,
+          bannerImage: "/logo/Banner_Demo.png",
+        });
       } finally {
         setLoading(false);
       }
@@ -64,9 +81,9 @@ export default function BusinessDashboardPage() {
           className="relative w-full h-[193px]"
           style={{ backgroundColor: businessData?.bannerColor || "#293241" }}
         >
-          {businessData?.bannerImage ? (
-            <Image src={businessData.bannerImage} alt="Business Cover" fill style={{ objectFit: "cover" }} priority />
-          ) : null}
+          {/* DEMO: Using the Banner_Demo.png from public/logo directory - DELETE AFTER DEMO */}
+          {/* TODO: Remove hardcoded banner and restore conditional rendering based on businessData */}
+          <Image src="/logo/Banner_Demo.png" alt="Business Cover" fill style={{ objectFit: "cover" }} priority />
 
           {/* Profile Logo - positioned to overlap banner with negative bottom margin */}
           <div className="absolute bottom-[-75px] left-[65px]">
