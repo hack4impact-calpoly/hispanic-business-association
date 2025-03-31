@@ -11,6 +11,8 @@ import { Button } from "./button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
 import { POST as POSTBusiness } from "@/app/api/business/route";
 import { POST as POSTUser } from "@/app/api/user/route";
+import { IUser } from "@/database/userSchema";
+import { IBusiness } from "@/database/businessSchema";
 
 interface BusinessSignupAppInfo {
   contactInfo: {
@@ -19,27 +21,25 @@ interface BusinessSignupAppInfo {
     email: string;
   };
   businessInfo: {
-    name: string;
-    websiteURL?: string;
-    numEmployees?: string;
+    businessName: string;
+    website: string;
     physicalAddress: {
-      address: string;
+      street: string;
       city: string;
       state: string;
       zip: string;
     };
     mailingAddress: {
-      address: string;
+      street: string;
       city: string;
       state: string;
       zip: string;
     };
   };
   socialLinks: {
-    Instagram?: string;
+    IG?: string;
     X?: string;
-    Facebook?: string;
-    LinkedIn?: string;
+    FB?: string;
   };
 }
 
@@ -153,13 +153,12 @@ const BusinessSignupApplication = () => {
     defaultValues: {
       contactInfo: { name: "", phone: "", email: "" },
       businessInfo: {
-        name: "",
-        websiteURL: "",
-        numEmployees: "",
-        physicalAddress: { address: "", city: "", state: "", zip: "" },
-        mailingAddress: { address: "", city: "", state: "", zip: "" },
+        businessName: "",
+        website: "",
+        physicalAddress: { street: "", city: "", state: "", zip: "" },
+        mailingAddress: { street: "", city: "", state: "", zip: "" },
       },
-      socialLinks: { Instagram: "", Facebook: "", X: "", LinkedIn: "" },
+      socialLinks: { IG: "", FB: "", X: "" },
     },
   });
 
@@ -241,27 +240,35 @@ const BusinessSignupApplication = () => {
     if (!isValid) throw new Error("Problem getting inputs from form.");
 
     const formValues = getValues();
-    const businessData = {
-      ...formValues,
-      businessInfo: {
-        ...formValues.businessInfo,
-        physicalAddress: {
-          ...formValues.businessInfo.physicalAddress,
-          zip: Number(formValues.businessInfo.physicalAddress.zip),
-        },
-        mailingAddress: {
-          ...formValues.businessInfo.mailingAddress,
-          zip: Number(formValues.businessInfo.mailingAddress.zip),
-        },
+    const userData: IUser = {
+      ...formValues.contactInfo,
+      phone: Number(formValues.contactInfo.phone),
+      role: "business",
+      clerkUserID: "", // TO DO
+    };
+    const businessData: IBusiness = {
+      businessType: "", // TO DO
+      businessOwner: "", // TO DO
+      clerkUserID: "", // TO DO
+      description: "", // TO DO
+      ...formValues.businessInfo,
+      physicalAddress: {
+        ...formValues.businessInfo.physicalAddress,
+        zip: Number(formValues.businessInfo.physicalAddress.zip),
       },
-      contactInfo: {
-        ...formValues.contactInfo,
-        phone: Number(formValues.contactInfo.phone),
+      mailingAddress: {
+        ...formValues.businessInfo.mailingAddress,
+        zip: Number(formValues.businessInfo.mailingAddress.zip),
+      },
+      pointOfContact: {
+        name: formValues.contactInfo.name,
+        email: formValues.contactInfo.email,
+        phoneNumber: Number(formValues.contactInfo.phone),
       },
     };
 
     await sleep(3000);
-    console.log("formValues: ", formValues, "\nbusinessData: ", businessData);
+    console.log("new user: ", userData, "\nnew business: ", businessData);
   };
 
   // Step navigation (step # corresponds to which modal displays)
@@ -270,7 +277,7 @@ const BusinessSignupApplication = () => {
       case 1: // business information page
         if (isMailingAddressSame) {
           // Copy values from physical address to mailing address if checkbox is checked
-          setValue("businessInfo.mailingAddress.address", getValues("businessInfo.physicalAddress.address"));
+          setValue("businessInfo.mailingAddress.street", getValues("businessInfo.physicalAddress.street"));
           setValue("businessInfo.mailingAddress.city", getValues("businessInfo.physicalAddress.city"));
           setValue("businessInfo.mailingAddress.state", getValues("businessInfo.physicalAddress.state"));
           setValue("businessInfo.mailingAddress.zip", getValues("businessInfo.physicalAddress.zip"));
@@ -360,28 +367,18 @@ const BusinessSignupApplication = () => {
                   type="text"
                   id="BusinessName"
                   placeholder={businessInfoFieldNames[langOption][0]}
-                  {...register("businessInfo.name", { required: "Business name is required" })}
+                  {...register("businessInfo.businessName", { required: "Business name is required" })}
                 />
               </div>
 
               <div className="flex items-center gap-2">
                 <Input
                   key={`websiteURL-${step}`}
-                  className="w-[356px] border-[#8C8C8C]"
+                  className="w-[550px] border-[#8C8C8C]"
                   type="text"
                   id="WebsiteURL"
                   placeholder={businessInfoFieldNames[langOption][1]}
-                  {...register("businessInfo.websiteURL", { required: "Website URL is required" })}
-                />
-                <Input
-                  key={`numEmployees-${step}`}
-                  className="w-[186px] border-[#8C8C8C]"
-                  type="text"
-                  id="NumEmployees"
-                  placeholder={businessInfoFieldNames[langOption][2]}
-                  {...register("businessInfo.numEmployees", {
-                    validate: (value) => value === "" || Number(value) >= 0 || "Number of employees cannot be negative",
-                  })}
+                  {...register("businessInfo.website", { required: "Website URL is required" })}
                 />
               </div>
 
@@ -392,7 +389,7 @@ const BusinessSignupApplication = () => {
                   type="text"
                   id="PhysicalAddress-Addr"
                   placeholder={businessInfoFieldNames[langOption][3]}
-                  {...register("businessInfo.physicalAddress.address", { required: "Address is required" })}
+                  {...register("businessInfo.physicalAddress.street", { required: "Address is required" })}
                 />
                 <Input
                   key={`physicalAddress-City-${step}`}
@@ -444,7 +441,7 @@ const BusinessSignupApplication = () => {
                   type="text"
                   id="MailAddress-Addr"
                   placeholder={businessInfoFieldNames[langOption][4]}
-                  {...register("businessInfo.mailingAddress.address", { required: "Address is required" })}
+                  {...register("businessInfo.mailingAddress.street", { required: "Address is required" })}
                 />
                 <Input
                   key={`mailingAddress-City-${step}`}
@@ -542,7 +539,7 @@ const BusinessSignupApplication = () => {
                   type="text"
                   id="Facebook"
                   placeholder="Facebook"
-                  {...register("socialLinks.Facebook", {
+                  {...register("socialLinks.FB", {
                     pattern: {
                       value: /^@/,
                       message: "Not in a familiar format.",
@@ -556,7 +553,7 @@ const BusinessSignupApplication = () => {
                   type="text"
                   id="Instagram"
                   placeholder="Instagram"
-                  {...register("socialLinks.Instagram", {
+                  {...register("socialLinks.IG", {
                     pattern: {
                       value: /^@/,
                       message: "Not in a familiar format.",
