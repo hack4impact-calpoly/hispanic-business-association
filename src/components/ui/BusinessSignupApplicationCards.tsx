@@ -9,13 +9,13 @@ import { useForm } from "react-hook-form";
 import { Input } from "./input";
 import { Button } from "./button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
+import { POST as POSTBusiness } from "@/app/api/business/route";
+import { POST as POSTUser } from "@/app/api/user/route";
 
 interface BusinessSignupAppInfo {
   contactInfo: {
     name: string;
-    title: string;
-    phoneNumber?: string;
-    cellNumber?: string;
+    phone: string;
     email: string;
   };
   businessInfo: {
@@ -104,18 +104,10 @@ const BusinessSignupApplication = () => {
   const businessInfoFieldNames = [englishBusinessInfo, spanishBusinessInfo];
 
   // for contact info page
-  const englishContactInfo = [
-    "Contact Name*",
-    "Title*",
-    "Phone Number* (XXX) XXX-XXXX",
-    "Cell Phone Number (XXX) XXX-XXXX",
-    "Email Address*",
-  ];
+  const englishContactInfo = ["Contact Name*", "Phone Number* (XXX) XXX-XXXX", "Email Address*"];
   const spanishContactInfo = [
     "Nombre de Contacto*",
-    "Título*",
     "Número de Teléfono* (XXX) XXX-XXXX",
-    "Número de Teléfono Celular (XXX) XXX-XXXX",
     "Dirección de Correo Electrónico*",
   ];
   const contactInfoFieldNames = [englishContactInfo, spanishContactInfo];
@@ -159,7 +151,7 @@ const BusinessSignupApplication = () => {
     trigger,
   } = useForm<BusinessSignupAppInfo>({
     defaultValues: {
-      contactInfo: { name: "", title: "", phoneNumber: "", cellNumber: "", email: "" },
+      contactInfo: { name: "", phone: "", email: "" },
       businessInfo: {
         name: "",
         websiteURL: "",
@@ -239,6 +231,10 @@ const BusinessSignupApplication = () => {
       });
   };
 
+  function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
   const gatherAllData = async () => {
     const isValid = await trigger();
 
@@ -258,9 +254,14 @@ const BusinessSignupApplication = () => {
           zip: Number(formValues.businessInfo.mailingAddress.zip),
         },
       },
+      contactInfo: {
+        ...formValues.contactInfo,
+        phone: Number(formValues.contactInfo.phone),
+      },
     };
 
-    console.log(formValues);
+    await sleep(3000);
+    console.log("formValues: ", formValues, "\nbusinessData: ", businessData);
   };
 
   // Step navigation (step # corresponds to which modal displays)
@@ -482,50 +483,26 @@ const BusinessSignupApplication = () => {
               <div className="flex items-center gap-2">
                 <Input
                   key={`contactName-${step}`}
-                  className="w-[356px] border-[#8C8C8C]"
+                  className="w-[450px] border-[#8C8C8C]"
                   type="text"
                   id="ContactName"
                   placeholder={contactInfoFieldNames[langOption][0]}
                   {...register("contactInfo.name", { required: "Contact Name is required" })}
                 />
-                <Input
-                  key={`contactTitle-${step}`}
-                  className="w-[186px] border-[#8C8C8C]"
-                  type="text"
-                  id="ContactTitle"
-                  placeholder={contactInfoFieldNames[langOption][1]}
-                  {...register("contactInfo.title", { required: "Title is required" })}
-                />
               </div>
 
               <div className="flex items-center gap-2">
                 <Input
-                  key={`contactPhoneNumber-${step}`}
-                  className="w-[271px] border-[#8C8C8C]"
+                  key={`contactPhone-${step}`}
+                  className="w-[450px] border-[#8C8C8C]"
                   type="text"
-                  id="PhoneNumber"
-                  placeholder={contactInfoFieldNames[langOption][2]}
-                  {...register("contactInfo.phoneNumber", {
+                  id="Phone"
+                  placeholder={contactInfoFieldNames[langOption][1]}
+                  {...register("contactInfo.phone", {
                     required: "Phone Number is required",
                     pattern: {
                       value: /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
                       message: "Phone Number must have nine digits.",
-                    },
-                    onChange: (e) => {
-                      e.target.value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
-                    },
-                  })}
-                />
-                <Input
-                  key={`contactCellNumber-${step}`}
-                  className="w-[271px] border-[#8C8C8C]"
-                  type="text"
-                  id="CellNumber"
-                  placeholder={contactInfoFieldNames[langOption][3]}
-                  {...register("contactInfo.cellNumber", {
-                    pattern: {
-                      value: /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
-                      message: "Cell Number must have ten digits.",
                     },
                     onChange: (e) => {
                       e.target.value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
@@ -537,10 +514,10 @@ const BusinessSignupApplication = () => {
               <div>
                 <Input
                   key={`contactEmail-${step}`}
-                  className="w-[550px] border-[#8C8C8C]"
+                  className="w-[450px] border-[#8C8C8C]"
                   type="text"
                   id="ContactEmail"
-                  placeholder={contactInfoFieldNames[langOption][4]}
+                  placeholder={contactInfoFieldNames[langOption][2]}
                   {...register("contactInfo.email", {
                     required: "Email is required",
                     pattern: {
@@ -753,8 +730,6 @@ const BusinessSignupApplication = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              {/* <DropdownMenuItem onClick={() => setLangOption(0)}>{langOptions[0]}</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setLangOption(1)}>{langOptions[1]}</DropdownMenuItem> */}
               <DropdownMenuItem onClick={() => changeLanguage(0)}>{langOptions[0]}</DropdownMenuItem>
               <DropdownMenuItem onClick={() => changeLanguage(1)}>{langOptions[1]}</DropdownMenuItem>
             </DropdownMenuContent>
