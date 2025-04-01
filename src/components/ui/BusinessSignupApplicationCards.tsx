@@ -274,7 +274,7 @@ const BusinessSignupApplication = () => {
   // Step navigation (step # corresponds to which modal displays)
   const nextStep = () => {
     switch (step) {
-      case 1: // business information page
+      case 2: // business information page
         if (isMailingAddressSame) {
           // Copy values from physical address to mailing address if checkbox is checked
           setValue("businessInfo.mailingAddress.street", getValues("businessInfo.physicalAddress.street"));
@@ -284,7 +284,7 @@ const BusinessSignupApplication = () => {
         }
         validateData();
         break;
-      case 2: // contact information page
+      case 1: // contact information page
         validateData();
         break;
       case 3: // social links page
@@ -357,6 +357,62 @@ const BusinessSignupApplication = () => {
   const renderStepForm = () => {
     switch (step) {
       case 1:
+        return (
+          <div>
+            <div className="grid gap-4 mt-[60px] justify-start items-start">
+              <div className="flex items-center gap-2">
+                <Input
+                  key={`contactName-${step}`}
+                  className="w-[450px] border-[#8C8C8C]"
+                  type="text"
+                  id="ContactName"
+                  placeholder={contactInfoFieldNames[langOption][0]}
+                  {...register("contactInfo.name", { required: "Contact Name is required" })}
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Input
+                  key={`contactPhone-${step}`}
+                  className="w-[450px] border-[#8C8C8C]"
+                  type="text"
+                  id="Phone"
+                  placeholder={contactInfoFieldNames[langOption][1]}
+                  {...register("contactInfo.phone", {
+                    required: "Phone Number is required",
+                    pattern: {
+                      value: /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
+                      message: "Phone Number must have nine digits.",
+                    },
+                    onChange: (e) => {
+                      e.target.value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+                    },
+                  })}
+                />
+              </div>
+
+              <div>
+                <Input
+                  key={`contactEmail-${step}`}
+                  className="w-[450px] border-[#8C8C8C]"
+                  type="text"
+                  id="ContactEmail"
+                  placeholder={contactInfoFieldNames[langOption][2]}
+                  {...register("contactInfo.email", {
+                    required: "Email is required",
+                    pattern: {
+                      value: /^[^@]+@[^@]+$/,
+                      message: "Not in a familiar format.",
+                    },
+                  })}
+                />
+              </div>
+              {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
+            </div>
+            {renderNavButtons(false, false)}
+          </div>
+        );
+      case 2:
         return (
           <div>
             <div className="grid gap-4 mt-[20px] justify-start items-start">
@@ -466,62 +522,6 @@ const BusinessSignupApplication = () => {
                   id="MailAddress-ZIP"
                   placeholder={businessInfoFieldNames[langOption][7]}
                   {...register("businessInfo.mailingAddress.zip", { required: "ZIP is required" })}
-                />
-              </div>
-              {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
-            </div>
-            {renderNavButtons(false, false)}
-          </div>
-        );
-      case 2:
-        return (
-          <div>
-            <div className="grid gap-4 mt-[60px] justify-start items-start">
-              <div className="flex items-center gap-2">
-                <Input
-                  key={`contactName-${step}`}
-                  className="w-[450px] border-[#8C8C8C]"
-                  type="text"
-                  id="ContactName"
-                  placeholder={contactInfoFieldNames[langOption][0]}
-                  {...register("contactInfo.name", { required: "Contact Name is required" })}
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Input
-                  key={`contactPhone-${step}`}
-                  className="w-[450px] border-[#8C8C8C]"
-                  type="text"
-                  id="Phone"
-                  placeholder={contactInfoFieldNames[langOption][1]}
-                  {...register("contactInfo.phone", {
-                    required: "Phone Number is required",
-                    pattern: {
-                      value: /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
-                      message: "Phone Number must have nine digits.",
-                    },
-                    onChange: (e) => {
-                      e.target.value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
-                    },
-                  })}
-                />
-              </div>
-
-              <div>
-                <Input
-                  key={`contactEmail-${step}`}
-                  className="w-[450px] border-[#8C8C8C]"
-                  type="text"
-                  id="ContactEmail"
-                  placeholder={contactInfoFieldNames[langOption][2]}
-                  {...register("contactInfo.email", {
-                    required: "Email is required",
-                    pattern: {
-                      value: /^[^@]+@[^@]+$/,
-                      message: "Not in a familiar format.",
-                    },
-                  })}
                 />
               </div>
               {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
