@@ -3,7 +3,10 @@ import "@/styles/global.css";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
+    // Pass publishable key from environment variables to ClerkProvider
+    // Required for authentication initialization during SSR and client-side rendering
+    // Fix for "Missing publishableKey" error in build process
+    <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
       <html lang="en">
         <body>{children}</body>
       </html>
