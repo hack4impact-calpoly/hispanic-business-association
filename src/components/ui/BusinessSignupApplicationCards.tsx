@@ -23,6 +23,9 @@ interface BusinessSignupAppInfo {
   businessInfo: {
     businessName: string;
     website: string;
+    businessOwner: string;
+    businessType: string;
+    description: string;
     physicalAddress: {
       street: string;
       city: string;
@@ -56,15 +59,17 @@ const BusinessSignupApplication = () => {
 
   // page subtitles by language
   const englishPageSubtitles = [
-    "Business Information",
     "Contact Information",
+    "Business Information",
+    "Business Information",
     "Social Links",
     "Payment Information",
     "Payment Method",
   ];
   const spanishPageSubtitles = [
-    "Información Comercial",
     "Información del Contacto",
+    "Información Comercial",
+    "Información Comercial",
     "Enlaces Sociales",
     "Información de Pago",
     "Método de Pago",
@@ -82,7 +87,9 @@ const BusinessSignupApplication = () => {
   const englishBusinessInfo = [
     "Business Name*",
     "Website URL*",
-    "Number of Employees",
+    "Business Type*",
+    "Name of Business Owner*",
+    "Description of the Business*",
     "Physical Address*",
     "Mailing Address*",
     "City*",
@@ -93,7 +100,9 @@ const BusinessSignupApplication = () => {
   const spanishBusinessInfo = [
     "Nombre Comercial*",
     "URL del Sitio Web*",
-    "Numero de Empleados",
+    "Tipo de Negocio*",
+    "Nombre del Propietario del Negocio*",
+    "Descripción del Negocio*",
     "Dirección Física*",
     "Dirección de Envio",
     "Ciudad*",
@@ -247,10 +256,7 @@ const BusinessSignupApplication = () => {
       clerkUserID: "", // TO DO
     };
     const businessData: IBusiness = {
-      businessType: "", // TO DO
-      businessOwner: "", // TO DO
       clerkUserID: "", // TO DO
-      description: "", // TO DO
       ...formValues.businessInfo,
       physicalAddress: {
         ...formValues.businessInfo.physicalAddress,
@@ -274,7 +280,13 @@ const BusinessSignupApplication = () => {
   // Step navigation (step # corresponds to which modal displays)
   const nextStep = () => {
     switch (step) {
-      case 2: // business information page
+      case 1: // contact information page
+        validateData();
+        break;
+      case 2: // business information page 1
+        validateData();
+        break;
+      case 3: // business information page 2
         if (isMailingAddressSame) {
           // Copy values from physical address to mailing address if checkbox is checked
           setValue("businessInfo.mailingAddress.street", getValues("businessInfo.physicalAddress.street"));
@@ -284,16 +296,13 @@ const BusinessSignupApplication = () => {
         }
         validateData();
         break;
-      case 1: // contact information page
-        validateData();
-        break;
-      case 3: // social links page
+      case 4: // social links page
         setStep(Math.min(numPages, step + 1));
         break;
-      case 4: // payment information page
+      case 5: // payment information page
         validateData();
         break;
-      case 5: // payment method page
+      case 6: // payment method page
         gatherAllData();
         setStep(Math.min(numPages, step + 1));
     }
@@ -437,14 +446,22 @@ const BusinessSignupApplication = () => {
                   {...register("businessInfo.website", { required: "Website URL is required" })}
                 />
               </div>
-
+              {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
+            </div>
+            {renderNavButtons(true, false)}
+          </div>
+        );
+      case 3:
+        return (
+          <div>
+            <div className="grid gap-4 mt-[20px] justify-start items-start">
               <div className="flex items-center gap-2">
                 <Input
                   key={`physicalAddress-Addr-${step}`}
                   className="w-[264px] border-[#8C8C8C]"
                   type="text"
                   id="PhysicalAddress-Addr"
-                  placeholder={businessInfoFieldNames[langOption][3]}
+                  placeholder={businessInfoFieldNames[langOption][5]}
                   {...register("businessInfo.physicalAddress.street", { required: "Address is required" })}
                 />
                 <Input
@@ -452,7 +469,7 @@ const BusinessSignupApplication = () => {
                   className="w-[130px] border-[#8C8C8C]"
                   type="text"
                   id="PhysicalAddress-City"
-                  placeholder={businessInfoFieldNames[langOption][5]}
+                  placeholder={businessInfoFieldNames[langOption][7]}
                   {...register("businessInfo.physicalAddress.city", { required: "City is required" })}
                 />
                 <Input
@@ -460,7 +477,7 @@ const BusinessSignupApplication = () => {
                   className="w-[72px] border-[#8C8C8C]"
                   type="text"
                   id="PhysicalAddress-State"
-                  placeholder={businessInfoFieldNames[langOption][6]}
+                  placeholder={businessInfoFieldNames[langOption][8]}
                   {...register("businessInfo.physicalAddress.state", { required: "State is required" })}
                 />
                 <Input
@@ -468,7 +485,7 @@ const BusinessSignupApplication = () => {
                   className="w-[60px] border-[#8C8C8C]"
                   type="text"
                   id="PhysicalAddress-ZIP"
-                  placeholder={businessInfoFieldNames[langOption][7]}
+                  placeholder={businessInfoFieldNames[langOption][9]}
                   {...register("businessInfo.physicalAddress.zip", {
                     required: "ZIP is required",
                     pattern: {
@@ -486,7 +503,7 @@ const BusinessSignupApplication = () => {
                     id="sameAddress"
                     onChange={(e) => setIsMailingAddressSame(e.target.checked)} // use state to track if the checkbox is checked
                   />
-                  {businessInfoFieldNames[langOption][8]}
+                  {businessInfoFieldNames[langOption][10]}
                 </label>
               </div>
 
@@ -496,7 +513,7 @@ const BusinessSignupApplication = () => {
                   className="w-[264px] border-[#8C8C8C]"
                   type="text"
                   id="MailAddress-Addr"
-                  placeholder={businessInfoFieldNames[langOption][4]}
+                  placeholder={businessInfoFieldNames[langOption][6]}
                   {...register("businessInfo.mailingAddress.street", { required: "Address is required" })}
                 />
                 <Input
@@ -504,7 +521,7 @@ const BusinessSignupApplication = () => {
                   className="w-[130px] border-[#8C8C8C]"
                   type="text"
                   id="MailAddress-City"
-                  placeholder={businessInfoFieldNames[langOption][5]}
+                  placeholder={businessInfoFieldNames[langOption][7]}
                   {...register("businessInfo.mailingAddress.city", { required: "City is required" })}
                 />
                 <Input
@@ -512,7 +529,7 @@ const BusinessSignupApplication = () => {
                   className="w-[72px] border-[#8C8C8C]"
                   type="text"
                   id="MailAddress-State"
-                  placeholder={businessInfoFieldNames[langOption][6]}
+                  placeholder={businessInfoFieldNames[langOption][8]}
                   {...register("businessInfo.mailingAddress.state", { required: "State is required" })}
                 />
                 <Input
@@ -520,7 +537,7 @@ const BusinessSignupApplication = () => {
                   className="w-[60px] border-[#8C8C8C]"
                   type="text"
                   id="MailAddress-ZIP"
-                  placeholder={businessInfoFieldNames[langOption][7]}
+                  placeholder={businessInfoFieldNames[langOption][9]}
                   {...register("businessInfo.mailingAddress.zip", { required: "ZIP is required" })}
                 />
               </div>
@@ -529,7 +546,7 @@ const BusinessSignupApplication = () => {
             {renderNavButtons(true, false)}
           </div>
         );
-      case 3:
+      case 4:
         return (
           <div>
             <div className="grid grid-cols-2 gap-6 mt-[80px] justify-start">
@@ -579,7 +596,7 @@ const BusinessSignupApplication = () => {
             {renderNavButtons(true, false)}
           </div>
         );
-      case 4:
+      case 5:
         // NOTE: There may be code below that is not currently used because field is
         // not required until we have a payment system set up.
         return (
@@ -604,7 +621,7 @@ const BusinessSignupApplication = () => {
             {renderNavButtons(true, false)}
           </div>
         );
-      case 5:
+      case 6:
         // NOTE: There may be code below that is not currently used because field is
         // not required until we have a payment system set up.
         return (
@@ -699,7 +716,7 @@ const BusinessSignupApplication = () => {
     }
   };
 
-  if (step < 6) {
+  if (step < 7) {
     return (
       <div className="w-[70vw] h-[300px]">
         <Card className="relative bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg">
