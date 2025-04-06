@@ -74,7 +74,7 @@ const BusinessSignupApplication = () => {
     "Información de Pago",
     "Método de Pago",
   ];
-  const numPages = 6;
+  const numPages = 7;
   const pageSubtitles = [englishPageSubtitles, spanishPageSubtitles];
 
   // for navigation buttons
@@ -436,7 +436,7 @@ const BusinessSignupApplication = () => {
                 />
               </div>
 
-              <div className="flex items-center gap-2">
+              <div>
                 <Input
                   key={`websiteURL-${step}`}
                   className="w-[550px] border-[#8C8C8C]"
@@ -444,6 +444,36 @@ const BusinessSignupApplication = () => {
                   id="WebsiteURL"
                   placeholder={businessInfoFieldNames[langOption][1]}
                   {...register("businessInfo.website", { required: "Website URL is required" })}
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Input
+                  key={`businessType-${step}`}
+                  className="w-[275px] border-[#8C8C8C]"
+                  type="text"
+                  id="businessType"
+                  placeholder={businessInfoFieldNames[langOption][2]}
+                  {...register("businessInfo.businessType", { required: "Business Type is required" })}
+                />
+                <Input
+                  key={`businessOwner-${step}`}
+                  className="w-[275px] border-[#8C8C8C]"
+                  type="text"
+                  id="businessOwner"
+                  placeholder={businessInfoFieldNames[langOption][3]}
+                  {...register("businessInfo.businessOwner", { required: "Business Owner is required" })}
+                />
+              </div>
+
+              <div>
+                <Input
+                  key={`description-${step}`}
+                  className="w-[550px] border-[#8C8C8C]"
+                  type="text"
+                  id="description"
+                  placeholder={businessInfoFieldNames[langOption][4]}
+                  {...register("businessInfo.description", { required: "Description is required" })}
                 />
               </div>
               {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
@@ -454,7 +484,7 @@ const BusinessSignupApplication = () => {
       case 3:
         return (
           <div>
-            <div className="grid gap-4 mt-[20px] justify-start items-start">
+            <div className="grid gap-4 mt-[80px] justify-start items-start">
               <div className="flex items-center gap-2">
                 <Input
                   key={`physicalAddress-Addr-${step}`}
