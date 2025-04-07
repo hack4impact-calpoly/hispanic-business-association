@@ -1,157 +1,150 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
-import { RequestCard } from "@/components/ui/RequestCard";
-import StatsCard from "@/components/ui/StatsCard";
+import BusinessCard from "@/components/ui/BusinessCard";
 import FilterButton from "@/components/ui/FilterButton";
+import { useBusinesses, useUser } from "@/lib/swrHooks";
+import { SignInButton } from "@clerk/nextjs";
 
-type FilterType = "Most Recent" | "Oldest" | "Business Name A-Z" | "Business Name Z-A";
-type ViewType = "pending" | "approved" | "declined";
+type FilterType = "Business Name A-Z" | "Business Name Z-A" | "Most Recent" | "Oldest";
 
-interface PendingRequest {
-  businessName: string;
-  timeElapsed: string;
-  isUrgent: boolean;
-}
+export default function AdminBusinessesPage() {
+  const router = useRouter();
+  const [filter, setFilter] = useState<FilterType>("Business Name A-Z");
+  const [isClient, setIsClient] = useState(false);
 
-interface HistoryRequest {
-  businessName: string;
-  status: "approved" | "denied";
-  date: string;
-}
+  // Set isClient to true after component mounts
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
-export default function AdminDashboardPage() {
-  const [pendingFilter, setPendingFilter] = useState<FilterType>("Most Recent");
-  const [historyFilter, setHistoryFilter] = useState<FilterType>("Most Recent");
+  // Fetch data using SWR hooks
+  const { user, isLoading: isUserLoading } = useUser();
+  const { businesses, isLoading: isBusinessesLoading } = useBusinesses();
 
-  // TODO: replace placeholder with data
-  const pendingRequests = [
-    {
-      businessName: "(Business Name)",
-      timeElapsed: "2 days ago",
-      isUrgent: true,
-    },
-    {
-      businessName: "(Business Name)",
-      timeElapsed: "5 hours ago",
-      isUrgent: false,
-    },
-  ];
+  // Handle authentication checks with a delay to prevent immediate redirects
+  useEffect(() => {
+    if (!isClient) return;
 
-  const historyRequests: HistoryRequest[] = [
-    {
-      businessName: "(Business Name)",
-      status: "denied",
-      date: "01/15/24",
-    },
-    {
-      businessName: "(Business Name)",
-      status: "approved",
-      date: "01/14/24",
-    },
-  ];
+    const timer = setTimeout(() => {
+      if (!isUserLoading && !user) {
+        router.push("/");
+      } else if (user && user.role !== "admin") {
+        router.push("/business");
+      }
+    }, 300);
 
-  const stats = {
-    pending: 2,
-    approved: 5,
-    declined: 3,
-  };
+    return () => clearTimeout(timer);
+  }, [user, isUserLoading, isClient, router]);
 
-  const [pendingData, setPendingData] = useState<PendingRequest[]>(pendingRequests);
-  const [historyData, setHistoryData] = useState<HistoryRequest[]>(historyRequests);
+  // Apply filter to businesses
+  const filteredBusinesses = () => {
+    if (!businesses) return [];
 
-  const filterPendingRequests = (requests: PendingRequest[], filter: FilterType) => {
-    const sorted = [...requests];
+    const sorted = [...businesses];
+
     switch (filter) {
-      case "Most Recent":
-        return sorted;
-      case "Oldest":
-        return sorted.reverse();
       case "Business Name A-Z":
         return sorted.sort((a, b) => a.businessName.localeCompare(b.businessName));
       case "Business Name Z-A":
         return sorted.sort((a, b) => b.businessName.localeCompare(a.businessName));
+      case "Most Recent":
+        return sorted.sort((a, b) => b.businessName.localeCompare(a.businessName));
+      case "Oldest":
+        return sorted.sort((a, b) => a.businessName.localeCompare(a.businessName));
       default:
         return sorted;
     }
   };
 
-  const filterHistoryRequests = (requests: HistoryRequest[], filter: FilterType) => {
-    const sorted = [...requests];
-    switch (filter) {
-      case "Most Recent":
-        return sorted;
-      case "Oldest":
-        return sorted.reverse();
-      case "Business Name A-Z":
-        return sorted.sort((a, b) => a.businessName.localeCompare(b.businessName));
-      case "Business Name Z-A":
-        return sorted.sort((a, b) => b.businessName.localeCompare(a.businessName));
-      default:
-        return sorted;
-    }
+  // Split businesses into two columns for desktop
+  const businessList = filteredBusinesses();
+  const midpoint = Math.ceil(businessList.length / 2);
+  const leftColumnBusinesses = businessList.slice(0, midpoint);
+  const rightColumnBusinesses = businessList.slice(midpoint);
+
+  const handleFilterChange = (newFilter: string) => {
+    setFilter(newFilter as FilterType);
   };
 
-  const handlePendingFilterChange = (filter: string) => {
-    setPendingFilter(filter as FilterType);
-    setPendingData(filterPendingRequests(pendingRequests, filter as FilterType));
-  };
+  // Show sign-in UI if not authenticated
+  if (isClient && !isUserLoading && !user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
+          <h2 className="text-2xl font-bold mb-6 text-center">Authentication Required</h2>
+          <p className="mb-6 text-gray-600 text-center">You need to be signed in as an admin to view this page.</p>
+          <div className="flex justify-center">
+            <SignInButton mode="modal">
+              <button className="bg-[#405BA9] text-white px-6 py-2 rounded-md hover:bg-[#293241]">Sign In</button>
+            </SignInButton>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  const handleHistoryFilterChange = (filter: string) => {
-    setHistoryFilter(filter as FilterType);
-    setHistoryData(filterHistoryRequests(historyRequests, filter as FilterType));
-  };
-
+  // Main content
   return (
-    <ResponsiveLayout title="Requests">
-      <div className="relative min-h-screen bg-white px-4 md:px-0">
-        <div className="flex flex-col md:flex-row justify-between">
-          <div className="md:w-[591px]">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="font-futura font-medium text-[26px] leading-[34.53px] text-black">Pending Requests</h2>
-              <FilterButton onFilterChange={handlePendingFilterChange} selectedFilter={pendingFilter} />
-            </div>
-
-            <div className="space-y-[10px]">
-              {pendingData.map((request, index) => (
-                <RequestCard
-                  key={index}
-                  type="pending"
-                  businessName={request.businessName}
-                  timeAgo={request.timeElapsed}
-                  isUrgent={request.isUrgent}
-                />
-              ))}
-            </div>
-
-            <div className="w-full h-0 border-t border-[#BEBEBE] my-8" />
-
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="font-futura font-medium text-[26px] leading-[34.53px] text-black">
-                History of Recent Requests
-              </h2>
-              <FilterButton onFilterChange={handleHistoryFilterChange} selectedFilter={historyFilter} />
-            </div>
-
-            <div className="space-y-[10px]">
-              {historyData.map((request, index) => (
-                <RequestCard
-                  key={index}
-                  type="history"
-                  businessName={request.businessName}
-                  status={request.status as "approved" | "denied"}
-                  date={request.date}
-                />
-              ))}
-            </div>
+    <ResponsiveLayout title="Dashboard">
+      <div className="relative min-h-screen bg-white px-2 sm:px-4 md:px-6 py-4 sm:py-6 pb-[142px] md:pb-12">
+        <div className="w-full max-w-7xl mx-auto">
+          {/* Header with Filter */}
+          <div className="flex justify-between items-center mb-4 sm:mb-6 md:mb-8 w-full px-0">
+            <h2 className="font-futura font-medium text-xl sm:text-[26px] leading-[34.53px] text-black">Businesses</h2>
+            <FilterButton onFilterChange={handleFilterChange} selectedFilter={filter} />
           </div>
 
-          <div className="md:ml-8 mt-8 md:mt-0 space-y-[18px]">
-            <StatsCard title="Total Pending Request" count={stats.pending} isHighlighted={true} />
-            <StatsCard title="Requests Approved This Month" count={stats.approved} isHighlighted={false} />
-            <StatsCard title="Requests Declined This Month" count={stats.declined} isHighlighted={false} />
-          </div>
+          {/* Loading State */}
+          {isBusinessesLoading && (
+            <div className="flex justify-center items-center py-10">
+              <p className="text-gray-500">Loading businesses...</p>
+            </div>
+          )}
+
+          {/* No Businesses State */}
+          {!isBusinessesLoading && (!businesses || businesses.length === 0) && (
+            <div className="flex justify-center items-center py-10">
+              <p className="text-gray-500">No businesses found.</p>
+            </div>
+          )}
+
+          {/* Businesses Grid - Desktop: Two columns, Mobile: Single column */}
+          {!isBusinessesLoading && businesses && businesses.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-12 gap-y-0">
+              {/* Left Column */}
+              <div>
+                {leftColumnBusinesses.map((business) => (
+                  <div key={business.clerkUserID} className="mb-3 sm:mb-4 md:mb-6 w-full">
+                    <BusinessCard
+                      id={business.clerkUserID}
+                      businessName={business.businessName}
+                      logoUrl="/logo/HBA_NoBack_NoWords.png"
+                      logoAlt={`${business.businessName} logo`}
+                      className="w-full"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Right Column */}
+              <div>
+                {rightColumnBusinesses.map((business) => (
+                  <div key={business.clerkUserID} className="mb-3 sm:mb-4 md:mb-6 w-full">
+                    <BusinessCard
+                      id={business.clerkUserID}
+                      businessName={business.businessName}
+                      logoUrl="/logo/HBA_NoBack_NoWords.png"
+                      logoAlt={`${business.businessName} logo`}
+                      className="w-full"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </ResponsiveLayout>
