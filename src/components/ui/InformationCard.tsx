@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface BusinessInfo {
   businessName: string;
@@ -34,103 +35,96 @@ interface BusinessInfo {
 interface InformationCardProps {
   type: "old" | "new";
   businessInfo: BusinessInfo;
+  className?: string;
 }
 
-const InformationCard = ({ type, businessInfo }: InformationCardProps) => {
+const InformationCard = ({ type, businessInfo, className }: InformationCardProps) => {
   return (
-    <Card className="w-[600px] h-[700px] rounded-[8px] border border-[#8C8C8C] bg-white relative">
-      <h2 className="absolute left-[21.23px] top-[39.05px] font-futura font-bold text-[16px] leading-[21.26px] text-[#293241] w-[302px] h-[43px]">
-        {type === "old" ? "OLD INFORMATION" : "NEW INFORMATION"}
-      </h2>
+    <Card
+      className={cn(
+        "w-full h-auto min-h-[600px] sm:min-h-[650px] md:min-h-[700px] rounded-[8px] border border-[#8C8C8C] bg-white relative",
+        className,
+      )}
+    >
+      <div className="p-4 sm:p-6">
+        {/* Business Information Section */}
+        <div className="relative">
+          {/* Business Name */}
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Business Name</p>
+          <p className="font-futura font-bold text-[14px] leading-[19px] text-[#405BA9] w-full mb-4">
+            {businessInfo.businessName || "N/A"}
+          </p>
 
-      <div className="absolute left-[23px] top-[70px] h-[1px] bg-[#BEBEBE] w-[508.55px] rotate-[-0.03deg]" />
+          {/* Business Type */}
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Business Type</p>
+          <p className="font-futura font-bold text-[14px] leading-[19px] text-[#405BA9] w-full mb-4">
+            {businessInfo.businessType || "N/A"}
+          </p>
 
-      <div className="relative">
-        {/* Business Name */}
-        <p className="absolute left-[21px] top-[96px] font-futura font-bold text-[12px] leading-[15.95px] text-[#8C8C8C] w-[154px] h-[16px]">
-          Business Name
-        </p>
-        <p className="absolute left-[21px] top-[120px] font-futura font-bold text-[14px] leading-[18.61px] text-[#405BA9] w-[221px] h-[67px]">
-          {businessInfo.businessName || "N/A"}
-        </p>
+          {/* Business Owner */}
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Business Owner</p>
+          <p className="font-futura font-bold text-[14px] leading-[19px] text-[#405BA9] w-full mb-4">
+            {businessInfo.businessOwner || "N/A"}
+          </p>
 
-        {/* Business Type */}
-        <p className="absolute left-[21px] top-[160px] font-futura font-bold text-[12px] leading-[15.95px] text-[#8C8C8C] w-[154px] h-[16px]">
-          Business Type
-        </p>
-        <p className="absolute left-[21px] top-[184px] font-futura font-bold text-[14px] leading-[18.61px] text-[#405BA9] w-[221px] h-[67px]">
-          {businessInfo.businessType || "N/A"}
-        </p>
+          {/* Website */}
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Website</p>
+          <p className="font-futura font-bold text-[14px] leading-[19px] text-[#405BA9] w-full mb-4 break-words">
+            <a href={businessInfo.website || "#"} target="_blank" rel="noopener noreferrer">
+              {businessInfo.website || "N/A"}
+            </a>
+          </p>
 
-        {/* Business Owner */}
-        <p className="absolute left-[21px] top-[224px] font-futura font-bold text-[12px] leading-[15.95px] text-[#8C8C8C] w-[154px] h-[16px]">
-          Business Owner
-        </p>
-        <p className="absolute left-[21px] top-[248px] font-futura font-bold text-[14px] leading-[18.61px] text-[#405BA9] w-[221px] h-[67px]">
-          {businessInfo.businessOwner || "N/A"}
-        </p>
+          {/* Address */}
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Address</p>
+          <p className="font-futura font-bold text-[14px] leading-[19px] text-[#405BA9] w-full mb-4">
+            {`${businessInfo.address.street}, ${businessInfo.address.city}, ${businessInfo.address.state} ${businessInfo.address.zip}, ${businessInfo.address.county}`}
+          </p>
 
-        {/* Website */}
-        <p className="absolute left-[21px] top-[288px] font-futura font-bold text-[12px] leading-[15.95px] text-[#8C8C8C] w-[154px] h-[16px]">
-          Email
-        </p>
-        <p className="absolute left-[21px] top-[312px] font-futura font-bold text-[14px] leading-[18.61px] text-[#405BA9] w-[221px] h-[67px]">
-          <a href={businessInfo.website || "#"} target="_blank" rel="noopener noreferrer">
-            {businessInfo.website || "N/A"}
-          </a>
-        </p>
+          {/* Point of Contact */}
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">
+            Point of Contact
+          </p>
+          <p className="font-futura font-bold text-[14px] leading-[19px] text-[#405BA9] w-full mb-4 break-words">
+            {businessInfo.pointOfContact.name}
+            <br />
+            {businessInfo.pointOfContact.phoneNumber}
+            <br />
+            {businessInfo.pointOfContact.email}
+          </p>
 
-        {/* Address */}
-        <p className="absolute left-[21px] top-[352px] font-futura font-bold text-[12px] leading-[15.95px] text-[#8C8C8C] w-[154px] h-[16px]">
-          Address
-        </p>
-        <p className="absolute left-[21px] top-[376px] font-futura font-bold text-[14px] leading-[18.61px] text-[#405BA9] w-[221px] h-[67px]">
-          {`${businessInfo.address.street}, ${businessInfo.address.city}, ${businessInfo.address.state} ${businessInfo.address.zip}, ${businessInfo.address.county}`}
-        </p>
+          {/* Social Media Handles */}
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Social Media</p>
+          <div className="font-futura font-bold text-[14px] leading-[19px] text-[#405BA9] w-full mb-4">
+            {businessInfo.socialMediaHandles?.IG && <p>Instagram: {businessInfo.socialMediaHandles.IG}</p>}
+            {businessInfo.socialMediaHandles?.twitter && <p>Twitter: {businessInfo.socialMediaHandles.twitter}</p>}
+            {businessInfo.socialMediaHandles?.FB && <p>Facebook: {businessInfo.socialMediaHandles.FB}</p>}
+          </div>
 
-        {/* Point of Contact */}
-        <p className="absolute left-[21px] top-[426px] font-futura font-bold text-[12px] leading-[15.95px] text-[#8C8C8C] w-[154px] h-[16px]">
-          Point of Contact
-        </p>
-        <p className="absolute left-[21px] top-[450px] font-futura font-bold text-[14px] leading-[18.61px] text-[#405BA9] w-[221px] h-[67px]">
-          {`${businessInfo.pointOfContact.name}, ${businessInfo.pointOfContact.phoneNumber}, ${businessInfo.pointOfContact.email}`}
-        </p>
+          {/* Description */}
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Description</p>
+          <p className="font-futura font-bold text-[14px] leading-[19px] text-[#405BA9] w-full mb-4">
+            {businessInfo.description || "N/A"}
+          </p>
+        </div>
 
-        {/* Social Media Handles */}
-        <p className="absolute left-[21px] top-[510px] font-futura font-bold text-[12px] leading-[15.95px] text-[#8C8C8C] w-[154px] h-[16px]">
-          Social Media
-        </p>
-        <p className="absolute left-[21px] top-[534px] font-futura font-bold text-[14px] leading-[18.61px] text-[#405BA9] w-[221px] h-[67px]">
-          {businessInfo.socialMediaHandles?.IG && <p>Instagram: {businessInfo.socialMediaHandles.IG}</p>}
-          {businessInfo.socialMediaHandles?.twitter && <p>Twitter: {businessInfo.socialMediaHandles.twitter}</p>}
-          {businessInfo.socialMediaHandles?.FB && <p>Facebook: {businessInfo.socialMediaHandles.FB}</p>}
-        </p>
-
-        {/* Description */}
-        <p className="absolute left-[21px] top-[604px] font-futura font-bold text-[12px] leading-[15.95px] text-[#8C8C8C] w-[154px] h-[16px]">
-          Description
-        </p>
-        <p className="absolute left-[21px] top-[628px] font-futura font-bold text-[14px] leading-[18.61px] text-[#405BA9] w-[221px] h-[67px]">
-          {businessInfo.description || "N/A"}
-        </p>
-      </div>
-
-      <p className="absolute left-[309px] top-[96px] font-futura font-bold text-[12px] leading-[15.95px] text-[#8C8C8C] w-[154px] h-[16px]">
-        Logo
-      </p>
-
-      <div className="absolute left-[309px] top-[125px] w-[137px] h-[131px] bg-gray-100">
-        {businessInfo.logo ? (
-          <Image src={businessInfo.logo} alt="Business Logo" width={137} height={131} className="object-cover" />
-        ) : (
-          <Image
-            src="/logo/HBA_NoBack_NoWords.png"
-            alt="Default Logo"
-            width={137}
-            height={131}
-            className="object-cover"
-          />
-        )}
+        {/* Logo Section - Positioned on the side on larger screens, below on mobile */}
+        <div className="mt-6 w-full sm:absolute sm:top-[96px] sm:right-6 sm:w-[137px]">
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] mb-2">Logo</p>
+          <div className="w-full h-[131px] sm:w-[137px] sm:h-[131px] bg-gray-100 flex items-center justify-center">
+            {businessInfo.logo ? (
+              <Image src={businessInfo.logo} alt="Business Logo" width={130} height={124} className="object-contain" />
+            ) : (
+              <Image
+                src="/logo/HBA_NoBack_NoWords.png"
+                alt="Default Logo"
+                width={130}
+                height={124}
+                className="object-contain"
+              />
+            )}
+          </div>
+        </div>
       </div>
     </Card>
   );
