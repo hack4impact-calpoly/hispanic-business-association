@@ -1,0 +1,121 @@
+import useSWR, { MutatorCallback, SWRConfiguration } from "swr";
+import { IBusiness } from "@/database/businessSchema";
+import { IUser } from "@/database/userSchema";
+import { IRequest } from "@/database/requestSchema";
+
+/**
+ * Common SWR response interface with proper typing
+ */
+export interface SWRResponse<Data, Error> {
+  data?: Data;
+  error?: Error;
+  isLoading: boolean;
+  isValidating: boolean;
+  mutate: (
+    data?: Data | Promise<Data> | MutatorCallback<Data>,
+    options?: { revalidate?: boolean },
+  ) => Promise<Data | undefined>;
+}
+
+/**
+ * Hook for fetching current user data
+ */
+export function useUser(config?: SWRConfiguration) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IUser>("/api/user", {
+    revalidateOnFocus: false,
+    ...config,
+  });
+
+  return {
+    user: data,
+    isLoading,
+    isValidating,
+    isError: error,
+    mutate,
+  };
+}
+
+/**
+ * Hook for fetching business data by clerkId
+ * If no clerkId provided, fetches authenticated user's business
+ */
+export function useBusiness(clerkId?: string, config?: SWRConfiguration) {
+  const endpoint = clerkId ? `/api/business?clerkId=${clerkId}` : "/api/business";
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IBusiness>(endpoint, {
+    revalidateOnFocus: false,
+    ...config,
+  });
+
+  return {
+    business: data,
+    isLoading,
+    isValidating,
+    isError: error,
+    mutate,
+  };
+}
+
+/**
+ * Hook for fetching all businesses
+ */
+export function useBusinesses(config?: SWRConfiguration) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IBusiness[]>("/api/businesses", {
+    revalidateOnFocus: false,
+    ...config,
+  });
+
+  return {
+    businesses: data,
+    isLoading,
+    isValidating,
+    isError: error,
+    mutate,
+  };
+}
+
+/**
+ * Hook for fetching all requests
+ */
+export function useRequests(config?: SWRConfiguration) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IRequest[]>("/api/request", {
+    revalidateOnFocus: false,
+    ...config,
+  });
+
+  return {
+    requests: data,
+    isLoading,
+    isValidating,
+    isError: error,
+    mutate,
+  };
+}
+
+/**
+ * Hook for fetching a specific request by ID
+ */
+export function useRequest(id: string, config?: SWRConfiguration) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IRequest>(id ? `/api/request/${id}` : null, {
+    revalidateOnFocus: false,
+    ...config,
+  });
+
+  return {
+    request: data,
+    isLoading,
+    isValidating,
+    isError: error,
+    mutate,
+  };
+}
+
+/**
+ * Utility to manually mutate cached request data
+ * Useful for optimistic updates when approving/denying requests
+ */
+export function updateRequestStatus(id: string, status: "approved" | "denied", cache: IRequest[]) {
+  return cache?.map((request) =>
+    // Using string indexing since _id might not be in the interface but exists in MongoDB documents
+    (request as any)._id === id ? { ...request, status } : request,
+  );
+}
