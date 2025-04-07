@@ -23,8 +23,10 @@ const FilterButton = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="w-[81px] h-[32px] flex items-center gap-[5px] cursor-pointer">
-          <span className="font-futura font-medium text-[24px] leading-[32px] text-black">Filter</span>
+        <button className="flex items-center gap-[5px] cursor-pointer w-auto">
+          <span className="font-futura font-medium text-[20px] sm:text-[24px] leading-[28px] sm:leading-[32px] text-black">
+            Filter
+          </span>
           <Image src="/icons/Sort Down.png" alt="Filter" width={22} height={22} className="mt-1" />
         </button>
       </DropdownMenuTrigger>
