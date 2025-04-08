@@ -11,6 +11,6 @@ export async function POST(req: Request) {
     return Response.json({ message: "User created", user });
   } catch (error) {
     console.log(error);
-    return Response.json({ error: "Error creating user" });
+    return Response.json({ error });
   }
 }
