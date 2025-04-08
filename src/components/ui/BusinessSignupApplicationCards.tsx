@@ -113,11 +113,19 @@ const BusinessSignupApplication = () => {
   const businessInfoFieldNames = [englishBusinessInfo, spanishBusinessInfo];
 
   // for contact info page
-  const englishContactInfo = ["Contact Name*", "Phone Number* (XXX) XXX-XXXX", "Email Address*"];
+  const englishContactInfo = [
+    "Contact Name*",
+    "Phone Number* (XXX) XXX-XXXX",
+    "Email Address*",
+    "Enter Password*",
+    "Renter Password*",
+  ];
   const spanishContactInfo = [
     "Nombre de Contacto*",
     "Número de Teléfono* (XXX) XXX-XXXX",
     "Dirección de Correo Electrónico*",
+    "Ingrese la Contraseña*",
+    "Escriba la Contraseña Otra Vez*",
   ];
   const contactInfoFieldNames = [englishContactInfo, spanishContactInfo];
 
@@ -152,6 +160,10 @@ const BusinessSignupApplication = () => {
   const submissionSteps = [submissionEnglishSteps, submissionSpanishSteps];
 
   const [step, setStep] = useState(1);
+  // keeping the password(s) separate from the rest of the form
+  const [password1, setPassword1] = useState("");
+  const [password2, setPassword2] = useState("");
+  const [clerkUserID, setClerkUserID] = useState("");
   const {
     register,
     formState: { errors },
@@ -171,11 +183,11 @@ const BusinessSignupApplication = () => {
     },
   });
 
-  const [firstErrorMessage, setFirstErrorMessage] = useState("");
+  const [formErrorMessage, setFormErrorMessage] = useState("");
   const changeLanguage = (val: number) => {
     setLangOption(val);
-    if (firstErrorMessage !== "") {
-      setFirstErrorMessage(errorMsgs[val]);
+    if (formErrorMessage !== "") {
+      setFormErrorMessage(errorMsgs[val]);
     }
   };
 
@@ -209,15 +221,6 @@ const BusinessSignupApplication = () => {
     }
   };
 
-  const formatMoneyValue = (input: string) => {
-    // Remove $ and commas
-    const cleaned = input.replace(/[$,]/g, "");
-    // Ensure valid float format
-    const floatVal = parseFloat(cleaned);
-    // Return as string with two decimal places
-    return isNaN(floatVal) ? "" : floatVal.toFixed(2);
-  };
-
   // validate form entries
   const errorMsgs = [
     "Missing data or data is improperly formatted.",
@@ -227,15 +230,85 @@ const BusinessSignupApplication = () => {
     trigger()
       .then((result) => {
         if (!result) {
-          setFirstErrorMessage(errorMsgs[langOption]);
+          setFormErrorMessage(errorMsgs[langOption]);
         } else {
-          setFirstErrorMessage("");
+          setFormErrorMessage("");
           setStep(Math.min(numPages, step + 1));
         }
       })
       .catch((error) => {
         console.error("Validation error:", error);
-        setFirstErrorMessage("An unexpected error occurred during validation.");
+        setFormErrorMessage("An unexpected error occurred during validation.");
+      });
+  };
+
+  // validate password
+  const validateContactInfo = () => {
+    // validate non-password information
+    trigger()
+      .then((result) => {
+        // validating all non-password data
+        if (!result) {
+          setFormErrorMessage(errorMsgs[langOption]);
+          return;
+        }
+        // validate password data
+        if (password1.length < 8) {
+          const err = langOption === 0 ? "Password too short" : "Contraseña demasiado corta";
+          console.error(err);
+          setFormErrorMessage(err);
+          return;
+        }
+        if (password1 !== password2) {
+          const err = langOption === 0 ? "Passwords don't match" : "Las contraseñas no coinciden";
+          console.error(err);
+          setFormErrorMessage(err);
+          return;
+        }
+
+        // send to Clerk
+        try {
+          const email = getValues("contactInfo.email");
+          fetch("/api/clerkUser", {
+            method: "POST",
+            body: JSON.stringify({ email: email, password: password1 }),
+            headers: { "Content-Type": "application/json" },
+          }).then((res) => {
+            console.log("got response from POST to Clerk");
+            if (!res.ok) {
+              const err = langOption == 0 ? "Problem creating profile" : "Problema al crear perfil";
+              setFormErrorMessage(err);
+              res.json().then((error) => console.error(error));
+              return;
+            }
+            console.log("response is ok");
+            res
+              .json()
+              .then((data) => {
+                console.log(`got json data: `, data);
+                if (data.user) {
+                  console.log("user exists in data");
+                  setClerkUserID(data.user.id);
+                  console.log(`user: ${data.user.id}`);
+                  // validation complete
+                  setFormErrorMessage("");
+                  setStep(Math.min(numPages, step + 1));
+                  return;
+                }
+                console.error("Failed to get user from data");
+              })
+              .catch((error) => {
+                console.log(error);
+                setFormErrorMessage(error);
+              });
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      })
+      .catch((error) => {
+        console.error("Validation error:", error);
+        setFormErrorMessage("An unexpected error occurred during validation.");
       });
   };
 
@@ -281,7 +354,7 @@ const BusinessSignupApplication = () => {
   const nextStep = () => {
     switch (step) {
       case 1: // contact information page
-        validateData();
+        validateContactInfo();
         break;
       case 2: // business information page 1
         validateData();
@@ -308,7 +381,7 @@ const BusinessSignupApplication = () => {
     }
   };
   const prevStep = () => {
-    setFirstErrorMessage("");
+    setFormErrorMessage("");
     setStep(Math.max(1, step - 1));
   };
 
@@ -368,7 +441,7 @@ const BusinessSignupApplication = () => {
       case 1:
         return (
           <div>
-            <div className="grid gap-4 mt-[60px] justify-start items-start">
+            <div className="grid gap-4 justify-start items-start">
               <div className="flex items-center gap-2">
                 <Input
                   key={`contactName-${step}`}
@@ -416,7 +489,31 @@ const BusinessSignupApplication = () => {
                   })}
                 />
               </div>
-              {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
+
+              <div>
+                <Input
+                  key={`password1-${step}`}
+                  className="w-[450px] border-[#8C8C8C]"
+                  type="text"
+                  id="Password1"
+                  value={password1}
+                  placeholder={contactInfoFieldNames[langOption][3]}
+                  onChange={(e) => setPassword1(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Input
+                  key={`password2-${step}`}
+                  className="w-[450px] border-[#8C8C8C]"
+                  type="text"
+                  id="Password2"
+                  value={password2}
+                  placeholder={contactInfoFieldNames[langOption][4]}
+                  onChange={(e) => setPassword2(e.target.value)}
+                />
+              </div>
+              {formErrorMessage && <div className="text-red-600">{formErrorMessage}</div>}
             </div>
             {renderNavButtons(false, false)}
           </div>
@@ -476,7 +573,7 @@ const BusinessSignupApplication = () => {
                   {...register("businessInfo.description", { required: "Description is required" })}
                 />
               </div>
-              {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
+              {formErrorMessage && <div className="text-red-600">{formErrorMessage}</div>}
             </div>
             {renderNavButtons(true, false)}
           </div>
@@ -571,7 +668,7 @@ const BusinessSignupApplication = () => {
                   {...register("businessInfo.mailingAddress.zip", { required: "ZIP is required" })}
                 />
               </div>
-              {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
+              {formErrorMessage && <div className="text-red-600">{formErrorMessage}</div>}
             </div>
             {renderNavButtons(true, false)}
           </div>
@@ -646,7 +743,7 @@ const BusinessSignupApplication = () => {
               // })}
             />
             <div className="w-[350px] mt-[10px] ml-[25px]">
-              {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
+              {formErrorMessage && <div className="text-red-600">{formErrorMessage}</div>}
             </div>
             {renderNavButtons(true, false)}
           </div>
@@ -738,7 +835,7 @@ const BusinessSignupApplication = () => {
                   // })}
                 />
               </div>
-              {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
+              {formErrorMessage && <div className="text-red-600">{formErrorMessage}</div>}
             </div>
             {renderNavButtons(true, false)}
           </div>
