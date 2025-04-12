@@ -119,3 +119,30 @@ export function updateRequestStatus(id: string, status: "approved" | "denied", c
     (request as any)._id === id ? { ...request, status } : request,
   );
 }
+
+/**
+ * Hook for fetching business data by ID
+ * @param id - Business ID from MongoDB or clerkId
+ * @param config - SWR configuration options
+ */
+export function useBusinessById(id?: string, config?: SWRConfiguration) {
+  // Skip fetch if no ID is provided
+  const shouldFetch = !!id;
+
+  // Determine correct endpoint based on ID type (MongoDB ID or Clerk ID)
+  const isClerkId = id?.startsWith("user_");
+  const endpoint = shouldFetch ? (isClerkId ? `/api/business?clerkId=${id}` : `/api/business/${id}`) : null;
+
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IBusiness>(endpoint, {
+    revalidateOnFocus: false,
+    ...config,
+  });
+
+  return {
+    business: data,
+    isLoading,
+    isValidating,
+    isError: error,
+    mutate,
+  };
+}
