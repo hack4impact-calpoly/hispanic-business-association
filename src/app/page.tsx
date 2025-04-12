@@ -47,6 +47,7 @@ export default function Login() {
       });
 
       if (result.status === "complete") {
+        window.location.href = "/"; // Refresh to redirect to where user should go
         // Clerk automatically manages the session
         // Redirect logic will be handled in useEffect
       } else {
