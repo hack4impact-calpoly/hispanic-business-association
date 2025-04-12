@@ -7,65 +7,63 @@ import MembershipExpirationAlert from "@/components/ui/MembershipExpirationAlert
 import BusinessInfoCard from "@/components/ui/BusinessInfoCard";
 import ContactInfoCard from "@/components/ui/ContactInfoCard";
 import AboutCard from "@/components/ui/AboutCard";
-import { useIsMobile } from "@/hooks/use-mobile";
-
-// INTERFACE: Business data structure - expanded to include banner customization options
-interface BusinessData {
-  businessName: string;
-  memberSince: string;
-  expiresInMonths?: number;
-  bannerImage?: string; // URL for custom banner image
-  bannerColor?: string; // HEX code for banner background color
-}
+import EditAboutForm from "@/components/ui/EditAboutForm";
+import ChangeRequestConfirmation from "@/components/ui/ChangeRequestConfirmation";
+import { useRouter } from "next/navigation";
+import { useBusiness } from "@/lib/swrHooks";
+import { extractBusinessDisplayData } from "@/lib/formatters";
 
 export default function BusinessDashboardPage() {
-  // STATE: Track business data and loading state for API driven content
-  const [businessData, setBusinessData] = useState<BusinessData | null>(null);
+  // State for UI components
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const [loading, setLoading] = useState(true);
-  const isMobile = useIsMobile();
 
-  // EFFECT: Fetch business data from API - handles loading states and error cases
+  const router = useRouter();
+
+  // Fetch current user's business data
+  const { business, isLoading, isError, mutate } = useBusiness();
+
+  // Process business data for display
+  const displayData = extractBusinessDisplayData(business);
+
+  // Handle loading state
   useEffect(() => {
-    const fetchBusinessData = async () => {
-      try {
-        setLoading(true);
-        // Replace with actual API endpoint when available
-        const response = await fetch("/api/business");
+    if (!isLoading) {
+      setLoading(false);
+    }
+  }, [isLoading]);
 
-        if (response.ok) {
-          const data = await response.json();
-          setBusinessData(data);
-        } else {
-          console.error("Failed to fetch business data");
+  // Handle edit form display
+  const handleEditClick = () => {
+    setShowEditForm(true);
+  };
 
-          // DEMO: For demonstration, set mock data with the banner image
-          setBusinessData({
-            businessName: "HALO Hair Studio",
-            memberSince: "November 2023",
-            expiresInMonths: 1,
-            bannerImage: "/logo/Banner_Demo.png",
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching business data:", error);
+  // Handle edit form close
+  const handleEditClose = () => {
+    setShowEditForm(false);
+  };
 
-        // DEMO: For demonstration, set mock data with the banner image - DELETE AFTER DEMO
-        // TODO: Remove this mock data after demo and rely on actual API responses
-        setBusinessData({
-          businessName: "HALO Hair Studio",
-          memberSince: "November 2023",
-          expiresInMonths: 1,
-          bannerImage: "/logo/Banner_Demo.png",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Handle edit form submission
+  const handleEditSubmit = () => {
+    setShowEditForm(false);
+    setShowConfirmation(true);
+    // Refresh business data
+    mutate();
+  };
 
-    fetchBusinessData();
-  }, []);
+  // Handle confirmation close
+  const handleConfirmationClose = () => {
+    setShowConfirmation(false);
+  };
 
-  // HANDLER: Handle renewal button click - stub for future implementation
+  // Handle back to home button on confirmation
+  const handleBackToHome = () => {
+    setShowConfirmation(false);
+    router.push("/business");
+  };
+
+  // Handle renewal button click
   const handleRenewClick = () => {
     console.log("Renewal requested");
     // Future implementation: Navigate to renewal page or open modal
@@ -74,18 +72,11 @@ export default function BusinessDashboardPage() {
   return (
     <ResponsiveLayout title="Dashboard">
       <main className="w-full bg-white min-h-screen overflow-x-hidden pb-[142px]">
-        {" "}
-        {/* 92px navbar + 50px leeway */}
-        {/* Cover Image Section - conditional rendering based on data availability */}
-        <section
-          className="relative w-full h-[193px]"
-          style={{ backgroundColor: businessData?.bannerColor || "#293241" }}
-        >
-          {/* DEMO: Using the Banner_Demo.png from public/logo directory - DELETE AFTER DEMO */}
-          {/* TODO: Remove hardcoded banner and restore conditional rendering based on businessData */}
+        {/* Cover Image Section */}
+        <section className="relative w-full h-[193px]" style={{ backgroundColor: "#293241" }}>
           <Image src="/logo/Banner_Demo.png" alt="Business Cover" fill style={{ objectFit: "cover" }} priority />
 
-          {/* Profile Logo - positioned to overlap banner with negative bottom margin */}
+          {/* Profile Logo */}
           <div className="absolute bottom-[-75px] left-[65px]">
             <div className="relative w-[150px] h-[150px] rounded-full border-4 border-white bg-white overflow-hidden shadow-md">
               <Image
@@ -98,33 +89,61 @@ export default function BusinessDashboardPage() {
             </div>
           </div>
         </section>
-        {/* Content Section - constrained width container for consistent spacing */}
+
+        {/* Content Section */}
         <div className="container mx-auto px-6 md:px-8 max-w-7xl mt-28">
-          {/* Welcome Section - conditional rendering based on loading state */}
+          {/* Welcome Section */}
           <section className="flex flex-col md:flex-row justify-between items-start md:items-center mb-5">
-            <h2 className="text-2xl">Welcome, {loading ? "..." : businessData?.businessName || "Business Owner"}</h2>
+            <h2 className="text-2xl">
+              {loading ? "Welcome..." : `Welcome, ${displayData?.businessInfo.name || "Business Owner"}`}
+            </h2>
             <p className="text-sm text-zinc-500 mt-1 md:mt-0 pr-5">
-              Member since {loading ? "..." : businessData?.memberSince || "November 2023"}
+              Member since {displayData?.membership.memberSince || "November 2023"}
             </p>
           </section>
 
-          {/* Membership Alert - container disappears when alert isn't shown. Content will shift up */}
+          {/* Membership Alert */}
           <div className="mb-7 w-full">
-            <MembershipExpirationAlert expiresInMonths={1} onRenewClick={handleRenewClick} />
+            <MembershipExpirationAlert
+              expiresInMonths={displayData?.membership.expiresInMonths || 1}
+              onRenewClick={handleRenewClick}
+            />
           </div>
 
-          {/* About Section - full width card for business description */}
+          {/* About Section */}
           <div className="mb-6 w-full">
-            <AboutCard />
+            <AboutCard
+              info={{ description: displayData?.about.description || "" }}
+              editable={true}
+              onEditClick={handleEditClick}
+            />
           </div>
 
-          {/* Information Cards - grid layout ensures equal widths and responsive stacking */}
+          {/* Information Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 lg:gap-16 mb-10">
-            <BusinessInfoCard />
-            <ContactInfoCard />
+            <BusinessInfoCard info={displayData?.businessInfo} editable={true} />
+            <ContactInfoCard info={displayData?.contactInfo} editable={true} />
           </div>
         </div>
       </main>
+
+      {/* Edit Form Modal */}
+      {showEditForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <EditAboutForm
+            onClose={handleEditClose}
+            onSubmitSuccess={handleEditSubmit}
+            initialDescription={displayData?.about.description || ""}
+          />
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {showConfirmation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <ChangeRequestConfirmation onClose={handleConfirmationClose} onBackToHome={handleBackToHome} />
+        </div>
+      )}
     </ResponsiveLayout>
   );
 }

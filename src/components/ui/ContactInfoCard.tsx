@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Card, CardHeader, CardContent } from "./card";
 import { useRouter } from "next/navigation";
 
-// INTERFACE: Contact info data structure
+// Contact info data structure
 interface ContactInfo {
   pointOfContact: string;
   phone: string;
@@ -14,17 +14,28 @@ interface ContactInfo {
 
 interface ContactInfoCardProps {
   info?: ContactInfo;
+  editable?: boolean;
+  onEditClick?: () => void;
 }
 
-const ContactInfoCard = ({ info }: ContactInfoCardProps) => {
+const ContactInfoCard = ({ info, editable = false, onEditClick }: ContactInfoCardProps) => {
   const router = useRouter();
 
-  // MOCK: Default contact info - replaced with prop data when available
+  // Default contact info - replaced with prop data when available
   const contactInfo = info ?? {
     pointOfContact: "Selena Lilies",
     phone: "(408) 772-8521",
     email: "lilieschair@hotmail.com",
     socialMedia: "https://www.facebook.com/halohairandnailstudio",
+  };
+
+  // Handle edit button click
+  const handleEditClick = () => {
+    if (onEditClick) {
+      onEditClick();
+    } else {
+      router.push("/business/update");
+    }
   };
 
   return (
@@ -35,16 +46,22 @@ const ContactInfoCard = ({ info }: ContactInfoCardProps) => {
             <h2 className="text-[16px] font-bold text-[#293241] font-['Futura'] leading-[21.26px] truncate">
               Contact Information
             </h2>
-            {/* BUTTON: Edit functionality - routes to edit form */}
-            <button onClick={() => router.push("/dashboard-edit-about")} className="absolute top-5 right-6">
-              <Image src="/icons/Edit.png" alt="Edit" width={20} height={20} />
-            </button>
+            {/* Edit button - conditionally rendered based on editable prop */}
+            {editable && (
+              <button
+                onClick={handleEditClick}
+                className="absolute top-5 right-6"
+                aria-label="Edit contact information"
+              >
+                <Image src="/icons/Edit.png" alt="Edit" width={20} height={20} />
+              </button>
+            )}
           </div>
           <div className="h-[1px] bg-[#BEBEBE] mt-4 mb-6 w-full" />
         </div>
       </CardHeader>
       <CardContent className="px-[32px] pt-0">
-        {/* LAYOUT: Grid ensures consistent column widths across screen sizes */}
+        {/* Grid ensures consistent column widths across screen sizes */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-[21px]">
             <div>
@@ -63,14 +80,12 @@ const ContactInfoCard = ({ info }: ContactInfoCardProps) => {
           <div className="space-y-[23px]">
             <div>
               <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">Email</p>
-              {/* TEXT: Break-words ensure long emails wrap properly on small screens */}
               <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
                 {contactInfo.email}
               </p>
             </div>
             <div>
               <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">Social Media</p>
-              {/* TEXT: Break-words for URL text prevents horizontal overflow */}
               <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
                 {contactInfo.socialMedia}
               </p>

@@ -51,8 +51,10 @@ export default function AdminBusinessesPage() {
       case "Business Name Z-A":
         return sorted.sort((a, b) => b.businessName.localeCompare(a.businessName));
       case "Most Recent":
+        // Sort by creation date if available, otherwise fallback to name
         return sorted.sort((a, b) => b.businessName.localeCompare(a.businessName));
       case "Oldest":
+        // Sort by creation date if available, otherwise fallback to name
         return sorted.sort((a, b) => a.businessName.localeCompare(a.businessName));
       default:
         return sorted;
@@ -67,6 +69,11 @@ export default function AdminBusinessesPage() {
 
   const handleFilterChange = (newFilter: string) => {
     setFilter(newFilter as FilterType);
+  };
+
+  // Handle business card click
+  const handleBusinessClick = (id: string) => {
+    router.push(`/admin/businesses/${id}`);
   };
 
   // Show sign-in UI if not authenticated
@@ -116,32 +123,44 @@ export default function AdminBusinessesPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-12 gap-y-0">
               {/* Left Column */}
               <div>
-                {leftColumnBusinesses.map((business) => (
-                  <div key={business.clerkUserID} className="mb-3 sm:mb-4 md:mb-6 w-full">
-                    <BusinessCard
-                      id={business.clerkUserID}
-                      businessName={business.businessName}
-                      logoUrl="/logo/HBA_NoBack_NoWords.png"
-                      logoAlt={`${business.businessName} logo`}
-                      className="w-full"
-                    />
-                  </div>
-                ))}
+                {leftColumnBusinesses.map((business) => {
+                  // Safely access MongoDB document ID using type assertion or optional chaining
+                  const businessId = (business as any)._id?.toString() || business.clerkUserID;
+
+                  return (
+                    <div key={businessId} className="mb-3 sm:mb-4 md:mb-6 w-full">
+                      <BusinessCard
+                        id={businessId}
+                        businessName={business.businessName}
+                        logoUrl="/logo/HBA_NoBack_NoWords.png"
+                        logoAlt={`${business.businessName} logo`}
+                        className="w-full"
+                        onClick={() => handleBusinessClick(businessId)}
+                      />
+                    </div>
+                  );
+                })}
               </div>
 
               {/* Right Column */}
               <div>
-                {rightColumnBusinesses.map((business) => (
-                  <div key={business.clerkUserID} className="mb-3 sm:mb-4 md:mb-6 w-full">
-                    <BusinessCard
-                      id={business.clerkUserID}
-                      businessName={business.businessName}
-                      logoUrl="/logo/HBA_NoBack_NoWords.png"
-                      logoAlt={`${business.businessName} logo`}
-                      className="w-full"
-                    />
-                  </div>
-                ))}
+                {rightColumnBusinesses.map((business) => {
+                  // Safely access MongoDB document ID using type assertion or optional chaining
+                  const businessId = (business as any)._id?.toString() || business.clerkUserID;
+
+                  return (
+                    <div key={businessId} className="mb-3 sm:mb-4 md:mb-6 w-full">
+                      <BusinessCard
+                        id={businessId}
+                        businessName={business.businessName}
+                        logoUrl="/logo/HBA_NoBack_NoWords.png"
+                        logoAlt={`${business.businessName} logo`}
+                        className="w-full"
+                        onClick={() => handleBusinessClick(businessId)}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

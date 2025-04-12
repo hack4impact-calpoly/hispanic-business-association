@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
 export type IBusiness = {
+  _id?: string; // MongoDB document ID
   clerkUserID: string; // Reference to the User's clerkUserID.
   businessName: string;
   businessType: string;
