@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSignIn, useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
+import { useEffect } from "react";
 
 export default function Login() {
   const [formData, setFormData] = useState<{ username: string; password: string }>({
@@ -20,26 +22,36 @@ export default function Login() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const { user, isLoaded: userLoaded } = useUser();
   const router = useRouter();
 
-  const { signOut } = useAuth();
+  useEffect(() => {
+    if (userLoaded && user) {
+      const role = user.publicMetadata?.role;
+      if (role === "admin") {
+        router.replace("/admin");
+      } else {
+        router.replace("/business");
+      }
+    }
+  }, [userLoaded, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isLoaded) return;
 
     try {
-      // Sign out current session before signing in
-      await signOut();
-
-      // Proceed with signing in
       const result = await signIn.create({
         identifier: formData.username,
         password: formData.password,
       });
 
-      console.log("User signed in successfully:", result);
-      router.push("/business"); // Redirect user after login
+      if (result.status === "complete") {
+        // Clerk automatically manages the session
+        // Redirect logic will be handled in useEffect
+      } else {
+        console.error("Sign-in not complete:", result);
+      }
     } catch (error) {
       console.error("Error signing in:", JSON.stringify(error, null, 2));
     }
@@ -87,4 +99,7 @@ export default function Login() {
       </Card>
     </div>
   );
+}
+function signOut() {
+  throw new Error("Function not implemented.");
 }
