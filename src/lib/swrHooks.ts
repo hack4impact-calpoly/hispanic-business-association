@@ -2,6 +2,7 @@ import useSWR, { MutatorCallback, SWRConfiguration } from "swr";
 import { IBusiness } from "@/database/businessSchema";
 import { IUser } from "@/database/userSchema";
 import { IRequest } from "@/database/requestSchema";
+import { fetcher } from "@/lib/fetcher";
 
 /**
  * Common SWR response interface with proper typing
@@ -39,12 +40,17 @@ export function useUser(config?: SWRConfiguration) {
  * Hook for fetching business data by clerkId
  * If no clerkId provided, fetches authenticated user's business
  */
-export function useBusiness(clerkId?: string, config?: SWRConfiguration) {
-  const endpoint = clerkId ? `/api/business?clerkId=${clerkId}` : "/api/business";
-  const { data, error, isLoading, isValidating, mutate } = useSWR<IBusiness>(endpoint, {
-    revalidateOnFocus: false,
-    ...config,
-  });
+export function useBusiness(clerkId?: string | null, config?: SWRConfiguration) {
+  const endpoint = clerkId === null ? null : clerkId ? `/api/business?clerkId=${clerkId}` : "/api/business";
+
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IBusiness>(
+    endpoint,
+    endpoint ? fetcher : null, // Skip fetcher if endpoint is null
+    {
+      revalidateOnFocus: false,
+      ...config,
+    },
+  );
 
   return {
     business: data,

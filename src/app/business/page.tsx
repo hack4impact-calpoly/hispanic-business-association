@@ -12,6 +12,7 @@ import ChangeRequestConfirmation from "@/components/ui/ChangeRequestConfirmation
 import { useRouter } from "next/navigation";
 import { useBusiness } from "@/lib/swrHooks";
 import { extractBusinessDisplayData } from "@/lib/formatters";
+import { useUser } from "@clerk/nextjs";
 
 export default function BusinessDashboardPage() {
   // State for UI components
@@ -21,8 +22,10 @@ export default function BusinessDashboardPage() {
 
   const router = useRouter();
 
+  const { isLoaded, user } = useUser();
+
   // Fetch current user's business data
-  const { business, isLoading, isError, mutate } = useBusiness();
+  const { business, isLoading, mutate } = useBusiness(isLoaded ? undefined : null);
 
   // Process business data for display
   const displayData = extractBusinessDisplayData(business);
