@@ -1,18 +1,38 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-// Define public routes that do NOT require authentication
-const isPublicRoute = createRouteMatcher(["/"]);
+const isPublicRoute = createRouteMatcher(["/", "/unauthorized"]);
+
+const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
+const isBusinessRoute = createRouteMatcher(["/business(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
-  const { userId } = await auth();
+  const { userId, sessionClaims } = await auth();
+  console.log("sessionClaims:", sessionClaims);
 
-  // If the route is not public and the user is not authenticated, redirect
-  if (!isPublicRoute(req) && !userId) {
+  const role = (sessionClaims?.metadata as { role?: string })?.role;
+  console.log("Role:", role); // Should be "admin"
+
+  // Public pages
+  if (isPublicRoute(req)) {
+    return NextResponse.next();
+  }
+
+  // Redirect unauthenticated users
+  if (!userId) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  // Otherwise, allow request to proceed
+  // // Role-based route protection
+  if (isAdminRoute(req) && role !== "admin") {
+    return new NextResponse("Forbidden", { status: 403 });
+  }
+
+  if (isBusinessRoute(req) && role !== "business") {
+    return new NextResponse("Forbidden", { status: 403 });
+  }
+
+  // If allowed
   return NextResponse.next();
 });
 
