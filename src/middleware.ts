@@ -8,10 +8,7 @@ const isBusinessRoute = createRouteMatcher(["/business(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId, sessionClaims } = await auth();
-  console.log("sessionClaims:", sessionClaims);
-
   const role = (sessionClaims?.metadata as { role?: string })?.role;
-  console.log("Role:", role); // Should be "admin"
 
   // Public pages
   if (isPublicRoute(req)) {
@@ -23,7 +20,7 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  // // Role-based route protection
+  // Role-based route protection
   if (isAdminRoute(req) && role !== "admin") {
     return new NextResponse("Forbidden", { status: 403 });
   }
