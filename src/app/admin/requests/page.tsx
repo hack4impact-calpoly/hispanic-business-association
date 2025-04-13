@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import { RequestCard } from "@/components/ui/RequestCard";
 import StatsCard from "@/components/ui/StatsCard";
 import FilterButton from "@/components/ui/FilterButton";
-import { useRequests, useUser } from "@/lib/swrHooks";
+import { useRequests, useUser, useBusinesses } from "@/lib/swrHooks";
 import { useRouter } from "next/navigation";
 
 type FilterType = "Most Recent" | "Oldest" | "Business Name A-Z" | "Business Name Z-A";
@@ -24,6 +24,34 @@ export default function AdminRequestsPage() {
   // Fetch data using SWR hooks
   const { user, isLoading: isUserLoading } = useUser();
   const { requests, isLoading: isRequestsLoading } = useRequests();
+  const { businesses, isLoading: isBusinessesLoading } = useBusinesses();
+
+  // Create a lookup map of clerkUserID to business name
+  const businessNameMap = useMemo(() => {
+    if (!businesses) return {};
+
+    const map: Record<string, string> = {};
+    businesses.forEach((business) => {
+      if (business.clerkUserID && business.businessName) {
+        map[business.clerkUserID] = business.businessName;
+      }
+    });
+    return map;
+  }, [businesses]);
+
+  // Function to get business name, using original name as fallback
+  const getBusinessName = (request: any) => {
+    // If request has a business name, use it
+    if (request.businessName) return request.businessName;
+
+    // Otherwise, look up the original business name by clerk ID
+    if (request.clerkUserID && businessNameMap[request.clerkUserID]) {
+      return businessNameMap[request.clerkUserID];
+    }
+
+    // Fall back to placeholder if nothing is found
+    return "(Business Name)";
+  };
 
   // Handle authentication checks with a delay to prevent immediate redirects
   useEffect(() => {
@@ -60,9 +88,9 @@ export default function AdminRequestsPage() {
       case "Oldest":
         return sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
       case "Business Name A-Z":
-        return sorted.sort((a, b) => (a.businessName || "").localeCompare(b.businessName || ""));
+        return sorted.sort((a, b) => (getBusinessName(a) || "").localeCompare(getBusinessName(b) || ""));
       case "Business Name Z-A":
-        return sorted.sort((a, b) => (b.businessName || "").localeCompare(a.businessName || ""));
+        return sorted.sort((a, b) => (getBusinessName(b) || "").localeCompare(getBusinessName(a) || ""));
       default:
         return sorted;
     }
@@ -81,9 +109,9 @@ export default function AdminRequestsPage() {
       case "Oldest":
         return sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
       case "Business Name A-Z":
-        return sorted.sort((a, b) => (a.businessName || "").localeCompare(b.businessName || ""));
+        return sorted.sort((a, b) => (getBusinessName(a) || "").localeCompare(getBusinessName(b) || ""));
       case "Business Name Z-A":
-        return sorted.sort((a, b) => (b.businessName || "").localeCompare(a.businessName || ""));
+        return sorted.sort((a, b) => (getBusinessName(b) || "").localeCompare(getBusinessName(a) || ""));
       default:
         return sorted;
     }
@@ -134,6 +162,9 @@ export default function AdminRequestsPage() {
   const pendingData = filterPendingRequests();
   const historyData = filterHistoryRequests();
 
+  // Determine if data is still loading
+  const isLoading = isRequestsLoading || isBusinessesLoading;
+
   return (
     <ResponsiveLayout title="Requests">
       <div className="relative min-h-screen bg-white px-2 sm:px-4 md:px-6 py-6 pb-[142px] md:pb-12">
@@ -153,23 +184,27 @@ export default function AdminRequestsPage() {
               </div>
 
               <div className="space-y-[6px] sm:space-y-[10px] w-full">
-                {pendingData.length > 0
-                  ? pendingData.map((request) => (
-                      <div
-                        key={(request as any)._id}
-                        onClick={() => handleRequestClick((request as any)._id)}
+                {isLoading ? (
+                  <p className="text-center py-4 text-gray-500">Loading requests...</p>
+                ) : pendingData.length > 0 ? (
+                  pendingData.map((request) => (
+                    <div
+                      key={(request as any)._id}
+                      onClick={() => handleRequestClick((request as any)._id)}
+                      className="w-full"
+                    >
+                      <RequestCard
+                        type="pending"
+                        businessName={getBusinessName(request)}
+                        timeAgo={getTimeAgo(request.date)}
+                        isUrgent={isUrgent(request.date)}
                         className="w-full"
-                      >
-                        <RequestCard
-                          type="pending"
-                          businessName={request.businessName || "(Business Name)"}
-                          timeAgo={getTimeAgo(request.date)}
-                          isUrgent={isUrgent(request.date)}
-                          className="w-full"
-                        />
-                      </div>
-                    ))
-                  : !isRequestsLoading && <p className="text-center py-4 text-gray-500">No pending requests</p>}
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center py-4 text-gray-500">No pending requests</p>
+                )}
               </div>
 
               <div className="w-full h-0 border-t border-[#BEBEBE] my-6 sm:my-8" />
@@ -185,23 +220,27 @@ export default function AdminRequestsPage() {
               </div>
 
               <div className="space-y-[6px] sm:space-y-[10px] w-full">
-                {historyData.length > 0
-                  ? historyData.map((request) => (
-                      <div
-                        key={(request as any)._id}
-                        onClick={() => handleRequestClick((request as any)._id)}
+                {isLoading ? (
+                  <p className="text-center py-4 text-gray-500">Loading request history...</p>
+                ) : historyData.length > 0 ? (
+                  historyData.map((request) => (
+                    <div
+                      key={(request as any)._id}
+                      onClick={() => handleRequestClick((request as any)._id)}
+                      className="w-full"
+                    >
+                      <RequestCard
+                        type="history"
+                        businessName={getBusinessName(request)}
+                        status={request.status as "approved" | "denied"}
+                        date={formatDate(request.date)}
                         className="w-full"
-                      >
-                        <RequestCard
-                          type="history"
-                          businessName={request.businessName || "(Business Name)"}
-                          status={request.status as "approved" | "denied"}
-                          date={formatDate(request.date)}
-                          className="w-full"
-                        />
-                      </div>
-                    ))
-                  : !isRequestsLoading && <p className="text-center py-4 text-gray-500">No request history</p>}
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center py-4 text-gray-500">No request history</p>
+                )}
               </div>
             </div>
 
