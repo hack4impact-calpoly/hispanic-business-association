@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import InformationCard from "@/components/ui/InformationCard";
 import { useRequest, useBusiness, updateRequestStatus } from "@/lib/swrHooks";
+import { Button } from "@/components/ui/button";
 
 // Define props for the page component
 interface RequestDetailPageProps {
@@ -119,6 +120,16 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
       {/* Refined responsive container */}
       <div className="relative min-h-screen bg-white px-3 sm:px-4 md:px-6 py-6 pb-[142px] md:pb-12">
         <div className="w-full max-w-7xl mx-auto">
+          {/* Back to Requests button - styled like admin business pages */}
+          <div className="mb-6">
+            <Button
+              onClick={() => router.push("/admin/requests")}
+              className="flex items-center gap-2 bg-transparent text-[#405BA9] hover:bg-gray-100"
+            >
+              <span className="text-xl">←</span> Back to Requests
+            </Button>
+          </div>
+
           {isLoading && (
             <div className="flex justify-center items-center h-[300px]">
               <p className="text-lg">Loading request details...</p>
@@ -143,13 +154,13 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                 {/* Old Information Card - Full width on mobile, fixed proportional on desktop */}
                 <div className="w-full lg:flex-1 lg:min-w-0 lg:max-w-[50%]">
                   <h3 className="font-futura font-medium text-xl text-black mb-4">Old Information</h3>
-                  <InformationCard type="old" businessInfo={oldInfo} />
+                  <InformationCard type="old" businessInfo={oldInfo} otherBusinessInfo={newInfo} />
                 </div>
 
                 {/* New Information Card - Full width on mobile, fixed proportional on desktop */}
                 <div className="w-full lg:flex-1 lg:min-w-0 lg:max-w-[50%]">
                   <h3 className="font-futura font-medium text-xl text-black mb-4">New Information</h3>
-                  <InformationCard type="new" businessInfo={newInfo} />
+                  <InformationCard type="new" businessInfo={newInfo} otherBusinessInfo={oldInfo} />
                 </div>
               </div>
 
