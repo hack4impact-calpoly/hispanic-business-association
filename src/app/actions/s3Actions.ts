@@ -110,7 +110,7 @@ export async function removeImage(url: string) {
  *
  * Used after upload to get permanent URL for storing in database
  */
-export function getPublicUrl(fileName: string) {
+export async function getPublicUrl(fileName: string) {
   // URL encode the filename to handle special characters
   const encodedFileName = encodeURI(fileName);
   // Construct public URL using standard S3 URL pattern
