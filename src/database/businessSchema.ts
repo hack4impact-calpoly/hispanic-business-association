@@ -25,6 +25,8 @@ export type IBusiness = {
     FB?: string;
   };
   description: string;
+  logoUrl?: string;
+  bannerUrl?: string;
 };
 
 // Create the Mongoose schema for Business details.
@@ -52,6 +54,8 @@ const BusinessSchema = new Schema<IBusiness>({
     FB: { type: String },
   },
   description: { type: String, required: true },
+  logoUrl: { type: String },
+  bannerUrl: { type: String },
 });
 
 // Export the model.
