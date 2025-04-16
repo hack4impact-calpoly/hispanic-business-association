@@ -13,10 +13,15 @@ import { useRouter } from "next/navigation";
 import { useBusiness } from "@/lib/swrHooks";
 import { extractBusinessDisplayData } from "@/lib/formatters";
 import { useUser } from "@clerk/nextjs";
+import EditBusinessInfo from "@/components/ui/EditBusinessInfo";
+import EditBusinessInfoForm from "@/components/ui/EditContactInfo";
+import EditContactInfo from "@/components/ui/EditContactInfo";
 
 export default function BusinessDashboardPage() {
   // State for UI components
   const [showEditForm, setShowEditForm] = useState(false);
+  const [showEditBiz, setShowEditBiz] = useState(false);
+  const [showEditContact, setShowEditContact] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -42,6 +47,21 @@ export default function BusinessDashboardPage() {
     setShowEditForm(true);
   };
 
+  const handleEditBizClick = () => {
+    setShowEditBiz(true);
+  };
+
+  const handleEditBizClose = () => {
+    setShowEditBiz(false);
+  };
+
+  const handleEditContactClick = () => {
+    setShowEditContact(true);
+  };
+
+  const handleEditContactClose = () => {
+    setShowEditContact(false);
+  };
   // Handle edit form close
   const handleEditClose = () => {
     setShowEditForm(false);
@@ -124,8 +144,8 @@ export default function BusinessDashboardPage() {
 
           {/* Information Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 lg:gap-16 mb-10">
-            <BusinessInfoCard info={displayData?.businessInfo} editable={true} />
-            <ContactInfoCard info={displayData?.contactInfo} editable={true} />
+            <BusinessInfoCard info={displayData?.businessInfo} editable={true} onEditClick={handleEditBizClick} />
+            <ContactInfoCard info={displayData?.contactInfo} editable={true} onEditClick={handleEditContactClick} />
           </div>
         </div>
       </main>
@@ -138,6 +158,19 @@ export default function BusinessDashboardPage() {
             onSubmitSuccess={handleEditSubmit}
             initialDescription={displayData?.about.description || ""}
           />
+        </div>
+      )}
+
+      {/*Edit Business Info Modal */}
+      {showEditBiz && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex w-full items-start sm:items-center justify-center z-50 py-0 top-0 sm:p-4">
+          <EditBusinessInfo onClose={handleEditBizClose} onSubmitSuccess={handleEditSubmit} />
+        </div>
+      )}
+
+      {showEditContact && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex w-full h-full items-start sm:items-center justify-center z-50 p-0 top-0 sm:p-4 overflow-y-auto">
+          <EditContactInfo onClose={handleEditContactClose} onSubmitSuccess={handleEditSubmit} />
         </div>
       )}
 
