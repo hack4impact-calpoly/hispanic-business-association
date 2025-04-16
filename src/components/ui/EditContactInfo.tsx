@@ -116,7 +116,7 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
 
   // Renders form for editing description
   return (
-    <article className="rounded-lg shadow-sm w-full max-w-full md:max-w-[805px] border border-gray-200 overflow-y-auto sm:max-w-lg max-h-[90vh]">
+    <article className="fixed inset-x-0 top-0 bottom-[92px] z-[60] h-[calc(100vh-92px)] bg-white overflow-y-auto sm:rounded-lg w-full max-w-full md:top-12 md:bottom-auto md:h-auto md:max-h-[90vh] md:mx-auto md:left-0 md:right-0 md:w-[805px] border border-gray-200">
       <section className="flex flex-col py-4 md:py-6 w-full bg-white rounded-lg overflow-y-auto">
         <div className="flex flex-col px-4 md:px-5 w-full overflow-y-auto">
           <header className="flex flex-wrap gap-2 md:gap-5 justify-between items-start">

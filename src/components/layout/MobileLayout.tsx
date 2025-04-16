@@ -7,7 +7,7 @@ interface MobileLayoutProps {
   title: string;
 }
 
-const MobileLayout = ({ children, title }: MobileLayoutProps) => {
+const MobileLayout: React.FC<MobileLayoutProps> = ({ children, title }) => {
   return (
     <div className="w-full">
       <MobileHero title={title} />
