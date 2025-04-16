@@ -164,7 +164,7 @@ export default function DesktopSidebar() {
           <button
             onClick={handleSignOut}
             className={cn(
-              "flex items-center transition-all duration-300 mt-[10px] text-white hover:underline",
+              "flex items-center transition-all duration-300 mt-[10px] text-white hover:bg-[#1F2530]",
               isExpanded
                 ? "ml-[18px] w-[328px] h-[45px] pl-[18px] font-futura text-base font-medium"
                 : "ml-[4px] mt-[40px]",
