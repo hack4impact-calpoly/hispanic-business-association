@@ -16,17 +16,17 @@ export default function Login() {
     password: "",
   });
 
-  const { signIn, isLoaded } = useSignIn();
+  const { signIn, setActive, isLoaded } = useSignIn();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const { user, isLoaded: userLoaded } = useUser();
+  const { user, isSignedIn } = useUser();
   const router = useRouter();
 
   useEffect(() => {
-    if (userLoaded && user) {
+    if (isSignedIn && user) {
       const role = user.publicMetadata?.role;
       if (role === "admin") {
         router.replace("/admin");
@@ -34,7 +34,7 @@ export default function Login() {
         router.replace("/business");
       }
     }
-  }, [userLoaded, user, router]);
+  }, [isSignedIn, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,8 +46,8 @@ export default function Login() {
         password: formData.password,
       });
 
-      if (result.status === "complete") {
-        window.location.href = "/"; // Refresh to redirect to where user should go
+      if (result.status === "complete" && result.createdSessionId) {
+        await setActive({ session: result.createdSessionId });
         // Clerk automatically manages the session
         // Redirect logic will be handled in useEffect
       } else {
