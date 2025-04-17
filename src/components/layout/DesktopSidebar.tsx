@@ -3,9 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 
 type NavigationItem = {
   name: string;
@@ -20,25 +21,12 @@ export default function DesktopSidebar() {
   const { signOut } = useAuth();
 
   const [isExpanded, setIsExpanded] = useState(false);
-  const [userRole, setUserRole] = useState<string>("business");
 
-  useEffect(() => {
-    async function fetchUserRole() {
-      try {
-        const response = await fetch(`${window.location.origin}/api/user`, {
-          method: "GET",
-        });
-        if (!response.ok) throw new Error("Failed to fetch role");
+  const { isLoaded, user } = useUser();
 
-        const data = await response.json();
-        setUserRole(data.role);
-      } catch (error) {
-        console.error("Error fetching user role:", error);
-      }
-    }
+  if (!isLoaded) return null;
 
-    fetchUserRole();
-  }, []);
+  const userRole = user?.publicMetadata?.role as string;
 
   const handleSignOut = async () => {
     await signOut();
