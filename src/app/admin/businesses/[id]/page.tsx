@@ -107,13 +107,13 @@ export default function AdminBusinessDetailPage({ params }: { params: { id: stri
 
         {/* Business Banner */}
         <section className="relative w-full h-[193px]" style={{ backgroundColor: "#293241" }}>
-          <Image src="/logo/Banner_Demo.png" alt="Business Cover" fill style={{ objectFit: "cover" }} priority />
+          <Image src="/logo/Default_Banner.png" alt="Business Cover" fill style={{ objectFit: "cover" }} priority />
 
           {/* Business Logo */}
           <div className="absolute bottom-[-75px] left-[65px]">
             <div className="relative w-[150px] h-[150px] rounded-full border-4 border-white bg-white overflow-hidden shadow-md">
               <Image
-                src="/logo/HBA_NoBack_NoWords.png"
+                src="/logo/Default_Logo.jpg"
                 alt="Business Logo"
                 fill
                 style={{ objectFit: "contain" }}
