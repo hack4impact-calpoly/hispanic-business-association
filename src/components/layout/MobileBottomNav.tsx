@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useUser } from "@clerk/nextjs";
 
 import {
   NavigationMenu,
@@ -11,27 +11,11 @@ import {
 } from "@/components/layout/navigation-menu";
 
 export default function Navbar() {
-  // STATE: Track user role for role-based navigation item display
-  const [userRole, setUserRole] = useState<string>("business");
+  const { isLoaded, user } = useUser();
 
-  // EFFECT: Fetch user role from API on component mount
-  useEffect(() => {
-    async function fetchUserRole() {
-      try {
-        const response = await fetch(`${window.location.origin}/api/user`, {
-          method: "GET",
-        });
-        if (!response.ok) throw new Error("Failed to fetch role");
+  if (!isLoaded) return null;
 
-        const data = await response.json();
-        setUserRole(data.role);
-      } catch (error) {
-        console.error("Error fetching user role:", error);
-      }
-    }
-
-    fetchUserRole();
-  }, []);
+  const userRole = user?.publicMetadata?.role as string;
 
   // DATA: Navigation item definitions - keyed by user role
   const menuItems: Record<string, { href: string; src: string; alt: string; width: number; height: number }[]> = {
