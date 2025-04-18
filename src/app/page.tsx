@@ -60,11 +60,10 @@ export default function Login() {
 
   return (
     <div className="flex h-screen items-center justify-center bg-gray-900">
-      <Card className="w-full max-w-md">
-        <CardContent className="p-8">
+      <Card className="w-full h-screen md:rounded-lg lg:rounded-lg rounded-none lg:max-w-sm md:max-w-md md:h-auto bg-white">
+        <CardContent className="p-8 flex flex-col justify-center h-full md:h-auto">
           <div className="flex justify-center mb-6">
             <Image src="/logo/HBA_No_Back.png" alt="HBA Logo" width={122} height={122} />
-            {/* Replace with your logo */}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -100,7 +99,4 @@ export default function Login() {
       </Card>
     </div>
   );
-}
-function signOut() {
-  throw new Error("Function not implemented.");
 }
