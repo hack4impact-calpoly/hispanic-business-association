@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
 import { useUser } from "@clerk/nextjs";
@@ -21,12 +21,11 @@ export default function DesktopSidebar() {
   const { signOut } = useAuth();
 
   const [isExpanded, setIsExpanded] = useState(false);
-
+  const [businessName, setBusinessName] = useState("Business Name");
   const { isLoaded, user } = useUser();
+  const userRole = user?.publicMetadata?.role as string;
 
   if (!isLoaded) return null;
-
-  const userRole = user?.publicMetadata?.role as string;
 
   const handleSignOut = async () => {
     await signOut();
@@ -180,7 +179,7 @@ export default function DesktopSidebar() {
             />
             {isExpanded && (
               <span className="ml-[18px] text-white font-futura text-base font-medium leading-[21.25px]">
-                Business Name
+                {userRole === "admin" ? "Hispanic Business Association" : businessName}
               </span>
             )}
           </div>
