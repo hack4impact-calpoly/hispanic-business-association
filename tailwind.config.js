@@ -4,6 +4,9 @@ module.exports = {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        futura: ["Futura", "sans-serif"], // 'Futura' is the preferred font, 'sans-serif' is the fallback
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
