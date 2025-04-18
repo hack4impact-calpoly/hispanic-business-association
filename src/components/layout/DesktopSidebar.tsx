@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
 import { useUser } from "@clerk/nextjs";
+import { useBusiness } from "@/lib/swrHooks";
 
 type NavigationItem = {
   name: string;
@@ -21,8 +22,11 @@ export default function DesktopSidebar() {
   const { signOut } = useAuth();
 
   const [isExpanded, setIsExpanded] = useState(false);
-  const [businessName, setBusinessName] = useState("Business Name");
+
   const { isLoaded, user } = useUser();
+  const shouldFetchBusiness = isLoaded && user?.publicMetadata?.role === "business";
+  const clerkId = shouldFetchBusiness ? user?.id : null;
+  const { business } = useBusiness(clerkId);
   const userRole = user?.publicMetadata?.role as string;
 
   if (!isLoaded) return null;
@@ -179,7 +183,7 @@ export default function DesktopSidebar() {
             />
             {isExpanded && (
               <span className="ml-[18px] text-white font-futura text-base font-medium leading-[21.25px]">
-                {userRole === "admin" ? "Hispanic Business Association" : businessName}
+                {userRole === "admin" ? "Hispanic Business Association" : (business?.businessName ?? "Business Name")}
               </span>
             )}
           </div>
