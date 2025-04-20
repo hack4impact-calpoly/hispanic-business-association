@@ -23,7 +23,7 @@ export default function BusinessDashboardPage() {
   const [showEditForm, setShowEditForm] = useState(false);
   const [showEditBiz, setShowEditBiz] = useState(false);
   const [showEditContact, setShowEditContact] = useState(false);
-  const [showEditBanner, setShowEditBanner] = useState(false);
+  const [showEditBannerAndLogo, setShowEditBannerAndLogo] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -36,6 +36,10 @@ export default function BusinessDashboardPage() {
 
   // Process business data for display
   const displayData = extractBusinessDisplayData(business);
+
+  // Default image URLs for fallbacks
+  const defaultLogo = "/logo/Default_Logo.jpg";
+  const defaultBanner = "/logo/Default_Banner.png";
 
   // Handle loading state
   useEffect(() => {
@@ -50,11 +54,11 @@ export default function BusinessDashboardPage() {
   };
 
   const handleEditBannerClick = () => {
-    setShowEditBanner(true);
+    setShowEditBannerAndLogo(true);
   };
 
   const handleEditBannerClose = () => {
-    setShowEditBanner(false);
+    setShowEditBannerAndLogo(false);
   };
 
   const handleEditBizClick = () => {
@@ -85,6 +89,13 @@ export default function BusinessDashboardPage() {
     mutate();
   };
 
+  const handleBannerAndLogoSubmit = () => {
+    setShowEditBannerAndLogo(false); // Close the banner modal
+    setShowConfirmation(true); // Show confirmation
+    // Refresh business data
+    mutate();
+  };
+
   // Handle confirmation close
   const handleConfirmationClose = () => {
     setShowConfirmation(false);
@@ -107,7 +118,18 @@ export default function BusinessDashboardPage() {
       <main className="w-full bg-white min-h-screen overflow-x-hidden pb-[142px]">
         {/* Cover Image Section */}
         <section className="relative w-full h-[193px]" style={{ backgroundColor: "#293241" }}>
-          <Image src="/logo/Default_Banner.png" alt="Business Cover" fill style={{ objectFit: "cover" }} priority />
+          <Image
+            src={business?.bannerUrl || defaultBanner}
+            alt="Business Cover"
+            fill
+            style={{ objectFit: "cover" }}
+            priority
+            onError={(e) => {
+              // Fallback to default on error
+              const target = e.target as HTMLImageElement;
+              target.src = defaultBanner;
+            }}
+          />
 
           {/* Edit Banner Button */}
           <button
@@ -122,11 +144,16 @@ export default function BusinessDashboardPage() {
           <div className="absolute bottom-[-75px] left-[65px]">
             <div className="relative w-[150px] h-[150px] rounded-full border-4 border-white bg-white overflow-hidden shadow-md">
               <Image
-                src="/logo/Default_Logo.jpg"
+                src={business?.logoUrl || defaultLogo}
                 alt="Business Logo"
                 fill
                 style={{ objectFit: "contain" }}
                 className="p-2"
+                onError={(e) => {
+                  // Fallback to default on error
+                  const target = e.target as HTMLImageElement;
+                  target.src = defaultLogo;
+                }}
               />
             </div>
           </div>
@@ -169,14 +196,14 @@ export default function BusinessDashboardPage() {
         </div>
       </main>
 
-      {/* Edit Banner Modal */}
-      {showEditBanner && (
+      {/* Edit Banner and Logo Modal */}
+      {showEditBannerAndLogo && (
         <div className="fixed inset-x-0 top-0 bottom-[92px] z-[60] h-[calc(100vh-92px)] bg-black bg-opacity-50 flex w-full items-start sm:items-center justify-center overflow-y-auto sm:inset-0 sm:h-auto sm:p-4">
           <ChangeBannerAndLogo
             onClose={handleEditBannerClose}
-            onSubmitSuccess={handleEditSubmit}
-            initialBannerUrl="/logo/Default_Banner.png"
-            initialLogoUrl="/logo/Default_Logo.jpg"
+            onSubmitSuccess={handleBannerAndLogoSubmit}
+            initialBannerUrl={business?.bannerUrl || defaultBanner}
+            initialLogoUrl={business?.logoUrl || defaultLogo}
           />
         </div>
       )}
