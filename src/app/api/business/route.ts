@@ -88,3 +88,40 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: "Error occurred", error }, { status: 500 });
   }
 }
+
+/**
+ * PATCH handler for updating business
+ * Modifies logo or banner for current authenticated user
+ */
+export async function PATCH(req: Request) {
+  try {
+    await connectDB();
+    const clerkUser = await currentUser();
+    if (!clerkUser) {
+      return NextResponse.json({ message: "User not logged in" }, { status: 401 });
+    }
+
+    const clerkUserID = clerkUser.id;
+    const updates = await req.json();
+
+    // Find business by clerk user ID
+    const business = await Business.findOne({ clerkUserID });
+    if (!business) {
+      return NextResponse.json({ message: "Business not found" }, { status: 404 });
+    }
+
+    // Update only the provided fields
+    if (updates.logoUrl !== undefined) {
+      business.logoUrl = updates.logoUrl;
+    }
+    if (updates.bannerUrl !== undefined) {
+      business.bannerUrl = updates.bannerUrl;
+    }
+
+    await business.save();
+    return NextResponse.json(business, { status: 200 });
+  } catch (error) {
+    console.error("Error updating business:", error);
+    return NextResponse.json({ message: "Error occurred", error }, { status: 500 });
+  }
+}
