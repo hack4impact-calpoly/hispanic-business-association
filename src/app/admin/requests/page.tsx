@@ -70,16 +70,16 @@ export default function AdminRequestsPage() {
 
   // Calculate stats based on requests data
   const stats = {
-    pending: requests?.filter((req) => req.status === undefined).length || 0,
-    approved: requests?.filter((req) => req.status === "approved").length || 0,
-    declined: requests?.filter((req) => req.status === "denied").length || 0,
+    pending: requests?.filter((req) => req.status === "open").length || 0,
+    approved: requests?.filter((req) => req.decision === "approved").length || 0,
+    declined: requests?.filter((req) => req.decision === "denied").length || 0,
   };
 
   // Apply filter to pending requests
   const filterPendingRequests = () => {
     if (!requests) return [];
 
-    const pendingRequests = requests.filter((req) => req.status === undefined);
+    const pendingRequests = requests.filter((req) => req.status === "open");
     const sorted = [...pendingRequests];
 
     switch (pendingFilter) {
@@ -100,7 +100,7 @@ export default function AdminRequestsPage() {
   const filterHistoryRequests = () => {
     if (!requests) return [];
 
-    const historyRequests = requests.filter((req) => req.status === "approved" || req.status === "denied");
+    const historyRequests = requests.filter((req) => req.status === "closed");
     const sorted = [...historyRequests];
 
     switch (historyFilter) {
@@ -232,7 +232,7 @@ export default function AdminRequestsPage() {
                       <RequestCard
                         type="history"
                         businessName={getBusinessName(request)}
-                        status={request.status as "approved" | "denied"}
+                        status={request.decision as "approved" | "denied"}
                         date={formatDate(request.date)}
                         className="w-full"
                       />
