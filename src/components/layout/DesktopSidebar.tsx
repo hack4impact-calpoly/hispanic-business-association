@@ -30,7 +30,7 @@ export default function DesktopSidebar() {
   const userRole = user?.publicMetadata?.role as string;
 
   // Default logo to use if no business logo is available
-  const defaultLogo = "/logo/Default_Logo.jpg";
+  const defaultLogo = "/logo/HBA_NoBack_NoWords.png";
   const businessLogo = shouldFetchBusiness && business?.logoUrl ? business.logoUrl : defaultLogo;
 
   if (!isLoaded) return null;
