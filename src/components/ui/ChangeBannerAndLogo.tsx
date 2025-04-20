@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "./card";
 import { Button } from "./button";
 import { uploadToS3 } from "@/lib/s3Client";
+import { useActiveBusinessRequest } from "@/lib/swrHooks";
 
 interface ChangeBannerAndLogoProps {
   onClose?: () => void;
@@ -28,6 +29,28 @@ export default function ChangeBannerAndLogo({
   // Track submission state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  // Fetch active request if exists
+  const { activeRequest, isLoading: isRequestLoading } = useActiveBusinessRequest();
+  // Store request ID if one exists
+  const [existingRequestId, setExistingRequestId] = useState<string | undefined>(undefined);
+
+  // Check for existing request and set initial URLs if available
+  useEffect(() => {
+    if (activeRequest) {
+      // Set banner and logo URLs from active request if available
+      if (activeRequest.bannerUrl) {
+        setBannerPreview(activeRequest.bannerUrl);
+      }
+
+      if (activeRequest.logoUrl) {
+        setLogoPreview(activeRequest.logoUrl);
+      }
+
+      // Store request ID for update
+      setExistingRequestId((activeRequest as any)._id);
+    }
+  }, [activeRequest]);
 
   // Handle banner file selection
   const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,8 +83,8 @@ export default function ChangeBannerAndLogo({
 
     try {
       // Upload files to S3 if selected
-      const bannerUrl = bannerFile ? await uploadToS3(bannerFile) : initialBannerUrl;
-      const logoUrl = logoFile ? await uploadToS3(logoFile) : initialLogoUrl;
+      const bannerUrl = bannerFile ? await uploadToS3(bannerFile) : bannerPreview;
+      const logoUrl = logoFile ? await uploadToS3(logoFile) : logoPreview;
 
       // Create request data
       const requestData = {
@@ -69,6 +92,11 @@ export default function ChangeBannerAndLogo({
         logoUrl,
         date: new Date().toLocaleDateString(),
       };
+
+      // If we have an existing request ID, include it for update
+      if (existingRequestId) {
+        Object.assign(requestData, { requestId: existingRequestId });
+      }
 
       // Submit change request to API
       const response = await fetch("/api/request", {
