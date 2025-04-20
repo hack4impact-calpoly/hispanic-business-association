@@ -29,6 +29,8 @@ interface BusinessInfo {
   };
   description?: string;
   logo?: string;
+  logoUrl?: string;
+  bannerUrl?: string;
 }
 
 interface InformationCardProps {
@@ -40,6 +42,10 @@ interface InformationCardProps {
 }
 
 const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: InformationCardProps) => {
+  // Default image URLs for fallbacks
+  const defaultLogo = "/logo/Default_Logo.jpg";
+  const defaultBanner = "/logo/Default_Banner.png";
+
   // Helper function to check if a value has changed
   const isValueChanged = (current: any, other: any): boolean => {
     // If either value is undefined, we only care if they're different
@@ -55,6 +61,10 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
     // For primitive values, direct comparison
     return current !== other;
   };
+
+  // Check if logo or banner has changed
+  const hasLogoChanged = isValueChanged(businessInfo.logoUrl, otherBusinessInfo?.logoUrl);
+  const hasBannerChanged = isValueChanged(businessInfo.bannerUrl, otherBusinessInfo?.bannerUrl);
 
   // Format and style text based on if it has changed
   const formatFieldValue = (fieldValue: any, otherFieldValue: any, defaultText: string = "N/A") => {
@@ -307,6 +317,57 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
       )}
     >
       <div className="p-4 sm:p-6">
+        {/* Banner Image Section - New at top */}
+        <div className="mb-4">
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Banner</p>
+          <div
+            className={cn(
+              "relative w-full h-[80px] rounded-md overflow-hidden p-1",
+              hasBannerChanged ? (type === "old" ? "bg-red-100" : "bg-green-100") : "bg-white",
+            )}
+          >
+            <div className="relative w-full h-full rounded-md overflow-hidden">
+              <Image
+                src={businessInfo.bannerUrl || defaultBanner}
+                alt="Business Banner"
+                fill
+                style={{ objectFit: "cover" }}
+                onError={(e) => {
+                  // Fallback to default on error
+                  const target = e.target as HTMLImageElement;
+                  target.src = defaultBanner;
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Logo Image Section - New at top */}
+        <div className="mb-4">
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Logo</p>
+          <div
+            className={cn(
+              "relative w-[100px] h-[100px] rounded-full border-4 border-white overflow-hidden shadow-sm p-2",
+              hasLogoChanged ? (type === "old" ? "bg-red-100" : "bg-green-100") : "bg-white",
+            )}
+          >
+            <div className="relative w-full h-full rounded-full overflow-hidden">
+              <Image
+                src={businessInfo.logoUrl || defaultLogo}
+                alt="Business Logo"
+                fill
+                style={{ objectFit: "contain" }}
+                className="p-2"
+                onError={(e) => {
+                  // Fallback to default on error
+                  const target = e.target as HTMLImageElement;
+                  target.src = defaultLogo;
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Business Information Section */}
         <div className="relative">
           {/* Business Name */}
@@ -365,24 +426,6 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
           {/* Description with GitHub-style highlighting */}
           <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Description</p>
           <div className="w-full mb-4">{formatDescription()}</div>
-        </div>
-
-        {/* Logo Section - Positioned on the side on larger screens, below on mobile */}
-        <div className="mt-6 w-full sm:absolute sm:top-[96px] sm:right-6 sm:w-[137px]">
-          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] mb-2">Logo</p>
-          <div className="w-full h-[131px] sm:w-[137px] sm:h-[131px] bg-gray-100 flex items-center justify-center">
-            {businessInfo.logo ? (
-              <Image src={businessInfo.logo} alt="Business Logo" width={130} height={124} className="object-contain" />
-            ) : (
-              <Image
-                src="/logo/HBA_NoBack_NoWords.png"
-                alt="Default Logo"
-                width={130}
-                height={124}
-                className="object-contain"
-              />
-            )}
-          </div>
         </div>
       </div>
     </Card>
