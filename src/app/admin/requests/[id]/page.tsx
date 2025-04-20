@@ -39,6 +39,8 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
         pointOfContact: business.pointOfContact,
         socialMediaHandles: business.socialMediaHandles,
         description: business.description,
+        logoUrl: business.logoUrl,
+        bannerUrl: business.bannerUrl,
       }
     : null;
 
@@ -54,6 +56,8 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
           pointOfContact: request.pointOfContact || business.pointOfContact,
           socialMediaHandles: request.socialMediaHandles || business.socialMediaHandles,
           description: request.description || business.description,
+          logoUrl: request.logoUrl || business.logoUrl,
+          bannerUrl: request.bannerUrl || business.bannerUrl,
         }
       : null;
 
@@ -64,11 +68,15 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
 
     try {
       // Optimistically update local data
-      await mutateRequest((prev) => (prev ? { ...prev, status: "approved" } : undefined), { revalidate: false });
+      await mutateRequest((prev) => (prev ? { ...prev, status: "closed", decision: "approved" } : undefined), {
+        revalidate: false,
+      });
 
-      // Send API request
-      const response = await fetch(`/api/request/${id}/approve`, {
+      // Send API request with ID in request body
+      const response = await fetch("/api/request/approve", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requestId: id }),
       });
 
       if (!response.ok) {
@@ -93,11 +101,15 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
 
     try {
       // Optimistically update local data
-      await mutateRequest((prev) => (prev ? { ...prev, status: "denied" } : undefined), { revalidate: false });
+      await mutateRequest((prev) => (prev ? { ...prev, status: "closed", decision: "denied" } : undefined), {
+        revalidate: false,
+      });
 
-      // Send API request
-      const response = await fetch(`/api/request/${id}/deny`, {
+      // Send API request with ID in request body
+      const response = await fetch("/api/request/deny", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requestId: id }),
       });
 
       if (!response.ok) {
@@ -120,14 +132,24 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
       {/* Refined responsive container */}
       <div className="relative min-h-screen bg-white px-3 sm:px-4 md:px-6 py-6 pb-[142px] md:pb-12">
         <div className="w-full max-w-7xl mx-auto">
-          {/* Back to Requests button - styled like admin business pages */}
-          <div className="mb-6">
+          {/* Back to Requests button with status indicator - modified */}
+          <div className="flex justify-between items-center mb-6">
             <Button
               onClick={() => router.push("/admin/requests")}
               className="flex items-center gap-2 bg-transparent text-[#405BA9] hover:bg-gray-100"
             >
               <span className="text-xl">←</span> Back to Requests
             </Button>
+
+            {request && request.status === "closed" && (
+              <div
+                className={`font-futura font-medium text-[24px] leading-[27px] ${
+                  request.decision === "approved" ? "text-[#00A819]" : "text-[#AE0000]"
+                }`}
+              >
+                {request.decision === "approved" ? "Approved" : "Denied"}
+              </div>
+            )}
           </div>
 
           {isLoading && (
@@ -165,29 +187,31 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
               </div>
 
               {/* Action Buttons - Centered with proper spacing */}
-              <div className="flex flex-col items-center gap-4 mb-8 sm:mb-10">
-                <h3 className="font-futura font-medium text-[20px] sm:text-[24px] leading-[31.88px] text-black">
-                  Allow Changes?
-                </h3>
+              {request && request.status === "open" ? (
+                <div className="flex flex-col items-center gap-4 mb-8 sm:mb-10">
+                  <h3 className="font-futura font-medium text-[20px] sm:text-[24px] leading-[31.88px] text-black">
+                    Allow Changes?
+                  </h3>
 
-                <div className="flex gap-4">
-                  <button
-                    onClick={handleApprove}
-                    disabled={isSubmitting}
-                    className="w-[130px] sm:w-[154px] h-[41px] bg-[#405BA9] text-white rounded-[23px] font-futura font-medium text-[16px] leading-[21.25px] disabled:opacity-50 hover:bg-[#293241] transition-colors"
-                  >
-                    {isSubmitting ? "Processing..." : "Yes"}
-                  </button>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={handleApprove}
+                      disabled={isSubmitting}
+                      className="w-[130px] sm:w-[154px] h-[41px] bg-[#405BA9] text-white rounded-[23px] font-futura font-medium text-[16px] leading-[21.25px] disabled:opacity-50 hover:bg-[#293241] transition-colors"
+                    >
+                      {isSubmitting ? "Processing..." : "Yes"}
+                    </button>
 
-                  <button
-                    onClick={handleDecline}
-                    disabled={isSubmitting}
-                    className="w-[130px] sm:w-[154px] h-[41px] bg-[#405BA9] text-white rounded-[23px] font-futura font-medium text-[16px] leading-[21.25px] disabled:opacity-50 hover:bg-[#293241] transition-colors"
-                  >
-                    {isSubmitting ? "Processing..." : "No"}
-                  </button>
+                    <button
+                      onClick={handleDecline}
+                      disabled={isSubmitting}
+                      className="w-[130px] sm:w-[154px] h-[41px] bg-[#405BA9] text-white rounded-[23px] font-futura font-medium text-[16px] leading-[21.25px] disabled:opacity-50 hover:bg-[#293241] transition-colors"
+                    >
+                      {isSubmitting ? "Processing..." : "No"}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              ) : null}
             </>
           )}
         </div>
