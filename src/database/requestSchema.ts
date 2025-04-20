@@ -26,7 +26,10 @@ export type IRequest = {
   };
   description: string;
   date: Date;
-  status?: "approved" | "denied";
+  status?: "open" | "closed";
+  decision?: null | "approved" | "denied";
+  logoUrl?: string;
+  bannerUrl?: string;
 };
 
 // Create the Mongoose schema for Business details.
@@ -55,7 +58,10 @@ const RequestSchema = new Schema<IRequest>({
   },
   description: { type: String, required: false },
   date: { type: Date, required: false, default: Date.now },
-  status: { type: String, enum: ["approved", "denied"] },
+  status: { type: String, enum: ["open", "closed"], default: "open" },
+  decision: { type: String, enum: ["approved", "denied"], default: null },
+  logoUrl: { type: String },
+  bannerUrl: { type: String },
 });
 
 // Export the model.
