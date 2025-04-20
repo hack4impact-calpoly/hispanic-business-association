@@ -3,6 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { useActiveBusinessRequest } from "@/lib/swrHooks";
 
 // Configures component behavior
 interface EditAboutFormProps {
@@ -24,14 +25,26 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
   // Word limit constant
   const WORD_LIMIT = 150;
 
-  // Sets text after delay
+  // Fetch active request if exists
+  const { activeRequest, isLoading: isRequestLoading } = useActiveBusinessRequest();
+  // Store request ID if one exists
+  const [existingRequestId, setExistingRequestId] = useState<string | undefined>(undefined);
+
+  // Sets text after delay and check for existing request
   useEffect(() => {
     const timer = setTimeout(() => {
-      setText(initialDescription);
+      // Use description from active request if available, otherwise use initial description
+      if (activeRequest && activeRequest.description) {
+        setText(activeRequest.description);
+        // Store the request ID to update instead of create new
+        setExistingRequestId((activeRequest as any)._id);
+      } else {
+        setText(initialDescription);
+      }
       setIsLoading(false);
     }, 300);
     return () => clearTimeout(timer);
-  }, [initialDescription]);
+  }, [initialDescription, activeRequest]);
 
   // Calculates current word count
   const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
@@ -58,13 +71,20 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
     setFeedback(null);
 
     try {
+      const requestData = {
+        description: text,
+        date: new Date().toLocaleDateString(),
+      };
+
+      // If we have an existing request ID, include it for update
+      if (existingRequestId) {
+        Object.assign(requestData, { requestId: existingRequestId });
+      }
+
       const response = await fetch("/api/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          description: text,
-          date: new Date().toLocaleDateString(),
-        }),
+        body: JSON.stringify(requestData),
       });
 
       if (!response.ok) {
@@ -93,7 +113,7 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
   };
 
   // Shows loading state
-  if (isLoading) {
+  if (isLoading || isRequestLoading) {
     return (
       <article className="rounded-lg shadow-sm w-full max-w-[805px] md:max-w-[805px] border border-gray-200 bg-white">
         <section className="flex flex-col py-4 md:py-6 w-full bg-white rounded-lg">
