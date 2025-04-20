@@ -2,12 +2,25 @@
 
 import React from "react";
 import Image from "next/image";
+import { useUser } from "@clerk/nextjs";
+import { useBusiness } from "@/lib/swrHooks";
 
 interface DesktopHeroProps {
   title: string;
 }
 
 const DesktopHero = ({ title }: DesktopHeroProps) => {
+  // Get user data and role
+  const { user } = useUser();
+  const userRole = user?.publicMetadata?.role as string;
+
+  // Only fetch business data if user is a business
+  const { business } = useBusiness(userRole === "business" ? user?.id : null);
+
+  // Default logo to use if no business logo is available
+  const defaultLogo = "/logo/HBA_NoBack_NoWords.png";
+  const profileLogo = userRole === "business" && business?.logoUrl ? business.logoUrl : defaultLogo;
+
   return (
     <div className="flex justify-between items-center py-4 px-6">
       {/* TITLE: Page heading with consistent styling */}
@@ -24,11 +37,16 @@ const DesktopHero = ({ title }: DesktopHeroProps) => {
         <div className="flex items-center gap-[10px]">
           <div className="w-[50px] h-[50px] rounded-full border border-[#00000036] flex items-center justify-center overflow-hidden">
             <Image
-              src="/logo/HBA_NoBack_NoWords.png"
+              src={profileLogo}
               alt="Profile"
               width={50}
               height={50}
               className="rounded-full object-cover"
+              onError={(e) => {
+                // Fallback to default on error
+                const target = e.target as HTMLImageElement;
+                target.src = defaultLogo;
+              }}
             />
           </div>
           <Image src="/icons/Expand Arrow.png" alt="Expand" width={25} height={25} className="cursor-pointer" />
