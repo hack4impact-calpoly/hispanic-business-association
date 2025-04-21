@@ -3,6 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { useActiveBusinessRequest } from "@/lib/swrHooks";
 
 // Configures component behavior
 interface EditBusinessInfoProps {
@@ -28,6 +29,10 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
   const [isLoading, setIsLoading] = useState(true);
   // Tracks feedback from server
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  // Fetch active request if exists
+  const { activeRequest, isLoading: isRequestLoading } = useActiveBusinessRequest();
+  // Store request ID if one exists
+  const [existingRequestId, setExistingRequestId] = useState<string | undefined>(undefined);
 
   const [formData, setFormData] = useState<BusinessFormData>({
     businessName: "",
@@ -45,34 +50,66 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
       ...prev,
       [name]: value,
     }));
-    console.log(formData);
   };
 
-  // Sets text after delay
+  // Sets initial data and check for existing request
   useEffect(() => {
     const timer = setTimeout(() => {
+      // If active request exists, use that data to populate form
+      if (activeRequest) {
+        // Extract first/last name from owner name if available
+        let firstName = "";
+        let lastName = "";
+
+        if (activeRequest.businessOwner) {
+          const nameParts = activeRequest.businessOwner.split(" ");
+          firstName = nameParts[0] || "";
+          lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
+        }
+
+        setFormData({
+          businessName: activeRequest.businessName || "",
+          businessType: activeRequest.businessType || "",
+          ownerFirstName: firstName,
+          ownerLastName: lastName,
+          ownerAdditionalName: "",
+          coOwnerFirstName: "",
+          coOwnerLastName: "",
+        });
+
+        // Store request ID for update
+        setExistingRequestId((activeRequest as any)._id);
+      }
+
       setIsLoading(false);
     }, 300);
+
     return () => clearTimeout(timer);
-  });
+  }, [activeRequest]);
 
   // Submits form data
   const handleSubmit = async () => {
-    console.log(formData);
-
     setIsSubmitting(true);
     setFeedback(null);
 
     try {
+      // Create request data
+      const requestData = {
+        businessName: formData.businessName,
+        businessType: formData.businessType,
+        businessOwner: `${formData.ownerFirstName} ${formData.ownerLastName}`,
+        date: new Date().toLocaleDateString(),
+      };
+
+      // If we have an existing request ID, include it for update
+      if (existingRequestId) {
+        Object.assign(requestData, { requestId: existingRequestId });
+      }
+
       const response = await fetch("/api/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          businessName: formData.businessName,
-          businessType: formData.businessType,
-          businessOwner: formData.ownerFirstName + " " + formData.ownerLastName,
-          date: new Date().toLocaleDateString(),
-        }),
+        body: JSON.stringify(requestData),
       });
 
       if (!response.ok) {
@@ -101,7 +138,7 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
   };
 
   // Shows loading state
-  if (isLoading) {
+  if (isLoading || isRequestLoading) {
     return (
       <article className="rounded-lg shadow-sm w-full max-w-[805px] md:max-w-[805px] border border-gray-200 bg-white">
         <section className="flex flex-col py-4 md:py-6 w-full bg-white rounded-lg">

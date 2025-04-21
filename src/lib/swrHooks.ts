@@ -116,13 +116,34 @@ export function useRequest(id: string, config?: SWRConfiguration) {
 }
 
 /**
+ * Hook for fetching current business user's active request (open)
+ */
+export function useActiveBusinessRequest(config?: SWRConfiguration) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IRequest>("/api/request?status=open", {
+    revalidateOnFocus: false,
+    ...config,
+  });
+
+  // If we get an array from the API, take the first request (should be only one)
+  const activeRequest = Array.isArray(data) ? data[0] : data;
+
+  return {
+    activeRequest,
+    isLoading,
+    isValidating,
+    isError: error,
+    mutate,
+  };
+}
+
+/**
  * Utility to manually mutate cached request data
  * Useful for optimistic updates when approving/denying requests
  */
-export function updateRequestStatus(id: string, status: "approved" | "denied", cache: IRequest[]) {
+export function updateRequestStatus(id: string, status: "closed", decision: "approved" | "denied", cache: IRequest[]) {
   return cache?.map((request) =>
     // Using string indexing since _id might not be in the interface but exists in MongoDB documents
-    (request as any)._id === id ? { ...request, status } : request,
+    (request as any)._id === id ? { ...request, status, decision } : request,
   );
 }
 

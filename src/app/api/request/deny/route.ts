@@ -3,7 +3,7 @@ import connectDB from "@/database/db";
 import Request from "@/database/requestSchema";
 import { currentUser } from "@clerk/nextjs/server";
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request) {
   try {
     // Check authentication
     const user = await currentUser();
@@ -11,18 +11,25 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    // Extract request ID from the request body
+    const body = await req.json();
+    const requestId = body.requestId;
+
+    if (!requestId) {
+      return NextResponse.json({ message: "Request ID is required" }, { status: 400 });
+    }
+
     await connectDB();
 
     // Get the request from the database
-    const requestId = params.id;
     const requestData = await Request.findById(requestId);
-
     if (!requestData) {
       return NextResponse.json({ message: "Request not found" }, { status: 404 });
     }
 
-    // Mark the request as denied
-    requestData.status = "denied";
+    // Mark the request as closed and denied
+    requestData.status = "closed";
+    requestData.decision = "denied";
     await requestData.save();
 
     return NextResponse.json({ message: "Request denied successfully" });

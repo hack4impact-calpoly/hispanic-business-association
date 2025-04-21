@@ -132,7 +132,7 @@ export default function AdminBusinessesPage() {
                       <BusinessCard
                         id={businessId}
                         businessName={business.businessName}
-                        logoUrl="/logo/HBA_NoBack_NoWords.png"
+                        logoUrl={business.logoUrl || "/logo/Default_Logo.jpg"}
                         logoAlt={`${business.businessName} logo`}
                         className="w-full"
                         onClick={() => handleBusinessClick(businessId)}
@@ -153,7 +153,7 @@ export default function AdminBusinessesPage() {
                       <BusinessCard
                         id={businessId}
                         businessName={business.businessName}
-                        logoUrl="/logo/HBA_NoBack_NoWords.png"
+                        logoUrl={business.logoUrl || "/logo/Default_Logo.jpg"}
                         logoAlt={`${business.businessName} logo`}
                         className="w-full"
                         onClick={() => handleBusinessClick(businessId)}

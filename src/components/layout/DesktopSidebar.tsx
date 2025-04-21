@@ -29,6 +29,10 @@ export default function DesktopSidebar() {
   const { business } = useBusiness(clerkId);
   const userRole = user?.publicMetadata?.role as string;
 
+  // Default logo to use if no business logo is available
+  const defaultLogo = "/logo/HBA_NoBack_NoWords.png";
+  const businessLogo = shouldFetchBusiness && business?.logoUrl ? business.logoUrl : defaultLogo;
+
   if (!isLoaded) return null;
 
   const handleSignOut = async () => {
@@ -151,7 +155,7 @@ export default function DesktopSidebar() {
             </Link>
           ))}
 
-          {/* ✅ Sign Out Button below the nav items */}
+          {/* Sign Out Button below the nav items */}
           <button
             onClick={handleSignOut}
             className={cn(
@@ -175,11 +179,16 @@ export default function DesktopSidebar() {
         >
           <div className={cn("flex", isExpanded ? "items-center pl-[12px] h-[66px]" : "p-[18px]")}>
             <Image
-              src="/logo/HBA_NoBack_NoWords.png"
+              src={userRole === "business" ? businessLogo : defaultLogo}
               alt="Business Logo"
               width={62}
               height={57}
               className="object-contain"
+              onError={(e) => {
+                // Fallback to default on error
+                const target = e.target as HTMLImageElement;
+                target.src = defaultLogo;
+              }}
             />
             {isExpanded && (
               <span className="ml-[18px] text-white font-futura text-base font-medium leading-[21.25px]">
