@@ -32,7 +32,11 @@ const AboutCard = ({ info, editable = false, onEditClick }: AboutCardProps) => {
           About
           {/* Edit button - conditionally rendered based on editable prop */}
           {editable && (
-            <button className="absolute right-2" onClick={onEditClick} aria-label="Edit about section">
+            <button
+              className="p-2 rounded-full hover:bg-[#f0f0f0] transition-colors absolute right-2"
+              onClick={onEditClick}
+              aria-label="Edit about section"
+            >
               <Image src="/icons/Edit.png" alt="Edit" width={20} height={20} style={{ marginBottom: "5px" }} />
             </button>
           )}

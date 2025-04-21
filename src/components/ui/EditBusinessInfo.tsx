@@ -121,14 +121,12 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
           <header className="flex flex-wrap gap-2 md:gap-5 justify-between items-start">
             <h1 className="mt-2 md:mt-4 text-lg md:text-xl font-medium text-black">Edit Business Information</h1>
             {onClose && (
-              <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-                <Image
-                  src="/icons/Close.png"
-                  alt="Close"
-                  width={24}
-                  height={24}
-                  className="md:w-[30px] md:h-[30px] object-contain"
-                />
+              <button
+                onClick={onClose}
+                className="p-2 rounded-full hover:bg-[#f0f0f0] transition-colors absolute top-2 right-2"
+                aria-label="Close"
+              >
+                <Image src="/icons/Close.png" alt="Close" width={24} height={24} className="object-contain" />
               </button>
             )}
           </header>

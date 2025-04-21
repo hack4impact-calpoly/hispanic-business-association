@@ -65,7 +65,7 @@ const BusinessInfoCard = ({ info, editable = false, onEditClick }: BusinessInfoC
             {editable && (
               <button
                 onClick={handleEditClick}
-                className="absolute top-5 right-6"
+                className="p-2 rounded-full hover:bg-[#f0f0f0] transition-colors absolute top-5 right-6"
                 aria-label="Edit business information"
               >
                 <Image src="/icons/Edit.png" alt="Edit" width={20} height={20} />
