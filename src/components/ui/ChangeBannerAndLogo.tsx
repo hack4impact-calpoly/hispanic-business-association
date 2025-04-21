@@ -110,7 +110,11 @@ export default function ChangeBannerAndLogo({
           <header className="flex justify-between items-center">
             <h1 className="text-lg sm:text-xl font-medium text-black">Change Banner and Logo</h1>
             {onClose && (
-              <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+              <button
+                onClick={onClose}
+                className="p-2 rounded-full hover:bg-[#f0f0f0] transition-colors absolute top-2 right-2"
+                aria-label="Close"
+              >
                 <Image
                   src="/icons/Close.png"
                   alt="Close"
