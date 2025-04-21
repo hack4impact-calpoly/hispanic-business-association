@@ -6,6 +6,7 @@ import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import MessageSentPopUp from "@/components/ui/MessageSentPopUp";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function BusinessSendNewMessagePage() {
   const router = useRouter();
@@ -151,7 +152,7 @@ export default function BusinessSendNewMessagePage() {
                 <label htmlFor="attachment" className="block text-[20px] py-2">
                   Include Attachment
                 </label>
-                <div className="mt-2 flex flex-col rounded-md shadow-sm">
+                <div className="mt-2 flex flex-row rounded-md shadow-sm">
                   <button
                     type="button"
                     className="w-full inline-flex items-center rounded-md border-2 border-black bg-white px-3 py-2 text-m text-gray-700 h-[48px]"
@@ -159,25 +160,7 @@ export default function BusinessSendNewMessagePage() {
                   >
                     {attachmentName}
                     <div className="flex items-center ml-auto">
-                      {attachment && (
-                        <button type="button" className="mr-2" onClick={handleRemoveAttachment}>
-                          <svg
-                            className="w-5 h-5 text-red-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
-                        </button>
-                      )}
-                      <img src="/icons/Attach.png" className="w-5 h-5"></img>
+                      <Image src="/icons/Attach.png" className="w-5 h-5" alt="Attach" height={10} width={10}></Image>
                     </div>
                   </button>
                   <input
@@ -187,6 +170,19 @@ export default function BusinessSendNewMessagePage() {
                     onChange={handleAttachmentChange}
                     ref={fileInputRef} // Attach the ref
                   />
+                  {attachment && (
+                    <button type="button" className="mx-2" onClick={handleRemoveAttachment}>
+                      <svg
+                        className="w-5 h-5 text-red-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
