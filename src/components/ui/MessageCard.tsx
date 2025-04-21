@@ -23,7 +23,7 @@ const MessageCard = ({ message }: MessageCardProps) => {
     return (
       <Card className="w-full bg-white rounded-xl border border-black">
         <CardHeader className="px-4 py-3 flex">
-          <div className="flex items-center font-futura gap-2 text-[14px]">
+          <div className="flex items-center gap-2 text-[14px]">
             <p className="font-bold">{message.title}</p>
             <p>{message.description}</p>
             <p className="ml-auto">{formattedDate}</p>
@@ -35,7 +35,7 @@ const MessageCard = ({ message }: MessageCardProps) => {
     return (
       <Card className="w-full bg-white rounded-xl border border-black">
         <CardHeader className="px-4 py-3 flex">
-          <div className="flex items-center font-futura gap-2 text-[20px]">
+          <div className="flex items-center gap-2 text-[20px]">
             {" "}
             {/* Container for title and description */}
             <p className="font-bold">{message.title}</p>

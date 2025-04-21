@@ -4,8 +4,11 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useRef } from "react";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import MessageSentPopUp from "@/components/ui/MessageSentPopUp";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function BusinessSendNewMessagePage() {
+  const router = useRouter();
   const isMobile = useIsMobile();
   const [title, setTitle] = useState("");
   const [directTo, setDirectTo] = useState("");
@@ -88,32 +91,38 @@ export default function BusinessSendNewMessagePage() {
   return (
     <ResponsiveLayout title="Messages">
       <div className={`container ${isMobile ? "max-w-2xl px-1" : "max-w-4xl p-4"}`}>
-        <div className="pt-10 mb-6">
-          {!isMobile && <h2 className="font-futura font-[500] text-2xl md:text-[26px] mb-4">Send New Message</h2>}
+        <div className={`pt-2 mb-6}`}>
+          <div className="mb-6">
+            <Button
+              onClick={() => router.push("/admin/automations")}
+              className="flex items-center gap-2 bg-transparent text-[#405BA9] hover:bg-gray-100"
+            >
+              <span className="text-xl">←</span> Back to Automations
+            </Button>
+          </div>
+          <h2 className="font-[500] text-2xl md:text-[26px] mb-4">Send New Message</h2>
 
           <div className="grid grid-cols-1 gap-4 pt-4">
-            {" "}
-            {/* Changed to grid-cols-1 */}
             <div>
-              <label htmlFor="title" className="block font-futura text-[20px]">
+              <label htmlFor="title" className="block text-[20px]">
                 Title
               </label>
               <input
                 type="text"
                 id="title"
-                className="mt-2 block w-full font-futura text-xl rounded-md border-2 border-black pl-1 h-[48px]"
+                className="mt-2 block w-full text-xl rounded-md border-2 border-black pl-1 h-[48px]"
                 value={title}
                 onChange={handleTitleChange}
               />
             </div>
             <div>
-              <label htmlFor="directTo" className="block font-futura text-[20px] py-2">
+              <label htmlFor="directTo" className="block text-[20px] py-2">
                 Directly To:
               </label>
               <input
                 type="text"
                 id="title"
-                className="mt-2 block w-full font-futura text-xl rounded-md border-2 border-black pl-1 h-[48px]"
+                className="mt-2 block w-full text-xl rounded-md border-2 border-black pl-1 h-[48px]"
                 value={directTo}
                 onChange={handleDirectToChange}
               />
@@ -122,12 +131,12 @@ export default function BusinessSendNewMessagePage() {
               {" "}
               {/* Nested grid for Business Type and Attachment on larger screens */}
               <div>
-                <label htmlFor="businessType" className="block font-futura text-[20px] py-2">
+                <label htmlFor="businessType" className="block text-[20px] py-2">
                   Business Type
                 </label>
                 <select
                   id="businessType"
-                  className="mt-2 block w-full font-futura text-gray-700 text-md rounded-md border-2 border-black pl-1 h-[48px]"
+                  className="mt-2 block w-full text-gray-700 text-md rounded-md border-2 border-black pl-1 h-[48px]"
                   value={businessType}
                   onChange={handleBusinessTypeChange}
                 >
@@ -139,13 +148,13 @@ export default function BusinessSendNewMessagePage() {
                 </select>
               </div>
               <div>
-                <label htmlFor="attachment" className="block font-futura text-[20px] py-2">
+                <label htmlFor="attachment" className="block text-[20px] py-2">
                   Include Attachment
                 </label>
                 <div className="mt-2 flex flex-col rounded-md shadow-sm">
                   <button
                     type="button"
-                    className="font-futura w-full inline-flex items-center rounded-md border-2 border-black bg-white px-3 py-2 text-m text-gray-700 h-[48px]"
+                    className="w-full inline-flex items-center rounded-md border-2 border-black bg-white px-3 py-2 text-m text-gray-700 h-[48px]"
                     onClick={handleAttachmentButtonClick}
                   >
                     {attachmentName}
@@ -184,13 +193,13 @@ export default function BusinessSendNewMessagePage() {
             <div className="col-span-1">
               {" "}
               {/* Ensures the textarea takes full width */}
-              <label htmlFor="message" className="block font-futura text-[20px] py-2">
+              <label htmlFor="message" className="block text-[20px] py-2">
                 Edit message
               </label>
               <textarea
                 id="message"
                 rows={6}
-                className="font-futura w-full h-[240px] inline-flex items-center rounded-md border-2 border-black bg-white px-3 py-2 text-m text-gray-700 h-[48px]"
+                className="w-full h-[240px] inline-flex items-center rounded-md border-2 border-black bg-white px-3 py-2 text-m text-gray-700"
                 value={message}
                 onChange={handleMessageChange}
               />
@@ -200,7 +209,7 @@ export default function BusinessSendNewMessagePage() {
             </div>
           </div>
 
-          <div className="mt-6 flex justify-end">
+          <div className="mt-6 mb-8 flex justify-end">
             <button
               type="button"
               className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
