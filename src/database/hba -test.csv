@@ -1,0 +1,5 @@
+clerkUserID,businessName,businessType,businessOwner,website,address,description,pointOfContactName,pointOfContactEmail,pointOfContactPhoneNumber,instagram,twitter,facebook
+assumingvalidclerkid,CSV TEST1,health,sally,sallybiz.com,"410 grand ave san luis obispo, ca 94310",yolooooo,Kelly Clarkson,kc@gmail.com,5768907421.0,hi,,yo
+placeholder-d08e12f7-2b80-477e-9912-954bfdfdb4cd,CSV TEST2,beauty,shelly,shell.com,"410 grand ave san luis obispo, ca 94310",pls let this work,John Nolan,rookie@gmail.com,3879065675.0,@youngsheldon,@youngsheldon,@youngsheldon
+placeholder-dd7e598c-5030-4761-9351-22a14a72640e,DUP CSV TEST2,beauty,shelly,shell.com,"410 grand ave san luis obispo, ca 94310",pls let this work,John Nolan,rookie@gmail.com,3879065675.0,@youngsheldon,@youngsheldon,@youngsheldon
+placeholder-807b8c88-3b6f-4323-9c5a-46904b75a92f,will fail,testing,,,,,,,,,,
