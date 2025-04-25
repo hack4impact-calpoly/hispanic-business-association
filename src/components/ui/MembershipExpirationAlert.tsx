@@ -3,12 +3,13 @@
 import React from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import axios from "axios";
 
 interface MembershipExpirationAlertProps {
   // Months until expiration
   expiresInMonths?: number;
   // Handler for renewal click
-  onRenewClick?: () => void;
+  onRenewClick?: () => Promise<void>;
   // Extra class names
   className?: string;
 }
@@ -23,6 +24,38 @@ const MembershipExpirationAlert = ({
   if (expiresInMonths > 1) {
     return null;
   }
+
+  const handleRenewClick = async () => {
+    try {
+      // Make your API call (Example with fetch)
+      const response = await fetch("/api/square/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: 123, // Example userId
+          amount: 2500,
+          title: "Membership Fee",
+        }), // Send relevant data
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to renew membership");
+      }
+
+      const data = await response.json();
+
+      if (data.url) {
+        window.open(data.url, "_blank");
+      } else {
+        console.log(data.url);
+      }
+    } catch (err) {
+      console.error("API call failed:", err);
+      throw err; // Let the component show the error message
+    }
+  };
 
   return (
     <div
@@ -39,13 +72,11 @@ const MembershipExpirationAlert = ({
       {/* MESSAGE: Expiration notification with renewal call-to-action */}
       <p className="flex-grow">
         Membership expires in {expiresInMonths} month{expiresInMonths !== 1 ? "s" : ""}.{" "}
-        {onRenewClick ? (
-          <button onClick={onRenewClick} className="underline cursor-pointer focus:outline-none">
+        {
+          <button onClick={handleRenewClick} className="underline cursor-pointer focus:outline-none">
             Renew here now.
           </button>
-        ) : (
-          <span className="underline cursor-pointer">Renew here now.</span>
-        )}
+        }
       </p>
     </div>
   );
