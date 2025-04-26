@@ -9,7 +9,7 @@ interface MembershipExpirationAlertProps {
   // Months until expiration
   expiresInMonths?: number;
   // Handler for renewal click
-  onRenewClick?: () => {};
+  onRenewClick?: () => void;
   // Extra class names
   className?: string;
 }
