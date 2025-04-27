@@ -11,15 +11,33 @@ import { useUser } from "@clerk/nextjs";
 import { useEffect } from "react";
 
 export default function Login() {
+  // Existing form state
   const [formData, setFormData] = useState<{ username: string; password: string }>({
     username: "",
     password: "",
   });
 
+  // Add field-specific error states
+  const [usernameError, setUsernameError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+  const [usernameErrorMessage, setUsernameErrorMessage] = useState("Username is required");
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState("Password is required");
+
+  // Track submission state
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
   const { signIn, setActive, isLoaded } = useSignIn();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    // Clear field-specific errors on change
+    if (e.target.name === "username") {
+      setUsernameError(false);
+    } else if (e.target.name === "password") {
+      setPasswordError(false);
+    }
   };
 
   const { user, isSignedIn } = useUser();
@@ -38,7 +56,28 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitAttempted(true);
+
+    // Reset error states
+    setUsernameError(false);
+    setPasswordError(false);
+    setUsernameErrorMessage("Username is required");
+    setPasswordErrorMessage("Password is required");
+
+    // Client-side validation
+    if (!formData.username) {
+      setUsernameError(true);
+      return;
+    }
+
+    if (!formData.password) {
+      setPasswordError(true);
+      return;
+    }
+
     if (!isLoaded) return;
+
+    setIsLoggingIn(true);
 
     try {
       const result = await signIn.create({
@@ -53,9 +92,40 @@ export default function Login() {
       } else {
         console.error("Sign-in not complete:", result);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error signing in:", JSON.stringify(error, null, 2));
+
+      // Handle Clerk authentication errors
+      if (error.errors && error.errors[0]) {
+        const clerkError = error.errors[0];
+
+        // Map error to specific field based on error code/message
+        if (
+          clerkError.code === "form_identifier_not_found" ||
+          clerkError.message.toLowerCase().includes("identifier")
+        ) {
+          setUsernameError(true);
+          setUsernameErrorMessage(clerkError.message || "Invalid username");
+        } else if (
+          clerkError.code === "form_password_incorrect" ||
+          clerkError.message.toLowerCase().includes("password")
+        ) {
+          setPasswordError(true);
+          setPasswordErrorMessage(clerkError.message || "Invalid password");
+        } else {
+          // General authentication error
+          setUsernameError(true);
+          setUsernameErrorMessage(clerkError.message || "Authentication failed");
+        }
+      }
+    } finally {
+      setIsLoggingIn(false);
     }
+  };
+
+  // Helper to show error only after submit attempt or explicit error
+  const showError = (fieldValue: string, fieldError: boolean) => {
+    return (fieldValue === "" && submitAttempted) || fieldError;
   };
 
   return (
@@ -67,22 +137,36 @@ export default function Login() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              type="text"
-              name="username"
-              placeholder="Username"
-              value={formData.username}
-              onChange={handleChange}
-            />
-            <Input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-            />
-            <Button type="submit" className="w-full">
-              Login
+            <div>
+              <Input
+                type="text"
+                name="username"
+                placeholder="Username"
+                value={formData.username}
+                onChange={handleChange}
+                className={showError(formData.username, usernameError) ? "border-red-500" : ""}
+              />
+              {showError(formData.username, usernameError) && (
+                <p className="mt-1 text-sm text-red-500">{usernameErrorMessage}</p>
+              )}
+            </div>
+
+            <div>
+              <Input
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                className={showError(formData.password, passwordError) ? "border-red-500" : ""}
+              />
+              {showError(formData.password, passwordError) && (
+                <p className="mt-1 text-sm text-red-500">{passwordErrorMessage}</p>
+              )}
+            </div>
+
+            <Button type="submit" className="w-full" disabled={isLoggingIn}>
+              {isLoggingIn ? "Logging in..." : "Login"}
             </Button>
           </form>
 
@@ -91,8 +175,8 @@ export default function Login() {
               Sign up
             </a>{" "}
             |
-            <a href="/help" className="text-blue-600 hover:underline ml-1">
-              Need help?
+            <a href="/forgot-password" className="text-blue-600 hover:underline ml-1">
+              Forgot password?
             </a>
           </div>
         </CardContent>
