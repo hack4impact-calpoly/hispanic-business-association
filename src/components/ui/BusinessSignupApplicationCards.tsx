@@ -743,7 +743,7 @@ const BusinessSignupApplication = () => {
         </Card>
         <div className="flex flex-row justify-start">
           <DropdownMenu>
-            <DropdownMenuTrigger>
+            <DropdownMenuTrigger asChild>
               <Button
                 className="bg-[#293241] text-white hover:text-blue-500 hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
                 type="button"
