@@ -9,6 +9,7 @@ import { useSignIn, useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useEffect } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
   // Existing form state
@@ -16,6 +17,9 @@ export default function Login() {
     username: "",
     password: "",
   });
+
+  // Add password visibility state
+  const [showPassword, setShowPassword] = useState(false);
 
   // Add field-specific error states
   const [usernameError, setUsernameError] = useState(false);
@@ -38,6 +42,11 @@ export default function Login() {
     } else if (e.target.name === "password") {
       setPasswordError(false);
     }
+  };
+
+  // Toggle password visibility
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const { user, isSignedIn } = useUser();
@@ -151,15 +160,26 @@ export default function Login() {
               )}
             </div>
 
-            <div>
+            <div className="relative">
               <Input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Password"
                 value={formData.password}
                 onChange={handleChange}
                 className={showError(formData.password, passwordError) ? "border-red-500" : ""}
               />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute inset-y-0 right-0 flex items-center pr-3"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5 text-gray-400" />
+                ) : (
+                  <Eye className="h-5 w-5 text-gray-400" />
+                )}
+              </button>
               {showError(formData.password, passwordError) && (
                 <p className="mt-1 text-sm text-red-500">{passwordErrorMessage}</p>
               )}
