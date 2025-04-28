@@ -48,24 +48,6 @@ export default function DesktopSidebar() {
         icon: "/icons/Home.png",
         current: pathname === "/business",
       },
-      {
-        name: "Inbox",
-        href: "/business/inbox",
-        icon: "/icons/Check Inbox.png",
-        current: pathname === "/business/inbox",
-      },
-      {
-        name: "Update Information",
-        href: "/business/update",
-        icon: "/icons/Change.png",
-        current: pathname === "/business/update",
-      },
-      {
-        name: "Application",
-        href: "/business/application",
-        icon: "/icons/Application Form.png",
-        current: pathname === "/business/application",
-      },
     ],
     admin: [
       {
@@ -165,7 +147,7 @@ export default function DesktopSidebar() {
                 : "ml-[4px] mt-[40px]",
             )}
           >
-            <Image src="/icons/Analytics.png" alt="Sign Out" width={30} height={30} className="shrink-0" />
+            <Image src="/icons/Logout.png" alt="Sign Out" width={30} height={30} className="shrink-0" />
             {isExpanded && <span className="ml-[18px]">Sign Out</span>}
           </button>
         </div>
