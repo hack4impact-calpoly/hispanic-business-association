@@ -7,15 +7,18 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function ForgotPassword() {
-  // Step state
+  // Step states
   const [codeSent, setCodeSent] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
 
   // Form fields
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   // Field-specific error states
   const [emailError, setEmailError] = useState(false);
@@ -31,7 +34,12 @@ export default function ForgotPassword() {
 
   // Hooks
   const router = useRouter();
-  const { isLoaded, signIn, setActive } = useSignIn();
+  const { isLoaded, signIn } = useSignIn();
+
+  // Toggle password visibility
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   // Handle sending reset code
   const handleSendResetCode = async (e: React.FormEvent) => {
@@ -89,7 +97,7 @@ export default function ForgotPassword() {
     setCodeErrorMessage("Code is required");
     setPasswordErrorMessage("Password is required");
 
-    if (!isLoaded || !signIn || !setActive) {
+    if (!isLoaded || !signIn) {
       setCodeError(true);
       setCodeErrorMessage("Authentication service not ready. Please try again.");
       return;
@@ -115,13 +123,9 @@ export default function ForgotPassword() {
         password,
       });
 
-      if (result.status === "complete" && result.createdSessionId) {
-        // Activate the new session
-        await setActive({ session: result.createdSessionId });
-
-        // Redirect to appropriate dashboard based on user role
-        const userRole = (result.userData as any)?.publicMetadata?.role || "business";
-        router.push(userRole === "admin" ? "/admin" : "/business");
+      if (result.status === "complete") {
+        // Show success message instead of logging in
+        setResetSuccess(true);
       }
     } catch (err: any) {
       // Handle Clerk errors
@@ -153,6 +157,11 @@ export default function ForgotPassword() {
     return (fieldValue === "" && submitAttempted) || fieldError;
   };
 
+  // Handle back to login button click
+  const handleBackToLogin = () => {
+    router.push("/");
+  };
+
   return (
     <div className="flex h-screen items-center justify-center bg-gray-900">
       <Card className="w-full h-screen md:rounded-lg lg:rounded-lg rounded-none lg:max-w-sm md:max-w-md md:h-auto bg-white">
@@ -161,82 +170,98 @@ export default function ForgotPassword() {
             <Image src="/logo/HBA_No_Back.png" alt="HBA Logo" width={122} height={122} />
           </div>
 
-          <h2 className="text-xl font-semibold text-center mb-6">
-            {!codeSent ? "Forgot Your Password?" : "Reset Your Password"}
-          </h2>
-
-          {!codeSent && (
-            <p className="text-center text-sm text-gray-600 mb-6">
-              Enter your email address and we&apos;ll send you a code to reset your password.
-            </p>
-          )}
-
-          {codeSent && (
-            <p className="text-center text-sm text-gray-600 mb-6">
-              Enter the verification code sent to your email and create a new password.
-            </p>
-          )}
-
-          {!codeSent ? (
-            <form onSubmit={handleSendResetCode} className="space-y-4">
-              <div>
-                <Input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={resetProgress}
-                  className={showError(email, emailError) ? "border-red-500" : ""}
-                />
-                {showError(email, emailError) && <p className="mt-1 text-sm text-red-500">{emailErrorMessage}</p>}
-              </div>
-
-              <Button type="submit" className="w-full" disabled={resetProgress}>
-                {resetProgress ? "Sending..." : "Send Reset Code"}
+          {resetSuccess ? (
+            <>
+              <h2 className="text-xl font-semibold text-center mb-6">Your password has been successfully reset</h2>
+              <Button onClick={handleBackToLogin} className="w-full">
+                Back to Login
               </Button>
-            </form>
+            </>
+          ) : !codeSent ? (
+            <>
+              <h2 className="text-xl font-semibold text-center mb-6">Forgot Your Password?</h2>
+              <p className="text-center text-sm text-gray-600 mb-6">
+                Enter your email address and we&apos;ll send you a code to reset your password.
+              </p>
+              <form onSubmit={handleSendResetCode} className="space-y-4">
+                <div>
+                  <Input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={resetProgress}
+                    className={showError(email, emailError) ? "border-red-500" : ""}
+                  />
+                  {showError(email, emailError) && <p className="mt-1 text-sm text-red-500">{emailErrorMessage}</p>}
+                </div>
+
+                <Button type="submit" className="w-full" disabled={resetProgress}>
+                  {resetProgress ? "Sending..." : "Send Reset Code"}
+                </Button>
+              </form>
+            </>
           ) : (
-            <form onSubmit={handleVerifyAndReset} className="space-y-4">
-              <div>
-                <Input
-                  type="text"
-                  name="code"
-                  placeholder="Verification Code"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  disabled={resetProgress}
-                  className={showError(code, codeError) ? "border-red-500" : ""}
-                />
-                {showError(code, codeError) && <p className="mt-1 text-sm text-red-500">{codeErrorMessage}</p>}
-              </div>
+            <>
+              <h2 className="text-xl font-semibold text-center mb-6">Reset Your Password</h2>
+              <p className="text-center text-sm text-gray-600 mb-6">
+                Enter the verification code sent to your email and create a new password.
+              </p>
+              <form onSubmit={handleVerifyAndReset} className="space-y-4">
+                <div>
+                  <Input
+                    type="text"
+                    name="code"
+                    placeholder="Verification Code"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    disabled={resetProgress}
+                    className={showError(code, codeError) ? "border-red-500" : ""}
+                  />
+                  {showError(code, codeError) && <p className="mt-1 text-sm text-red-500">{codeErrorMessage}</p>}
+                </div>
 
-              <div>
-                <Input
-                  type="password"
-                  name="password"
-                  placeholder="New Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={resetProgress}
-                  className={showError(password, passwordError) ? "border-red-500" : ""}
-                />
-                {showError(password, passwordError) && (
-                  <p className="mt-1 text-sm text-red-500">{passwordErrorMessage}</p>
-                )}
-              </div>
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    placeholder="New Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={resetProgress}
+                    className={showError(password, passwordError) ? "border-red-500" : ""}
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5 text-gray-400" />
+                    ) : (
+                      <Eye className="h-5 w-5 text-gray-400" />
+                    )}
+                  </button>
+                  {showError(password, passwordError) && (
+                    <p className="mt-1 text-sm text-red-500">{passwordErrorMessage}</p>
+                  )}
+                </div>
 
-              <Button type="submit" className="w-full" disabled={resetProgress}>
-                {resetProgress ? "Resetting..." : "Reset Password"}
-              </Button>
-            </form>
+                <Button type="submit" className="w-full" disabled={resetProgress}>
+                  {resetProgress ? "Resetting..." : "Reset Password"}
+                </Button>
+              </form>
+            </>
           )}
 
-          <div className="mt-4 text-center text-sm">
-            <a href="/" className="text-blue-600 hover:underline">
-              Back to Login
-            </a>
-          </div>
+          {!resetSuccess && (
+            <div className="mt-4 text-center text-sm">
+              <a href="/" className="text-blue-600 hover:underline">
+                Back to Login
+              </a>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
