@@ -251,13 +251,6 @@ const BusinessSignupApplication = () => {
           return;
         }
 
-        if (password1.length < 8) {
-          const err = langOption === 0 ? "Password too short" : "Contraseña demasiado corta";
-          console.error(err);
-          setFormErrorMessage(err);
-          return;
-        }
-
         if (password1 !== password2) {
           const err = langOption === 0 ? "Passwords don't match" : "Las contraseñas no coinciden";
           console.error(err);
@@ -291,23 +284,33 @@ const BusinessSignupApplication = () => {
                   setFormErrorMessage("");
                   setStep(Math.min(numPages, step + 1));
                 } else {
-                  console.error("Failed to create user from data");
-                  setFormErrorMessage("Failed to create user from data");
+                  const err =
+                    langOption === 0
+                      ? "Failed to create user from data"
+                      : "Error al crear el usuario a partir de los datos";
+                  console.error(err);
+                  setFormErrorMessage(err);
                 }
               })
               .catch((jsonErr) => {
                 console.error("Failed to parse response JSON:", jsonErr);
-                setFormErrorMessage("Invalid response from server.");
+                const err = langOption === 0 ? "Invalid response from server." : "Respuesta no válida del servidor.";
+                setFormErrorMessage(err);
               }),
           )
           .catch((fetchErr) => {
+            const err = langOption === 0 ? "Network error. Please try again." : "Error de red. Inténtalo de nuevo.";
             console.error("Fetch error:", fetchErr);
-            setFormErrorMessage("Network error. Please try again.");
+            setFormErrorMessage(err);
           });
       })
       .catch((error) => {
+        const err =
+          langOption === 0
+            ? "An unexpected error occurred during validation."
+            : "Se produjo un error inesperado durante la validación.";
         console.error("Validation error:", error);
-        setFormErrorMessage("An unexpected error occurred during validation.");
+        setFormErrorMessage(err);
       });
   };
 
