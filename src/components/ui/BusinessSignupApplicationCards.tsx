@@ -244,21 +244,20 @@ const BusinessSignupApplication = () => {
 
   // validate password
   const validateContactInfo = () => {
-    // validate non-password information
     trigger()
       .then((result) => {
-        // validating all non-password data
         if (!result) {
           setFormErrorMessage(errorMsgs[langOption]);
           return;
         }
-        // validate password data
+
         if (password1.length < 8) {
           const err = langOption === 0 ? "Password too short" : "Contraseña demasiado corta";
           console.error(err);
           setFormErrorMessage(err);
           return;
         }
+
         if (password1 !== password2) {
           const err = langOption === 0 ? "Passwords don't match" : "Las contraseñas no coinciden";
           console.error(err);
@@ -266,45 +265,45 @@ const BusinessSignupApplication = () => {
           return;
         }
 
-        // send to Clerk
-        try {
-          const email = getValues("contactInfo.email");
-          fetch("/api/clerkUser", {
-            method: "POST",
-            body: JSON.stringify({ email: email, password: password1 }),
-            headers: { "Content-Type": "application/json" },
-          }).then((res) => {
-            console.log("got response from POST to Clerk");
-            if (!res.ok) {
-              const err = langOption == 0 ? "Problem creating profile" : "Problema al crear perfil";
-              setFormErrorMessage(err);
-              res.json().then((error) => console.error(error));
-              return;
-            }
-            console.log("response is ok");
+        const email = getValues("contactInfo.email");
+
+        fetch("/api/clerkUser", {
+          method: "POST",
+          body: JSON.stringify({ email: email, password: password1 }),
+          headers: { "Content-Type": "application/json" },
+        })
+          .then((res) =>
             res
               .json()
               .then((data) => {
-                console.log(`got json data: `, data);
+                if (!res.ok || data.error) {
+                  const unknownErr = langOption === 0 ? "Problem creating profile" : "Problema al crear perfil";
+
+                  const errMsg = data?.error?.errors?.[0]?.message || unknownErr;
+                  console.error("Error from server:", errMsg);
+                  setFormErrorMessage(errMsg);
+                  return;
+                }
+
                 if (data.user) {
                   console.log("user exists in data");
                   setClerkUserID(data.user.id);
-                  console.log(`user: ${data.user.id}`);
-                  // validation complete
                   setFormErrorMessage("");
                   setStep(Math.min(numPages, step + 1));
-                  return;
+                } else {
+                  console.error("Failed to create user from data");
+                  setFormErrorMessage("Failed to create user from data");
                 }
-                console.error("Failed to get user from data");
               })
-              .catch((error) => {
-                console.log(error);
-                setFormErrorMessage(error);
-              });
+              .catch((jsonErr) => {
+                console.error("Failed to parse response JSON:", jsonErr);
+                setFormErrorMessage("Invalid response from server.");
+              }),
+          )
+          .catch((fetchErr) => {
+            console.error("Fetch error:", fetchErr);
+            setFormErrorMessage("Network error. Please try again.");
           });
-        } catch (error) {
-          console.error(error);
-        }
       })
       .catch((error) => {
         console.error("Validation error:", error);
@@ -494,7 +493,7 @@ const BusinessSignupApplication = () => {
                 <Input
                   key={`password1-${step}`}
                   className="w-[450px] border-[#8C8C8C]"
-                  type="text"
+                  type="password"
                   id="Password1"
                   value={password1}
                   placeholder={contactInfoFieldNames[langOption][3]}
@@ -506,7 +505,7 @@ const BusinessSignupApplication = () => {
                 <Input
                   key={`password2-${step}`}
                   className="w-[450px] border-[#8C8C8C]"
-                  type="text"
+                  type="password"
                   id="Password2"
                   value={password2}
                   placeholder={contactInfoFieldNames[langOption][4]}
