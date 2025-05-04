@@ -6,6 +6,8 @@ import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import InformationCard from "@/components/ui/InformationCard";
 import { useRequest, useBusiness, updateRequestStatus } from "@/lib/swrHooks";
 import { Button } from "@/components/ui/button";
+import RequestApprovedCard from "@/components/ui/RequestApprovedCard";
+import RequestDeniedCard from "@/components/ui/RequestDeniedCard";
 
 // Define props for the page component
 interface RequestDetailPageProps {
@@ -15,9 +17,12 @@ interface RequestDetailPageProps {
 }
 
 export default function RequestDetailPage({ params }: RequestDetailPageProps) {
+  const [showApprovedCard, setShowApprovedCard] = useState(false);
+  const [showDeniedCard, setShowDeniedCard] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const router = useRouter();
   const { id } = params;
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch the specific request using SWR
   const { request, isLoading: requestLoading, isError: requestError, mutate: mutateRequest } = useRequest(id);
@@ -63,65 +68,61 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
 
   // Handle approving the request
   const handleApprove = async () => {
-    if (isSubmitting) return;
+    if (!request) return;
+
     setIsSubmitting(true);
-
     try {
-      // Optimistically update local data
-      await mutateRequest((prev) => (prev ? { ...prev, status: "closed", decision: "approved" } : undefined), {
-        revalidate: false,
-      });
-
-      // Send API request with ID in request body
       const response = await fetch("/api/request/approve", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ requestId: id }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          requestId: id,
+        }),
       });
 
       if (!response.ok) {
         throw new Error("Failed to approve request");
       }
 
-      // Navigate back to requests page
-      router.push("/admin/requests?status=approved");
+      // Show approval card after successful API call
+      setShowApprovedCard(true);
+      mutateRequest();
     } catch (error) {
       console.error("Error approving request:", error);
-      // Revert optimistic update on error
-      mutateRequest();
+      alert("Error approving request");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   // Handle declining the request
-  const handleDecline = async () => {
-    if (isSubmitting || !request) return;
+  const handleDeny = async () => {
+    if (!request) return;
+
     setIsSubmitting(true);
-
     try {
-      // Optimistically update local data
-      await mutateRequest((prev) => (prev ? { ...prev, status: "closed", decision: "denied" } : undefined), {
-        revalidate: false,
-      });
-
-      // Send API request with ID in request body
       const response = await fetch("/api/request/deny", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ requestId: id }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          requestId: id,
+        }),
       });
 
       if (!response.ok) {
         throw new Error("Failed to deny request");
       }
 
-      // Navigate back to requests page
-      router.push("/admin/requests?status=denied");
+      // Show denial card after successful API call
+      setShowDeniedCard(true);
+      mutateRequest();
     } catch (error) {
       console.error("Error denying request:", error);
-      // Revert optimistic update on error
-      mutateRequest();
+      alert("Error denying request");
     } finally {
       setIsSubmitting(false);
     }
@@ -203,7 +204,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                     </button>
 
                     <button
-                      onClick={handleDecline}
+                      onClick={handleDeny}
                       disabled={isSubmitting}
                       className="w-[130px] sm:w-[154px] h-[41px] bg-[#405BA9] text-white rounded-[23px] font-futura font-medium text-[16px] leading-[21.25px] disabled:opacity-50 hover:bg-[#293241] transition-colors"
                     >
@@ -215,6 +216,8 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
             </>
           )}
         </div>
+        {showApprovedCard && <RequestApprovedCard onClose={() => setShowApprovedCard(false)} />}
+        {showDeniedCard && <RequestDeniedCard onClose={() => setShowDeniedCard(false)} />}
       </div>
     </ResponsiveLayout>
   );
