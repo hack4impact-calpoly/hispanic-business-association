@@ -34,11 +34,15 @@ const RequestApprovedCard = ({ onClose }: RequestApprovedCardProps) => {
   // Calculate card dimensions based on viewport
   const cardWidth = isMobile ? "85%" : Math.min(500, windowSize.width * 0.9) + "px";
 
-  // Set a maximum height for the card
   const cardHeight = isMobile ? "280px" : Math.min(500, windowSize.height * 0.9) + "px";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 ${
+        isMobile ? "items-start pb-[25%]" : ""
+      }`}
+      onClick={onClose}
+    >
       <div
         style={{ width: cardWidth, height: cardHeight, maxWidth: "500px" }}
         className="relative bg-white rounded-2xl shadow-lg"
