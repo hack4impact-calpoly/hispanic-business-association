@@ -53,7 +53,12 @@ const RequestDeniedCard = ({ onClose }: RequestDeniedCardProps) => {
   const cardHeight = isMobile ? "calc(100vh - 200px)" : Math.min(650, windowSize.height * 0.9) + "px";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 ${
+        isMobile ? "items-start pb-[25%]" : ""
+      }`}
+      onClick={onClose}
+    >
       <div
         style={{
           width: cardWidth,
