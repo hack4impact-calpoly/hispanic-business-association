@@ -186,8 +186,7 @@ const BusinessSignupApplication = () => {
   const [formErrorMessage, setFormErrorMessage] = useState("");
   const changeLanguage = (val: number) => {
     setLangOption(val);
-    if (formErrorMessage !== "") {
-      // if existing error not in errorMsgs, will be printed over
+    if (errorMsgs[0].includes(formErrorMessage) || errorMsgs[1].includes(formErrorMessage)) {
       setFormErrorMessage(errorMsgs[val]);
     }
   };
