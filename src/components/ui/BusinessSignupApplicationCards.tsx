@@ -59,20 +59,20 @@ const BusinessSignupApplication = () => {
 
   // page subtitles by language
   const englishPageSubtitles = [
-    "Contact Information",
     "Business Information",
     "Business Information",
     "Social Links",
     "Payment Information",
     "Payment Method",
+    "Contact Information",
   ];
   const spanishPageSubtitles = [
-    "Información del Contacto",
     "Información Comercial",
     "Información Comercial",
     "Enlaces Sociales",
     "Información de Pago",
     "Método de Pago",
+    "Información del Contacto",
   ];
   const numPages = 7;
   const pageSubtitles = [englishPageSubtitles, spanishPageSubtitles];
@@ -187,6 +187,7 @@ const BusinessSignupApplication = () => {
   const changeLanguage = (val: number) => {
     setLangOption(val);
     if (formErrorMessage !== "") {
+      // if existing error not in errorMsgs, will be printed over
       setFormErrorMessage(errorMsgs[val]);
     }
   };
@@ -360,13 +361,10 @@ const BusinessSignupApplication = () => {
   // Step navigation (step # corresponds to which modal displays)
   const nextStep = () => {
     switch (step) {
-      case 1: // contact information page
-        validateContactInfo();
-        break;
-      case 2: // business information page 1
+      case 1: // business information page 1
         validateData();
         break;
-      case 3: // business information page 2
+      case 2: // business information page 2
         if (isMailingAddressSame) {
           // Copy values from physical address to mailing address if checkbox is checked
           setValue("businessInfo.mailingAddress.street", getValues("businessInfo.physicalAddress.street"));
@@ -376,15 +374,18 @@ const BusinessSignupApplication = () => {
         }
         validateData();
         break;
-      case 4: // social links page
+      case 3: // social links page
         setStep(Math.min(numPages, step + 1));
         break;
-      case 5: // payment information page
+      case 4: // payment information page
         validateData();
         break;
-      case 6: // payment method page
+      case 5: // payment method page
+        validateData();
+        break;
+      case 6: // contact information page
+        validateContactInfo();
         gatherAllData();
-        setStep(Math.min(numPages, step + 1));
     }
   };
   const prevStep = () => {
@@ -448,86 +449,6 @@ const BusinessSignupApplication = () => {
       case 1:
         return (
           <div>
-            <div className="grid gap-4 justify-start items-start">
-              <div className="flex items-center gap-2">
-                <Input
-                  key={`contactName-${step}`}
-                  className="w-[450px] border-[#8C8C8C]"
-                  type="text"
-                  id="ContactName"
-                  placeholder={contactInfoFieldNames[langOption][0]}
-                  {...register("contactInfo.name", { required: "Contact Name is required" })}
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Input
-                  key={`contactPhone-${step}`}
-                  className="w-[450px] border-[#8C8C8C]"
-                  type="text"
-                  id="Phone"
-                  placeholder={contactInfoFieldNames[langOption][1]}
-                  {...register("contactInfo.phone", {
-                    required: "Phone Number is required",
-                    pattern: {
-                      value: /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
-                      message: "Phone Number must have nine digits.",
-                    },
-                    onChange: (e) => {
-                      e.target.value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
-                    },
-                  })}
-                />
-              </div>
-
-              <div>
-                <Input
-                  key={`contactEmail-${step}`}
-                  className="w-[450px] border-[#8C8C8C]"
-                  type="text"
-                  id="ContactEmail"
-                  placeholder={contactInfoFieldNames[langOption][2]}
-                  {...register("contactInfo.email", {
-                    required: "Email is required",
-                    pattern: {
-                      value: /^[^@]+@[^@]+$/,
-                      message: "Not in a familiar format.",
-                    },
-                  })}
-                />
-              </div>
-
-              <div>
-                <Input
-                  key={`password1-${step}`}
-                  className="w-[450px] border-[#8C8C8C]"
-                  type="password"
-                  id="Password1"
-                  value={password1}
-                  placeholder={contactInfoFieldNames[langOption][3]}
-                  onChange={(e) => setPassword1(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <Input
-                  key={`password2-${step}`}
-                  className="w-[450px] border-[#8C8C8C]"
-                  type="password"
-                  id="Password2"
-                  value={password2}
-                  placeholder={contactInfoFieldNames[langOption][4]}
-                  onChange={(e) => setPassword2(e.target.value)}
-                />
-              </div>
-              {formErrorMessage && <div className="text-red-600">{formErrorMessage}</div>}
-            </div>
-            {renderNavButtons(false, false)}
-          </div>
-        );
-      case 2:
-        return (
-          <div>
             <div className="grid gap-4 mt-[20px] justify-start items-start">
               <div>
                 <Input
@@ -582,10 +503,10 @@ const BusinessSignupApplication = () => {
               </div>
               {formErrorMessage && <div className="text-red-600">{formErrorMessage}</div>}
             </div>
-            {renderNavButtons(true, false)}
+            {renderNavButtons(false, false)}
           </div>
         );
-      case 3:
+      case 2:
         return (
           <div>
             <div className="grid gap-4 mt-[80px] justify-start items-start">
@@ -680,7 +601,7 @@ const BusinessSignupApplication = () => {
             {renderNavButtons(true, false)}
           </div>
         );
-      case 4:
+      case 3:
         return (
           <div>
             <div className="grid grid-cols-2 gap-6 mt-[80px] justify-start">
@@ -730,7 +651,7 @@ const BusinessSignupApplication = () => {
             {renderNavButtons(true, false)}
           </div>
         );
-      case 5:
+      case 4:
         // NOTE: There may be code below that is not currently used because field is
         // not required until we have a payment system set up.
         return (
@@ -755,7 +676,7 @@ const BusinessSignupApplication = () => {
             {renderNavButtons(true, false)}
           </div>
         );
-      case 6:
+      case 5:
         // NOTE: There may be code below that is not currently used because field is
         // not required until we have a payment system set up.
         return (
@@ -845,6 +766,86 @@ const BusinessSignupApplication = () => {
               {formErrorMessage && <div className="text-red-600">{formErrorMessage}</div>}
             </div>
             {renderNavButtons(true, false)}
+          </div>
+        );
+      case 6:
+        return (
+          <div>
+            <div className="grid gap-4 justify-start items-start">
+              <div className="flex items-center gap-2">
+                <Input
+                  key={`contactName-${step}`}
+                  className="w-[450px] border-[#8C8C8C]"
+                  type="text"
+                  id="ContactName"
+                  placeholder={contactInfoFieldNames[langOption][0]}
+                  {...register("contactInfo.name", { required: "Contact Name is required" })}
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Input
+                  key={`contactPhone-${step}`}
+                  className="w-[450px] border-[#8C8C8C]"
+                  type="text"
+                  id="Phone"
+                  placeholder={contactInfoFieldNames[langOption][1]}
+                  {...register("contactInfo.phone", {
+                    required: "Phone Number is required",
+                    pattern: {
+                      value: /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
+                      message: "Phone Number must have nine digits.",
+                    },
+                    onChange: (e) => {
+                      e.target.value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+                    },
+                  })}
+                />
+              </div>
+
+              <div>
+                <Input
+                  key={`contactEmail-${step}`}
+                  className="w-[450px] border-[#8C8C8C]"
+                  type="text"
+                  id="ContactEmail"
+                  placeholder={contactInfoFieldNames[langOption][2]}
+                  {...register("contactInfo.email", {
+                    required: "Email is required",
+                    pattern: {
+                      value: /^[^@]+@[^@]+$/,
+                      message: "Not in a familiar format.",
+                    },
+                  })}
+                />
+              </div>
+
+              <div>
+                <Input
+                  key={`password1-${step}`}
+                  className="w-[450px] border-[#8C8C8C]"
+                  type="password"
+                  id="Password1"
+                  value={password1}
+                  placeholder={contactInfoFieldNames[langOption][3]}
+                  onChange={(e) => setPassword1(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Input
+                  key={`password2-${step}`}
+                  className="w-[450px] border-[#8C8C8C]"
+                  type="password"
+                  id="Password2"
+                  value={password2}
+                  placeholder={contactInfoFieldNames[langOption][4]}
+                  onChange={(e) => setPassword2(e.target.value)}
+                />
+              </div>
+              {formErrorMessage && <div className="text-red-600">{formErrorMessage}</div>}
+            </div>
+            {renderNavButtons(true, true)}
           </div>
         );
     }
