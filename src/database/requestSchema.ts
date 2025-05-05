@@ -5,6 +5,7 @@ export type IRequest = {
   clerkUserID: string; // Reference to the User's clerkUserID.
   businessName: string;
   businessType: string;
+  membershipFeeType: string;
   businessOwner: string;
   website: string;
   address: {
@@ -37,6 +38,7 @@ const RequestSchema = new Schema<IRequest>({
   clerkUserID: { type: String, required: true },
   businessName: { type: String, required: false },
   businessType: { type: String, required: false },
+  membershipFeeType: { type: String, required: true },
   businessOwner: { type: String, required: false },
   website: { type: String, required: false },
   address: {

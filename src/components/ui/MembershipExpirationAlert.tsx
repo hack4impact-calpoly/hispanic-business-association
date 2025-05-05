@@ -3,7 +3,6 @@
 import React from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import axios from "axios";
 
 interface MembershipExpirationAlertProps {
   // Months until expiration
@@ -28,6 +27,17 @@ const MembershipExpirationAlert = ({
   const handleRenewClick = async () => {
     try {
       // Make your API call (Example with fetch)
+      const response1 = await fetch(`/api/business/`);
+      const data1 = await response1.json();
+      const membershipFeeType = data1.membershipFeeType;
+      var amt;
+      if (membershipFeeType === "Community") {
+        amt = process.env.NEXT_PUBLIC_COMMUNITY_MEMBERSHIP_FEE;
+      } else if (membershipFeeType === "Business") {
+        amt = process.env.NEXT_PUBLIC_BUSINESS_MEMBERSHIP_FEE;
+      } else {
+        amt = process.env.NEXT_PUBLIC_NON_PROFIT_MEMBERSHIP_FEE;
+      }
       const response = await fetch("/api/square/", {
         method: "POST",
         headers: {
@@ -35,7 +45,7 @@ const MembershipExpirationAlert = ({
         },
         body: JSON.stringify({
           userId: 123, // Example userId
-          amount: 2500,
+          amount: amt,
           title: "Membership Fee",
         }), // Send relevant data
       });
@@ -45,11 +55,17 @@ const MembershipExpirationAlert = ({
       }
 
       const data = await response.json();
-
       if (data.url) {
         window.open(data.url, "_blank");
+        // listen to webhooks
+        await fetch(`/api/business/payment`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
       } else {
-        console.log(data.url);
+        console.log(data);
       }
     } catch (err) {
       console.error("API call failed:", err);
