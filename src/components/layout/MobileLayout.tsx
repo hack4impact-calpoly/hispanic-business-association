@@ -7,11 +7,11 @@ interface MobileLayoutProps {
   title: string;
 }
 
-const MobileLayout = ({ children, title }: MobileLayoutProps) => {
+const MobileLayout: React.FC<MobileLayoutProps> = ({ children, title }) => {
   return (
-    <div>
+    <div className="w-full">
       <MobileHero title={title} />
-      <main className="flex pt-4">{children}</main>
+      <main className="flex flex-col w-full px-2">{children}</main>
       <div className="h-[70px]">
         <MobileBottomNav />
       </div>

@@ -12,15 +12,17 @@ const StatsCard = ({ title, count, isHighlighted = false }: StatsCardProps) => {
   return (
     <div
       className={cn(
-        "w-[416px] h-[67px] rounded-[15px] border border-black cursor-pointer",
+        "w-full sm:w-full md:w-[350px] lg:w-[416px] h-[67px] rounded-[15px] border border-black cursor-pointer",
         isHighlighted && "bg-[#C26868]/35",
       )}
     >
       <div className="flex justify-between items-center h-full px-4">
-        <span className="font-futura font-medium text-[19px] leading-[25px] text-black">{title}</span>
+        <span className="font-futura font-medium text-[16px] sm:text-[19px] leading-[25px] text-black truncate mr-2">
+          {title}
+        </span>
         <span
           className={cn(
-            "font-futura font-medium text-[20px] leading-[27px]",
+            "font-futura font-medium text-[18px] sm:text-[20px] leading-[27px] whitespace-nowrap",
             isHighlighted ? "text-[#AE0000]" : "text-[#404040]",
           )}
         >

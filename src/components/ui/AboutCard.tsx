@@ -3,15 +3,19 @@
 import Image from "next/image";
 import { Card, CardHeader, CardContent } from "./card";
 
+// Interface for about card content structure
 interface AboutCardInfo {
   description: string;
 }
 
-interface AboutCardInfoProps {
+interface AboutCardProps {
   info?: AboutCardInfo;
+  editable?: boolean;
+  onEditClick?: () => void;
 }
 
-const AboutCard = ({ info }: AboutCardInfoProps) => {
+const AboutCard = ({ info, editable = false, onEditClick }: AboutCardProps) => {
+  // Default about text - replaced with prop data when available go ahead and delete
   const cardContent = info ?? {
     description:
       "Halo is a slice of Heaven when it comes to beauty. We have more then a decade of experience. " +
@@ -22,22 +26,30 @@ const AboutCard = ({ info }: AboutCardInfoProps) => {
   };
 
   return (
-    <Card className="relative w-[80vw] min-h-[value] bg-[#6884C226] rounded-xl">
+    <Card className="w-full bg-[#6884C226] rounded-xl">
       <CardHeader className="font-futura text-left" style={{ fontWeight: "625", paddingTop: "12px" }}>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center relative">
           About
-          <button className="absolute right-6">
-            <Image src="/icons/Edit.png" alt="Edit" width={20} height={20} style={{ marginBottom: "5px" }} />
-          </button>
+          {/* Edit button - conditionally rendered based on editable prop */}
+          {editable && (
+            <button
+              className="p-2 rounded-full hover:bg-white transition-colors absolute right-2"
+              onClick={onEditClick}
+              aria-label="Edit about section"
+            >
+              <Image src="/icons/Edit.png" alt="Edit" width={20} height={20} style={{ marginBottom: "5px" }} />
+            </button>
+          )}
         </div>
         <hr className="h-[2px] bg-[#BEBEBE]" style={{ marginTop: "1.5px" }} />
       </CardHeader>
       <CardContent className="grid gap-4">
+        {/* First line indented with proper line height for readability */}
         <p
-          className="text-sm font-medium leading-none font-serif text-left"
+          className="text-sm font-medium leading-normal font-serif text-left"
           style={{ textIndent: "1.25rem", paddingBottom: "10px" }}
         >
-          {cardContent.description}
+          {cardContent.description || "No description available."}
         </p>
       </CardContent>
     </Card>

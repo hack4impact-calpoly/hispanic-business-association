@@ -36,20 +36,22 @@ export const RequestCard = (props: RequestCardProps) => {
     <div
       onClick={handleClick}
       className={cn(
-        "w-[591px] h-[67px] rounded-[15px] border border-black",
-        "px-4 py-5 cursor-pointer",
+        "w-full rounded-[10px] sm:rounded-[15px] border border-black",
+        "px-3 sm:px-4 py-4 sm:py-5 cursor-pointer",
         props.className,
       )}
     >
-      <div className="flex justify-between items-center">
-        <span className="font-futura font-bold text-[19px] leading-[25px]">{props.businessName}</span>
+      <div className="flex justify-between items-center w-full">
+        <span className="font-futura font-bold text-[16px] sm:text-[19px] leading-[20px] sm:leading-[25px] truncate mr-2 min-w-0 flex-1">
+          {props.businessName}
+        </span>
 
         {props.type === "pending" ? (
-          <div className="flex items-center gap-2">
-            {props.isUrgent && <Image src="/icons/Box Important.png" alt="Important" width={25} height={25} />}
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            {props.isUrgent && <Image src="/icons/Box Important.png" alt="Important" width={20} height={20} />}
             <span
               className={cn(
-                "font-futura text-[20px] leading-[27px]",
+                "font-futura text-sm sm:text-[20px] leading-tight sm:leading-[27px] whitespace-nowrap",
                 props.isUrgent ? "font-bold text-[#AE0000]" : "font-medium text-black",
               )}
             >
@@ -57,11 +59,15 @@ export const RequestCard = (props: RequestCardProps) => {
             </span>
           </div>
         ) : (
-          <span className={cn("font-futura font-medium text-[20px] leading-[27px]")}>
+          <span
+            className={cn(
+              "font-futura font-medium text-sm sm:text-[20px] leading-tight sm:leading-[27px] shrink-0 whitespace-nowrap",
+            )}
+          >
             <span className={props.status === "approved" ? "text-[#00A819]" : "text-[#AE0000]"}>
               {props.status === "approved" ? "Approved" : "Denied"}
             </span>
-            <span className="text-black">: {props.date}</span>
+            <span className="text-black hidden sm:inline">: {props.date}</span>
           </span>
         )}
       </div>

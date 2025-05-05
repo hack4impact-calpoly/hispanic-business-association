@@ -1,145 +1,255 @@
 "use client";
 
-import { useState, useEffect } from "react";
-
-/**
- * TODO: Architectural Decision Needed
- *
- * This code currently exists as /admin/requests.tsx but needs proper placement in the Next.js app router structure.
- *
- * Options:
- * 1. If this is meant to be a standalone page for reviewing all requests:
- *    - Move to: /src/app/admin/requests/page.tsx
- *
- * 2. If this is meant to be a detailed view of a specific request:
- *    - Move to: /src/app/admin/requests/[id]/page.tsx
- *    - Add a parent route at /src/app/admin/requests/page.tsx that shows a list of requests
- *
- * 3. If this is meant to be a component used within other pages:
- *    - Move to: /src/components/admin/RequestsReview.tsx
- *
- * Current code shows a comparison view of old vs new business information with approve/deny actions.
- * Need to determine the proper user flow to decide placement.
- */
-
-import React from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useMemo } from "react";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
-import InformationCard from "@/components/ui/InformationCard";
-import axios from "axios";
+import { RequestCard } from "@/components/ui/RequestCard";
+import StatsCard from "@/components/ui/StatsCard";
+import FilterButton from "@/components/ui/FilterButton";
+import { useRequests, useUser, useBusinesses } from "@/lib/swrHooks";
+import { useRouter } from "next/navigation";
 
-export default function RequestsPage() {
-  const [oldInfo, setOldInfo] = useState({
-    businessName: "",
-    businessType: "",
-    businessOwner: "",
-    website: "",
-    address: { street: "", city: "", state: "", zip: 0, county: "" },
-    pointOfContact: { name: "", phoneNumber: 0, email: "" },
-    socialMediaHandles: { IG: "", twitter: "", FB: "" },
-    description: "",
-  });
+type FilterType = "Most Recent" | "Oldest" | "Business Name A-Z" | "Business Name Z-A";
 
-  const [newInfo, setNewInfo] = useState({
-    businessName: "",
-    businessType: "",
-    businessOwner: "",
-    website: "",
-    address: { street: "", city: "", state: "", zip: 0, county: "" },
-    pointOfContact: { name: "", phoneNumber: 0, email: "" },
-    socialMediaHandles: { IG: "", twitter: "", FB: "" },
-    description: "",
-  });
+export default function AdminRequestsPage() {
   const router = useRouter();
+  const [pendingFilter, setPendingFilter] = useState<FilterType>("Most Recent");
+  const [historyFilter, setHistoryFilter] = useState<FilterType>("Most Recent");
+  const [isClient, setIsClient] = useState(false);
 
+  // Set isClient to true after component mounts
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Get list of requests from the API
-        const requestsResponse = await axios.get("/api/request");
-        const requests = requestsResponse.data;
-        if (requests && requests.length > 0) {
-          const firstRequest = requests[0];
-          const businessResponse = await axios.get(`/api/business/?clerkId=${firstRequest.clerkUserID}`);
-          const businessData = businessResponse.data;
-
-          // Store the recent request as newInfo (change later to depend on id)
-
-          setNewInfo({
-            businessName: firstRequest.businessName ? firstRequest.businessName : businessData.businessName,
-            businessType: firstRequest.businessType ? firstRequest.businessType : businessData.businessType,
-            businessOwner: firstRequest.businessOwner ? firstRequest.businessOwner : businessData.businessOwner,
-            website: firstRequest.website ? firstRequest.website : businessData.website,
-            address: firstRequest.address ? firstRequest.address : businessData.address,
-            pointOfContact: firstRequest.pointOfContact
-              ? {
-                  name: firstRequest.pointOfContact.name || businessData.pointOfContact.name,
-                  phoneNumber: firstRequest.pointOfContact.phoneNumber || businessData.pointOfContact.phoneNumber,
-                  email: firstRequest.pointOfContact.email || businessData.pointOfContact.email,
-                }
-              : businessData.pointOfContact,
-            socialMediaHandles: firstRequest.socialMediaHandles
-              ? {
-                  IG: firstRequest.socialMediaHandles.IG || businessData.socialMediaHandles.IG,
-                  twitter: firstRequest.socialMediaHandles.twitter || businessData.socialMediaHandles.twitter,
-                  FB: firstRequest.socialMediaHandles.FB || businessData.socialMediaHandles.FB,
-                }
-              : businessData.socialMediaHandles,
-            description: firstRequest.description ? firstRequest.description : businessData.description,
-          });
-
-          // Fetch business info based on clerkId from the most recent request
-          setOldInfo({
-            businessName: businessData.businessName,
-            businessType: businessData.businessType,
-            businessOwner: businessData.businessOwner,
-            website: businessData.website,
-            address: businessData.address,
-            pointOfContact: businessData.pointOfContact,
-            socialMediaHandles: businessData.socialMediaHandles,
-            description: businessData.description,
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
+    setIsClient(true);
   }, []);
 
+  // Fetch data using SWR hooks
+  const { user, isLoading: isUserLoading } = useUser();
+  const { requests, isLoading: isRequestsLoading } = useRequests();
+  const { businesses, isLoading: isBusinessesLoading } = useBusinesses();
+
+  // Create a lookup map of clerkUserID to business name
+  const businessNameMap = useMemo(() => {
+    if (!businesses) return {};
+
+    const map: Record<string, string> = {};
+    businesses.forEach((business) => {
+      if (business.clerkUserID && business.businessName) {
+        map[business.clerkUserID] = business.businessName;
+      }
+    });
+    return map;
+  }, [businesses]);
+
+  // Function to get business name, using original name as fallback
+  const getBusinessName = (request: any) => {
+    // If request has a business name, use it
+    if (request.businessName) return request.businessName;
+
+    // Otherwise, look up the original business name by clerk ID
+    if (request.clerkUserID && businessNameMap[request.clerkUserID]) {
+      return businessNameMap[request.clerkUserID];
+    }
+
+    // Fall back to placeholder if nothing is found
+    return "(Business Name)";
+  };
+
+  // Handle authentication checks with a delay to prevent immediate redirects
+  useEffect(() => {
+    if (!isClient) return;
+
+    const timer = setTimeout(() => {
+      if (!isUserLoading && !user) {
+        router.push("/");
+      } else if (user && user.role !== "admin") {
+        router.push("/business");
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [user, isUserLoading, isClient, router]);
+
+  // Calculate stats based on requests data
+  const stats = {
+    pending: requests?.filter((req) => req.status === "open").length || 0,
+    approved: requests?.filter((req) => req.decision === "approved").length || 0,
+    declined: requests?.filter((req) => req.decision === "denied").length || 0,
+  };
+
+  // Apply filter to pending requests
+  const filterPendingRequests = () => {
+    if (!requests) return [];
+
+    const pendingRequests = requests.filter((req) => req.status === "open");
+    const sorted = [...pendingRequests];
+
+    switch (pendingFilter) {
+      case "Most Recent":
+        return sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      case "Oldest":
+        return sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      case "Business Name A-Z":
+        return sorted.sort((a, b) => (getBusinessName(a) || "").localeCompare(getBusinessName(b) || ""));
+      case "Business Name Z-A":
+        return sorted.sort((a, b) => (getBusinessName(b) || "").localeCompare(getBusinessName(a) || ""));
+      default:
+        return sorted;
+    }
+  };
+
+  // Apply filter to history requests
+  const filterHistoryRequests = () => {
+    if (!requests) return [];
+
+    const historyRequests = requests.filter((req) => req.status === "closed");
+    const sorted = [...historyRequests];
+
+    switch (historyFilter) {
+      case "Most Recent":
+        return sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      case "Oldest":
+        return sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      case "Business Name A-Z":
+        return sorted.sort((a, b) => (getBusinessName(a) || "").localeCompare(getBusinessName(b) || ""));
+      case "Business Name Z-A":
+        return sorted.sort((a, b) => (getBusinessName(b) || "").localeCompare(getBusinessName(a) || ""));
+      default:
+        return sorted;
+    }
+  };
+
+  // Handle filter changes
+  const handlePendingFilterChange = (filter: string) => {
+    setPendingFilter(filter as FilterType);
+  };
+
+  const handleHistoryFilterChange = (filter: string) => {
+    setHistoryFilter(filter as FilterType);
+  };
+
+  // Navigate to request detail page when clicked
+  const handleRequestClick = (id: string) => {
+    router.push(`/admin/requests/${id}`);
+  };
+
+  // Format relative time (e.g., "2 days ago")
+  const getTimeAgo = (dateString: string | Date): string => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+
+    if (diffInHours < 24) {
+      return `${diffInHours} hours ago`;
+    } else {
+      const diffInDays = Math.floor(diffInHours / 24);
+      return `${diffInDays} days ago`;
+    }
+  };
+
+  // Determine if request is urgent (older than 3 days)
+  const isUrgent = (dateString: string | Date): boolean => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+    return diffInHours > 72; // More than 3 days
+  };
+
+  // Format date as MM/DD/YY
+  const formatDate = (dateString: string | Date): string => {
+    const date = new Date(dateString);
+    return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear().toString().substr(-2)}`;
+  };
+
+  const pendingData = filterPendingRequests();
+  const historyData = filterHistoryRequests();
+
+  // Determine if data is still loading
+  const isLoading = isRequestsLoading || isBusinessesLoading;
+
   return (
-    <ResponsiveLayout title="Request">
-      <div className="min-h-screen bg-white p-4 md:p-0">
-        <h2 className="font-futura font-bold text-[26px] leading-[34.55px] text-black mb-8">Business Name</h2>
+    <ResponsiveLayout title="Requests">
+      <div className="relative min-h-screen bg-white px-2 sm:px-4 md:px-6 py-6 pb-[142px] md:pb-12">
+        <div className="w-full max-w-7xl mx-auto pt-4">
+          {/* Responsive Flex Container */}
+          <div className="flex flex-col lg:flex-row lg:justify-between">
+            {/* Request List Column - Responsive width based on context */}
+            <div className="w-full md:max-w-[591px] lg:max-w-none lg:flex-1 lg:min-w-0 xl:max-w-[591px]">
+              {/* Pending Requests section */}
+              <div className="flex justify-between items-center mb-4 sm:mb-6 md:mb-8 w-full">
+                <h2 className="font-futura font-medium text-[18px] sm:text-[22px] md:text-[26px] leading-tight md:leading-[34.53px] text-black truncate pr-2">
+                  Pending Requests
+                </h2>
+                <div className="flex-shrink-0">
+                  <FilterButton onFilterChange={handlePendingFilterChange} selectedFilter={pendingFilter} />
+                </div>
+              </div>
 
-        <div className="flex flex-col md:flex-row gap-6 md:gap-x-4 mb-16 justify-center items-center">
-          <div className="w-full md:w-auto">
-            <InformationCard type="old" businessInfo={oldInfo} />
-          </div>
+              <div className="space-y-[6px] sm:space-y-[10px] w-full">
+                {isLoading ? (
+                  <p className="text-center py-4 text-gray-500">Loading requests...</p>
+                ) : pendingData.length > 0 ? (
+                  pendingData.map((request) => (
+                    <div
+                      key={(request as any)._id}
+                      onClick={() => handleRequestClick((request as any)._id)}
+                      className="w-full"
+                    >
+                      <RequestCard
+                        type="pending"
+                        businessName={getBusinessName(request)}
+                        timeAgo={getTimeAgo(request.date)}
+                        isUrgent={isUrgent(request.date)}
+                        className="w-full"
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center py-4 text-gray-500">No pending requests</p>
+                )}
+              </div>
 
-          <div className="w-full md:w-auto">
-            <InformationCard type="new" businessInfo={newInfo} />
-          </div>
-        </div>
+              <div className="w-full h-0 border-t border-[#BEBEBE] my-6 sm:my-8" />
 
-        <div className="flex flex-col items-center gap-4 mb-8">
-          <h3 className="font-futura font-medium text-[24px] leading-[31.88px] text-black">Allow Changes?</h3>
+              {/* History Requests section */}
+              <div className="flex justify-between items-center mb-4 sm:mb-6 md:mb-8 w-full">
+                <h2 className="font-futura font-medium text-[18px] sm:text-[22px] md:text-[26px] leading-tight md:leading-[34.53px] text-black truncate pr-2">
+                  History of Recent Requests
+                </h2>
+                <div className="flex-shrink-0">
+                  <FilterButton onFilterChange={handleHistoryFilterChange} selectedFilter={historyFilter} />
+                </div>
+              </div>
 
-          <div className="flex gap-4">
-            <button
-              onClick={() => router.push("/admin/requests/approved")}
-              className="w-[154px] h-[41px] bg-[#405BA9] text-white rounded-[23px] font-futura font-medium text-[16px] leading-[21.25px]"
-            >
-              Yes
-            </button>
+              <div className="space-y-[6px] sm:space-y-[10px] w-full">
+                {isLoading ? (
+                  <p className="text-center py-4 text-gray-500">Loading request history...</p>
+                ) : historyData.length > 0 ? (
+                  historyData.map((request) => (
+                    <div
+                      key={(request as any)._id}
+                      onClick={() => handleRequestClick((request as any)._id)}
+                      className="w-full"
+                    >
+                      <RequestCard
+                        type="history"
+                        businessName={getBusinessName(request)}
+                        status={request.decision as "approved" | "denied"}
+                        date={formatDate(request.date)}
+                        className="w-full"
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center py-4 text-gray-500">No request history</p>
+                )}
+              </div>
+            </div>
 
-            <button
-              onClick={() => router.push("/admin/requests/denied")}
-              className="w-[154px] h-[41px] bg-[#405BA9] text-white rounded-[23px] font-futura font-medium text-[16px] leading-[21.25px]"
-            >
-              No
-            </button>
+            {/* Stats Cards - Now full width on mobile */}
+            <div className="w-full lg:w-auto lg:ml-[30px] lg:min-w-[350px] xl:min-w-[416px] mt-8 lg:mt-0 space-y-4 sm:space-y-[18px]">
+              <StatsCard title="Total Pending Request" count={stats.pending} isHighlighted={true} />
+              <StatsCard title="Requests Approved This Month" count={stats.approved} isHighlighted={false} />
+              <StatsCard title="Requests Declined This Month" count={stats.declined} isHighlighted={false} />
+            </div>
           </div>
         </div>
       </div>

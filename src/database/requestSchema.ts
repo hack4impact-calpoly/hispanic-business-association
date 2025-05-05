@@ -1,9 +1,11 @@
 import mongoose, { Schema } from "mongoose";
 
 export type IRequest = {
+  _id?: string; // MongoDB automatically adds this
   clerkUserID: string; // Reference to the User's clerkUserID.
   businessName: string;
   businessType: string;
+  membershipFeeType: string;
   businessOwner: string;
   website: string;
   address: {
@@ -25,13 +27,18 @@ export type IRequest = {
   };
   description: string;
   date: Date;
+  status?: "open" | "closed";
+  decision?: null | "approved" | "denied";
+  logoUrl?: string;
+  bannerUrl?: string;
 };
 
 // Create the Mongoose schema for Business details.
 const RequestSchema = new Schema<IRequest>({
-  clerkUserID: { type: String, required: true, unique: true },
-  businessName: { type: String, required: false, unique: true },
+  clerkUserID: { type: String, required: true },
+  businessName: { type: String, required: false },
   businessType: { type: String, required: false },
+  membershipFeeType: { type: String, required: true },
   businessOwner: { type: String, required: false },
   website: { type: String, required: false },
   address: {
@@ -52,7 +59,11 @@ const RequestSchema = new Schema<IRequest>({
     FB: { type: String },
   },
   description: { type: String, required: false },
-  date: { type: Date, required: false, default: new Date() },
+  date: { type: Date, required: false, default: Date.now },
+  status: { type: String, enum: ["open", "closed"], default: "open" },
+  decision: { type: String, enum: ["approved", "denied"], default: null },
+  logoUrl: { type: String },
+  bannerUrl: { type: String },
 });
 
 // Export the model.

@@ -1,9 +1,13 @@
 import mongoose, { Schema } from "mongoose";
 
 export type IBusiness = {
+  _id?: string; // MongoDB document ID
   clerkUserID: string; // Reference to the User's clerkUserID.
   businessName: string;
   businessType: string;
+  membershipFeeType: String;
+  lastPayDate: Date;
+  membershipExpiryDate: Date;
   businessOwner: string;
   website: string;
   physicalAddress: {
@@ -29,6 +33,8 @@ export type IBusiness = {
     FB?: string;
   };
   description: string;
+  logoUrl?: string;
+  bannerUrl?: string;
 };
 
 // Create the Mongoose schema for Business details.
@@ -36,6 +42,9 @@ const BusinessSchema = new Schema<IBusiness>({
   clerkUserID: { type: String, required: true, unique: true },
   businessName: { type: String, required: true, unique: true },
   businessType: { type: String, required: true },
+  membershipFeeType: { type: String, required: false },
+  lastPayDate: { type: Date, required: false },
+  membershipExpiryDate: { type: Date, required: false },
   businessOwner: { type: String, required: true },
   website: { type: String, required: true },
   physicalAddress: {
@@ -61,6 +70,8 @@ const BusinessSchema = new Schema<IBusiness>({
     FB: { type: String },
   },
   description: { type: String, required: true },
+  logoUrl: { type: String },
+  bannerUrl: { type: String },
 });
 
 // Export the model.

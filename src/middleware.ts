@@ -1,6 +1,37 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
-export default clerkMiddleware();
+const isPublicRoute = createRouteMatcher(["/", "/unauthorized", "/forgot-password", "/sign-up"]);
+
+const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
+const isBusinessRoute = createRouteMatcher(["/business(.*)"]);
+
+export default clerkMiddleware(async (auth, req) => {
+  const { userId, sessionClaims } = await auth();
+  const role = (sessionClaims?.metadata as { role?: string })?.role;
+
+  // Public pages
+  if (isPublicRoute(req)) {
+    return NextResponse.next();
+  }
+
+  // Redirect unauthenticated users
+  if (!userId) {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+
+  // Role-based route protection
+  if (isAdminRoute(req) && role !== "admin") {
+    return new NextResponse("Forbidden", { status: 403 });
+  }
+
+  if (isBusinessRoute(req) && role !== "business") {
+    return new NextResponse("Forbidden", { status: 403 });
+  }
+
+  // If allowed
+  return NextResponse.next();
+});
 
 export const config = {
   matcher: [

@@ -2,9 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
+import { useBusiness } from "@/lib/swrHooks";
 
 type NavigationItem = {
   name: string;
@@ -15,26 +18,27 @@ type NavigationItem = {
 
 export default function DesktopSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { signOut } = useAuth();
+
   const [isExpanded, setIsExpanded] = useState(false);
-  const [userRole, setUserRole] = useState<string>("business");
 
-  useEffect(() => {
-    async function fetchUserRole() {
-      try {
-        const response = await fetch(`${window.location.origin}/api/user`, {
-          method: "GET",
-        });
-        if (!response.ok) throw new Error("Failed to fetch role");
+  const { isLoaded, user } = useUser();
+  const shouldFetchBusiness = isLoaded && user?.publicMetadata?.role === "business";
+  const clerkId = shouldFetchBusiness ? user?.id : null;
+  const { business } = useBusiness(clerkId);
+  const userRole = user?.publicMetadata?.role as string;
 
-        const data = await response.json();
-        setUserRole(data.role);
-      } catch (error) {
-        console.error("Error fetching user role:", error);
-      }
-    }
+  // Default logo to use if no business logo is available
+  const defaultLogo = "/logo/HBA_NoBack_NoWords.png";
+  const businessLogo = shouldFetchBusiness && business?.logoUrl ? business.logoUrl : defaultLogo;
 
-    fetchUserRole();
-  }, []);
+  if (!isLoaded) return null;
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push("/");
+  };
 
   const navigationItems: Record<string, NavigationItem[]> = {
     business: [
@@ -43,24 +47,6 @@ export default function DesktopSidebar() {
         href: "/business",
         icon: "/icons/Home.png",
         current: pathname === "/business",
-      },
-      {
-        name: "Inbox",
-        href: "/business/inbox",
-        icon: "/icons/Check Inbox.png",
-        current: pathname === "/business/inbox",
-      },
-      {
-        name: "Update Information",
-        href: "/business/update",
-        icon: "/icons/Change.png",
-        current: pathname === "/business/update",
-      },
-      {
-        name: "Application",
-        href: "/business/application",
-        icon: "/icons/Application Form.png",
-        current: pathname === "/business/application",
       },
     ],
     admin: [
@@ -107,6 +93,7 @@ export default function DesktopSidebar() {
             <Image src="/logo/HBA_No_Back.png" alt="HBA Logo" width={129} height={68} className="w-[129px] h-[68px]" />
           </div>
         )}
+
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           className={cn(
@@ -119,6 +106,7 @@ export default function DesktopSidebar() {
           <Image src="/icons/Menu.png" alt="Menu" width={30} height={30} className="p-1 mx-auto" />
         </button>
 
+        {/* Navigation items + Sign Out */}
         <div
           className={cn(
             "flex flex-col mt-[40px]",
@@ -148,22 +136,45 @@ export default function DesktopSidebar() {
               )}
             </Link>
           ))}
+
+          {/* Sign Out Button below the nav items */}
+          <button
+            onClick={handleSignOut}
+            className={cn(
+              "flex items-center transition-all duration-300 mt-[10px] text-white hover:bg-[#1F2530]",
+              isExpanded
+                ? "ml-[18px] w-[328px] h-[45px] pl-[18px] font-futura text-base font-medium"
+                : "ml-[4px] mt-[40px]",
+            )}
+          >
+            <Image src="/icons/Logout.png" alt="Sign Out" width={30} height={30} className="shrink-0" />
+            {isExpanded && <span className="ml-[18px]">Sign Out</span>}
+          </button>
         </div>
 
+        {/* Bottom logo bar */}
         <div
-          className={cn("mt-auto", isExpanded ? "bg-[#1F2530] h-[76px]" : "flex items-center justify-center h-[66px]")}
+          className={cn(
+            "mt-auto flex flex-col items-center justify-center",
+            isExpanded ? "bg-[#1F2530] h-[100px]" : "h-[90px]",
+          )}
         >
-          <div className={cn("flex", isExpanded ? "items-center pl-[12px] h-full" : "p-[18px]")}>
+          <div className={cn("flex", isExpanded ? "items-center pl-[12px] h-[66px]" : "p-[18px]")}>
             <Image
-              src="/logo/HBA_NoBack_NoWords.png"
+              src={userRole === "business" ? businessLogo : defaultLogo}
               alt="Business Logo"
               width={62}
               height={57}
-              className={cn("object-contain")}
+              className="object-contain"
+              onError={(e) => {
+                // Fallback to default on error
+                const target = e.target as HTMLImageElement;
+                target.src = defaultLogo;
+              }}
             />
             {isExpanded && (
               <span className="ml-[18px] text-white font-futura text-base font-medium leading-[21.25px]">
-                Business Name
+                {userRole === "admin" ? "Hispanic Business Association" : (business?.businessName ?? "Business Name")}
               </span>
             )}
           </div>

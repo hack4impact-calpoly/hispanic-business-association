@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useUser } from "@clerk/nextjs";
 
 import {
   NavigationMenu,
@@ -11,26 +11,13 @@ import {
 } from "@/components/layout/navigation-menu";
 
 export default function Navbar() {
-  const [userRole, setUserRole] = useState<string>("business");
+  const { isLoaded, user } = useUser();
 
-  useEffect(() => {
-    async function fetchUserRole() {
-      try {
-        const response = await fetch(`${window.location.origin}/api/user`, {
-          method: "GET",
-        });
-        if (!response.ok) throw new Error("Failed to fetch role");
+  if (!isLoaded) return null;
 
-        const data = await response.json();
-        setUserRole(data.role);
-      } catch (error) {
-        console.error("Error fetching user role:", error);
-      }
-    }
+  const userRole = user?.publicMetadata?.role as string;
 
-    fetchUserRole();
-  }, []);
-
+  // DATA: Navigation item definitions - keyed by user role
   const menuItems: Record<string, { href: string; src: string; alt: string; width: number; height: number }[]> = {
     business: [
       { href: "/business", src: "/icons/Phone - Dashboard.png", alt: "Dashboard", width: 51, height: 43 },
@@ -47,17 +34,21 @@ export default function Navbar() {
   };
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 bg-[#D9D9D9] shadow-lg h-[92px]">
+    <div className="fixed inset-x-0 bottom-0 z-50 bg-[#D9D9D9] shadow-lg h-[92px] overflow-x-hidden">
       <NavigationMenu className="w-full !max-w-full flex mt-[11px]">
-        <NavigationMenuList className="w-full flex justify-center items-center space-x-[45px] ">
-          {userRole &&
-            menuItems[userRole]?.map((item, index) => (
-              <NavigationMenuItem key={index} className="flex justify-center">
-                <NavigationMenuLink href={item.href} className="flex flex-col items-center">
-                  <Image src={item.src} alt={item.alt} width={item.width} height={item.height} />
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            ))}
+        <NavigationMenuList className="w-full flex justify-center items-center">
+          {/* CONTAINER: Fixed width container ensures consistent spacing between items */}
+          <div className="flex justify-between items-center w-[302px]">
+            {userRole &&
+              menuItems[userRole]?.map((item, index) => (
+                <NavigationMenuItem key={index} className="flex justify-center">
+                  <NavigationMenuLink href={item.href} className="flex flex-col items-center">
+                    {/* IMAGE: Maintains original dimensions for proper display */}
+                    <Image src={item.src} alt={item.alt} width={item.width} height={item.height} />
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              ))}
+          </div>
         </NavigationMenuList>
       </NavigationMenu>
     </div>

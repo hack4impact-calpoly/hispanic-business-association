@@ -1,0 +1,318 @@
+"use client";
+
+import * as React from "react";
+import Image from "next/image";
+import { useState, useEffect } from "react";
+import { useActiveBusinessRequest } from "@/lib/swrHooks";
+
+// Configures component behavior
+interface EditContactInfoProps {
+  onClose?: () => void;
+  onSubmitSuccess?: () => void;
+}
+
+interface BusinessFormData {
+  pocFirstName: string;
+  pocLastName: string;
+  pocAdditionalName: string;
+  altPocFirst: string;
+  altPocLast: string;
+  altPocAdditional: string;
+  phoneNumber: string;
+  email: string;
+}
+
+// Renders edit form
+export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContactInfoProps) {
+  // Tracks submit state
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Tracks loading state
+  const [isLoading, setIsLoading] = useState(true);
+  // Tracks feedback from server
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  // Fetch active request if exists
+  const { activeRequest, isLoading: isRequestLoading } = useActiveBusinessRequest();
+  // Store request ID if one exists
+  const [existingRequestId, setExistingRequestId] = useState<string | undefined>(undefined);
+
+  const [formData, setFormData] = useState<BusinessFormData>({
+    pocFirstName: "",
+    pocLastName: "",
+    pocAdditionalName: "",
+    altPocFirst: "",
+    altPocLast: "",
+    altPocAdditional: "",
+    phoneNumber: "",
+    email: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Sets initial data and check for existing request
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // If active request exists, use that data to populate form
+      if (activeRequest && activeRequest.pointOfContact) {
+        const poc = activeRequest.pointOfContact;
+        // Extract first/last name from full name if available
+        let firstName = "";
+        let lastName = "";
+
+        if (poc.name) {
+          const nameParts = poc.name.split(" ");
+          firstName = nameParts[0] || "";
+          lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
+        }
+
+        setFormData({
+          pocFirstName: firstName,
+          pocLastName: lastName,
+          pocAdditionalName: "",
+          altPocFirst: "",
+          altPocLast: "",
+          altPocAdditional: "",
+          phoneNumber: poc.phoneNumber ? poc.phoneNumber.toString() : "",
+          email: poc.email || "",
+        });
+
+        // Store request ID for update
+        setExistingRequestId((activeRequest as any)._id);
+      }
+
+      setIsLoading(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [activeRequest]);
+
+  // Submits form data
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    setFeedback(null);
+
+    try {
+      // Create request data
+      const requestData = {
+        pointOfContact: {
+          name: `${formData.pocFirstName} ${formData.pocLastName}`,
+          phoneNumber: formData.phoneNumber,
+          email: formData.email,
+        },
+        date: new Date().toLocaleDateString(),
+      };
+
+      // If we have an existing request ID, include it for update
+      if (existingRequestId) {
+        Object.assign(requestData, { requestId: existingRequestId });
+      }
+
+      const response = await fetch("/api/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to submit changes");
+      }
+
+      // Calls optional callback when submit succeeds
+      if (onSubmitSuccess) {
+        onSubmitSuccess();
+      } else {
+        setFeedback({
+          type: "success",
+          message: "Your changes have been submitted for approval!",
+        });
+      }
+    } catch (error: any) {
+      console.error("Error submitting changes:", error);
+      setFeedback({
+        type: "error",
+        message: error.message || "An error occurred while submitting your changes. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Shows loading state
+  if (isLoading || isRequestLoading) {
+    return (
+      <article className="rounded-lg shadow-sm w-full max-w-[805px] md:max-w-[805px] border border-gray-200 bg-white">
+        <section className="flex flex-col py-4 md:py-6 w-full bg-white rounded-lg">
+          <div className="flex justify-center items-center h-[200px] md:h-[400px]">
+            <p className="text-gray-500 animate-pulse">Loading business information...</p>
+          </div>
+        </section>
+      </article>
+    );
+  }
+
+  // Renders form for editing description
+  return (
+    <article className="fixed inset-x-0 top-0 bottom-[92px] z-[60] h-[calc(100vh-92px)] bg-white overflow-y-auto sm:rounded-lg w-full max-w-full md:top-12 md:bottom-auto md:h-auto md:max-h-[90vh] md:mx-auto md:left-0 md:right-0 md:w-[805px] border border-gray-200">
+      <section className="flex flex-col py-4 md:py-6 w-full bg-white rounded-lg overflow-y-auto">
+        <div className="flex flex-col px-4 md:px-5 w-full overflow-y-auto">
+          <header className="flex flex-wrap gap-2 md:gap-5 justify-between items-start">
+            <h1 className="mt-2 md:mt-4 text-lg md:text-xl font-medium text-black">Edit Contact Information</h1>
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="p-2 rounded-full hover:bg-[#f0f0f0] transition-colors absolute top-2 right-2"
+                aria-label="Close"
+              >
+                <Image
+                  src="/icons/Close.png"
+                  alt="Close"
+                  width={24}
+                  height={24}
+                  className="md:w-[30px] md:h-[30px] object-contain"
+                />
+              </button>
+            )}
+          </header>
+
+          <hr className="shrink-0 mt-4 md:mt-7 h-px border border-solid border-stone-300" />
+
+          <p className="self-start mt-4 text-sm text-stone-500 mb-4">
+            <span className="text-red-500">*</span> indicates required
+          </p>
+
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            {/* Business Owner */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Point of Contact <span className="text-red-500">*</span>
+              </label>
+              <div className="flex space-x-2 mb-2">
+                <input
+                  name="pocFirstName"
+                  type="text"
+                  placeholder="First Name"
+                  value={formData.pocFirstName}
+                  onChange={handleChange}
+                  className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+                <input
+                  name="pocLastName"
+                  type="text"
+                  placeholder="Last Name"
+                  value={formData.pocLastName}
+                  onChange={handleChange}
+                  className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <input
+                name="pocAdditionalName"
+                type="text"
+                placeholder="Additional Name"
+                value={formData.pocAdditionalName}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Business Co-owner */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Alternative Point of Contact</label>
+              <div className="flex space-x-2 mb-2">
+                <input
+                  name="altPocFirst"
+                  type="text"
+                  placeholder="First Name"
+                  value={formData.altPocFirst}
+                  onChange={handleChange}
+                  className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  name="altPocLast"
+                  type="text"
+                  placeholder="Last Name"
+                  value={formData.altPocLast}
+                  onChange={handleChange}
+                  className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <input
+                name="altPocAdditional"
+                type="text"
+                placeholder="Additional Name"
+                value={formData.altPocAdditional}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Phone Number */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Phone Number <span className="text-red-500">*</span>
+              </label>
+
+              <input
+                name="phoneNumber"
+                type="text"
+                placeholder="(XXX)-XXX-XXXX"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Email <span className="text-red-500">*</span>
+              </label>
+
+              <input
+                name="email"
+                type="text"
+                placeholder="xxxx@xxx.com"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <hr className="shrink-0 self-center mt-4 md:mt-6 max-w-full h-px border border-solid border-stone-300 w-[90%] md:w-[765px]" />
+
+            <div className="flex max-sm:justify-center justify-end mt-4 md:mt-6 mr-3 md:mr-6 gap-4">
+              <button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className={`w-full sm:w-3/12 gap-2.5 py-2 px-4 md:py-2.5 md:px-5 text-sm md:text-base font-bold text-white 
+                  ${isSubmitting ? "bg-blue-400 cursor-not-allowed" : "bg-[#405BA9] hover:bg-[#293241]"} 
+                  rounded-3xl min-h-[36px] md:min-h-[40px] transition-colors w-auto flex justify-center items-center`}
+              >
+                {isSubmitting ? <span className="animate-pulse">Saving...</span> : "Submit Changes"}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {feedback && (
+          <div
+            className={`mx-3 md:mx-5 mt-2 md:mt-4 p-2 md:p-3 rounded-md text-sm md:text-base
+              ${feedback.type === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"}`}
+            role="alert"
+          >
+            {feedback.message}
+          </div>
+        )}
+      </section>
+    </article>
+  );
+}
