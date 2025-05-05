@@ -346,6 +346,11 @@ const BusinessSignupApplication = () => {
         email: formValues.contactInfo.email,
         phoneNumber: Number(formValues.contactInfo.phone),
       },
+
+      // TODO - the following are temp values
+      membershipFeeType: "",
+      membershipExpiryDate: new Date(),
+      lastPayDate: new Date(),
     };
 
     await sleep(3000);
