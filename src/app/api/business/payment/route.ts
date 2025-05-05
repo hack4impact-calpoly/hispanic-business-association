@@ -3,10 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import Business from "@/database/businessSchema";
 import { currentUser } from "@clerk/nextjs/server";
 
-/**
- * PATCH handler for updating business
- * Modifies logo or banner for current authenticated user
- */
 export async function PATCH(req: Request) {
   try {
     await connectDB();
