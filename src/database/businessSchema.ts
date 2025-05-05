@@ -37,9 +37,9 @@ const BusinessSchema = new Schema<IBusiness>({
   clerkUserID: { type: String, required: true, unique: true },
   businessName: { type: String, required: true, unique: true },
   businessType: { type: String, required: true },
-  membershipFeeType: { type: String, required: true },
-  lastPayDate: { type: Date, required: true },
-  membershipExpiryDate: { type: Date, required: true },
+  membershipFeeType: { type: String, required: false },
+  lastPayDate: { type: Date, required: false },
+  membershipExpiryDate: { type: Date, required: false },
   businessOwner: { type: String, required: true },
   website: { type: String, required: true },
   address: {
