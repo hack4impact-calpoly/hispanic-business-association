@@ -5,6 +5,9 @@ export type IBusiness = {
   clerkUserID: string; // Reference to the User's clerkUserID.
   businessName: string;
   businessType: string;
+  membershipFeeType: String;
+  lastPayDate: Date;
+  membershipExpiryDate: Date;
   businessOwner: string;
   website: string;
   address: {
@@ -34,6 +37,9 @@ const BusinessSchema = new Schema<IBusiness>({
   clerkUserID: { type: String, required: true, unique: true },
   businessName: { type: String, required: true, unique: true },
   businessType: { type: String, required: true },
+  membershipFeeType: { type: String, required: true },
+  lastPayDate: { type: Date, required: true },
+  membershipExpiryDate: { type: Date, required: true },
   businessOwner: { type: String, required: true },
   website: { type: String, required: true },
   address: {
