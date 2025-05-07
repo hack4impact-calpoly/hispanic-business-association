@@ -36,19 +36,17 @@ export default function Navbar() {
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 bg-[#D9D9D9] shadow-lg h-[92px] overflow-x-hidden">
       <NavigationMenu className="w-full !max-w-full flex mt-[11px]">
-        <NavigationMenuList className="w-full flex justify-center items-center">
+        <NavigationMenuList className="w-full flex justify-evenly items-center">
           {/* CONTAINER: Fixed width container ensures consistent spacing between items */}
-          <div className="flex justify-between items-center w-[302px]">
-            {userRole &&
-              menuItems[userRole]?.map((item, index) => (
-                <NavigationMenuItem key={index} className="flex justify-center">
-                  <NavigationMenuLink href={item.href} className="flex flex-col items-center">
-                    {/* IMAGE: Maintains original dimensions for proper display */}
-                    <Image src={item.src} alt={item.alt} width={item.width} height={item.height} />
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              ))}
-          </div>
+          {userRole &&
+            menuItems[userRole]?.map((item, index) => (
+              <NavigationMenuItem key={index} className="flex">
+                <NavigationMenuLink href={item.href} className="flex flex-col items-center">
+                  {/* IMAGE: Maintains original dimensions for proper display */}
+                  <Image src={item.src} alt={item.alt} width={item.width} height={item.height} />
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            ))}
         </NavigationMenuList>
       </NavigationMenu>
     </div>
