@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Card, CardHeader, CardContent } from "./card";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 // Contact info data structure
 interface ContactInfo {
@@ -20,6 +21,7 @@ interface ContactInfoCardProps {
 
 const ContactInfoCard = ({ info, editable = false, onEditClick }: ContactInfoCardProps) => {
   const router = useRouter();
+  const t = useTranslations();
 
   // Default contact info - replaced with prop data when available
   const contactInfo = info ?? {
@@ -44,7 +46,7 @@ const ContactInfoCard = ({ info, editable = false, onEditClick }: ContactInfoCar
         <div>
           <div className="flex justify-between items-start">
             <h2 className="text-[16px] font-bold text-[#293241] font-['Futura'] leading-[21.26px] truncate">
-              Contact Information
+              {t("contactInfo")}
             </h2>
             {/* Edit button - conditionally rendered based on editable prop */}
             {editable && (
@@ -65,13 +67,17 @@ const ContactInfoCard = ({ info, editable = false, onEditClick }: ContactInfoCar
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-[21px]">
             <div>
-              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">Point of Contact</p>
+              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">
+                {t("pointOfContact")}
+              </p>
               <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
                 {contactInfo.pointOfContact}
               </p>
             </div>
             <div>
-              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">Phone Number</p>
+              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">
+                {t("phoneNumber")}
+              </p>
               <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
                 {contactInfo.phone}
               </p>
@@ -79,13 +85,15 @@ const ContactInfoCard = ({ info, editable = false, onEditClick }: ContactInfoCar
           </div>
           <div className="space-y-[23px]">
             <div>
-              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">Email</p>
+              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">{t("email")}</p>
               <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
                 {contactInfo.email}
               </p>
             </div>
             <div>
-              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">Social Media</p>
+              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">
+                {t("socialMedia")}
+              </p>
               <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
                 {contactInfo.socialMedia}
               </p>

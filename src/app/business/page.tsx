@@ -17,8 +17,11 @@ import { useUser } from "@clerk/nextjs";
 import EditBusinessInfo from "@/components/ui/EditBusinessInfo";
 import EditBusinessInfoForm from "@/components/ui/EditContactInfo";
 import EditContactInfo from "@/components/ui/EditContactInfo";
+import { useTranslations } from "next-intl";
 
 export default function BusinessDashboardPage() {
+  const t = useTranslations();
+
   // State for UI components
   const [showEditForm, setShowEditForm] = useState(false);
   const [showEditBiz, setShowEditBiz] = useState(false);
@@ -114,7 +117,7 @@ export default function BusinessDashboardPage() {
   };
 
   return (
-    <ResponsiveLayout title="Dashboard">
+    <ResponsiveLayout title={t("dashboard")}>
       <main className="w-full bg-white min-h-screen overflow-x-hidden pb-[142px]">
         {/* Cover Image Section */}
         <section className="relative w-full h-[193px]" style={{ backgroundColor: "#293241" }}>
@@ -164,10 +167,12 @@ export default function BusinessDashboardPage() {
           {/* Welcome Section */}
           <section className="flex flex-col md:flex-row justify-between items-start md:items-center mb-5">
             <h2 className="text-2xl">
-              {loading ? "Welcome..." : `Welcome, ${displayData?.businessInfo.name || "Business Owner"}`}
+              {loading
+                ? `${t("welcome")}...`
+                : `${t("welcome")}, ${displayData?.businessInfo.name || t("businessOwner")}`}
             </h2>
             <p className="text-sm text-zinc-500 mt-1 md:mt-0 pr-5">
-              Member since {displayData?.membership.memberSince || "November 2023"}
+              {t("memberSince")} {displayData?.membership.memberSince || "November 2023"}
             </p>
           </section>
 

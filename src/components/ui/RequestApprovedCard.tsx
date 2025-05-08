@@ -3,8 +3,11 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "./card";
+import { useTranslations } from "next-intl";
 
 const RequestApprovedCard = () => {
+  const t = useTranslations();
+
   const [isOpen, setIsOpen] = useState(true);
 
   return isOpen ? (
@@ -18,7 +21,7 @@ const RequestApprovedCard = () => {
       <Card className="w-full h-full bg-[#D9D9D9] shadow-lg rounded-2xl">
         <CardContent className="relative top-[72px] flex flex-col items-center">
           <Image src="/icons/Request Approved.png" alt="Request Approved Icon" width={102} height={102}></Image>
-          <p className="relative top-[19px] text-[22px]">Changes Approved!</p>
+          <p className="relative top-[19px] text-[22px]">{t("changesApproved")}</p>
         </CardContent>
       </Card>
     </div>

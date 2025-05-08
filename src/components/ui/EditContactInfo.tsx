@@ -4,6 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useActiveBusinessRequest } from "@/lib/swrHooks";
+import { useTranslations } from "next-intl";
 
 // Configures component behavior
 interface EditContactInfoProps {
@@ -24,6 +25,7 @@ interface BusinessFormData {
 
 // Renders edit form
 export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContactInfoProps) {
+  const t = useTranslations();
   // Tracks submit state
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Tracks loading state
@@ -48,10 +50,7 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   // Sets initial data and check for existing request
@@ -120,24 +119,18 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to submit changes");
+        throw new Error(errorData.error || t("failedChanges"));
       }
 
       // Calls optional callback when submit succeeds
       if (onSubmitSuccess) {
         onSubmitSuccess();
       } else {
-        setFeedback({
-          type: "success",
-          message: "Your changes have been submitted for approval!",
-        });
+        setFeedback({ type: "success", message: t("changesSent") });
       }
     } catch (error: any) {
       console.error("Error submitting changes:", error);
-      setFeedback({
-        type: "error",
-        message: error.message || "An error occurred while submitting your changes. Please try again.",
-      });
+      setFeedback({ type: "error", message: error.message || t("errorSubmittingChanges") });
     } finally {
       setIsSubmitting(false);
     }
@@ -149,7 +142,7 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
       <article className="rounded-lg shadow-sm w-full max-w-[805px] md:max-w-[805px] border border-gray-200 bg-white">
         <section className="flex flex-col py-4 md:py-6 w-full bg-white rounded-lg">
           <div className="flex justify-center items-center h-[200px] md:h-[400px]">
-            <p className="text-gray-500 animate-pulse">Loading business information...</p>
+            <p className="text-gray-500 animate-pulse">{t("loadBizInfo")}</p>
           </div>
         </section>
       </article>
@@ -162,7 +155,7 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
       <section className="flex flex-col py-4 md:py-6 w-full bg-white rounded-lg overflow-y-auto">
         <div className="flex flex-col px-4 md:px-5 w-full overflow-y-auto">
           <header className="flex flex-wrap gap-2 md:gap-5 justify-between items-start">
-            <h1 className="mt-2 md:mt-4 text-lg md:text-xl font-medium text-black">Edit Contact Information</h1>
+            <h1 className="mt-2 md:mt-4 text-lg md:text-xl font-medium text-black">{t("editContactInfo")}</h1>
             {onClose && (
               <button
                 onClick={onClose}
@@ -183,20 +176,20 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
           <hr className="shrink-0 mt-4 md:mt-7 h-px border border-solid border-stone-300" />
 
           <p className="self-start mt-4 text-sm text-stone-500 mb-4">
-            <span className="text-red-500">*</span> indicates required
+            <span className="text-red-500">*</span> {t("required")}
           </p>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             {/* Business Owner */}
             <div>
               <label className="block text-sm font-medium mb-1">
-                Point of Contact <span className="text-red-500">*</span>
+                {t("pointOfContact")} <span className="text-red-500">*</span>
               </label>
               <div className="flex space-x-2 mb-2">
                 <input
                   name="pocFirstName"
                   type="text"
-                  placeholder="First Name"
+                  placeholder={t("firstName")}
                   value={formData.pocFirstName}
                   onChange={handleChange}
                   className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -205,7 +198,7 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
                 <input
                   name="pocLastName"
                   type="text"
-                  placeholder="Last Name"
+                  placeholder={t("lastName")}
                   value={formData.pocLastName}
                   onChange={handleChange}
                   className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -215,7 +208,7 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
               <input
                 name="pocAdditionalName"
                 type="text"
-                placeholder="Additional Name"
+                placeholder={t("additionalName")}
                 value={formData.pocAdditionalName}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -224,12 +217,12 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
 
             {/* Business Co-owner */}
             <div>
-              <label className="block text-sm font-medium mb-1">Alternative Point of Contact</label>
+              <label className="block text-sm font-medium mb-1">{t("altPointofContact")}</label>
               <div className="flex space-x-2 mb-2">
                 <input
                   name="altPocFirst"
                   type="text"
-                  placeholder="First Name"
+                  placeholder={t("firstName")}
                   value={formData.altPocFirst}
                   onChange={handleChange}
                   className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -237,7 +230,7 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
                 <input
                   name="altPocLast"
                   type="text"
-                  placeholder="Last Name"
+                  placeholder={t("lastName")}
                   value={formData.altPocLast}
                   onChange={handleChange}
                   className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -246,7 +239,7 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
               <input
                 name="altPocAdditional"
                 type="text"
-                placeholder="Additional Name"
+                placeholder={t("additionalName")}
                 value={formData.altPocAdditional}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -256,7 +249,7 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
             {/* Phone Number */}
             <div>
               <label className="block text-sm font-medium mb-1">
-                Phone Number <span className="text-red-500">*</span>
+                {t("phoneNumber")} <span className="text-red-500">*</span>
               </label>
 
               <input
@@ -273,7 +266,7 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
             {/* Email */}
             <div>
               <label className="block text-sm font-medium mb-1">
-                Email <span className="text-red-500">*</span>
+                {t("email")} <span className="text-red-500">*</span>
               </label>
 
               <input
@@ -297,7 +290,7 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
                   ${isSubmitting ? "bg-blue-400 cursor-not-allowed" : "bg-[#405BA9] hover:bg-[#293241]"} 
                   rounded-3xl min-h-[36px] md:min-h-[40px] transition-colors w-auto flex justify-center items-center`}
               >
-                {isSubmitting ? <span className="animate-pulse">Saving...</span> : "Submit Changes"}
+                {isSubmitting ? <span className="animate-pulse">{t("saving")}</span> : t("submitChanges")}
               </button>
             </div>
           </form>

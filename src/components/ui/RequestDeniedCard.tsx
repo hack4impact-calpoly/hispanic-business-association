@@ -3,8 +3,11 @@
 import { useState, ChangeEvent } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "./card";
+import { useTranslations } from "next-intl";
 
 const RequestDeniedCard = () => {
+  const t = useTranslations();
+
   const [isOpen, setIsOpen] = useState(true);
   const [denialReason, setDenialReason] = useState("");
 
@@ -39,7 +42,7 @@ const RequestDeniedCard = () => {
           />
 
           {/* Title */}
-          <p className="mt-4 text-lg sm:text-[22px] text-center font-semibold">Denied Changes</p>
+          <p className="mt-4 text-lg sm:text-[22px] text-center font-semibold">{t("deniedChanges")}</p>
 
           {/* Textarea and Word Count Container */}
           <div className="w-full mt-4">
@@ -52,14 +55,16 @@ const RequestDeniedCard = () => {
             />
 
             {/* Word Counter Positioned Below the Textarea */}
-            <p className="text-xs text-gray-600 text-right">{countWords(denialReason)}/500 words</p>
+            <p className="text-xs text-gray-600 text-right">
+              {countWords(denialReason)}/500 {t("words")}
+            </p>
 
             {/* Send Button */}
             <button
               className="w-full h-[41px] mt-1 bg-[#405BA9] text-white rounded-full"
               onClick={() => alert("Denial reason sent!")}
             >
-              Send
+              {t("send")}
             </button>
           </div>
         </CardContent>
