@@ -46,7 +46,7 @@ export default function DesktopSidebar() {
         name: "Dashboard",
         href: "/business",
         icon: "/icons/Home.png",
-        current: pathname === "/business",
+        current: pathname === "/business" || pathname.startsWith("/business/"),
       },
     ],
     admin: [
@@ -60,19 +60,19 @@ export default function DesktopSidebar() {
         name: "Analytics",
         href: "/admin/analytics",
         icon: "/icons/Analytics.png",
-        current: pathname === "/admin/analytics",
+        current: pathname === "/admin/analytics" || pathname.startsWith("/admin/analytics/"),
       },
       {
         name: "Requests",
         href: "/admin/requests",
         icon: "/icons/Requests.png",
-        current: pathname === "/admin/requests",
+        current: pathname === "/admin/requests" || pathname.startsWith("/admin/requests/"),
       },
       {
         name: "Automations",
         href: "/admin/automations",
         icon: "/icons/Automation.png",
-        current: pathname === "/admin/automations",
+        current: pathname === "/admin/automations" || pathname.startsWith("/admin/automations/"),
       },
     ],
   };
@@ -123,8 +123,8 @@ export default function DesktopSidebar() {
                 isExpanded
                   ? "ml-[16px] w-[328px] h-[45px] rounded-[5px] pl-[18px]"
                   : "w-[30px] h-[30px] space-y-[100px]",
-                isExpanded && item.name === "Dashboard" && "bg-[#3E495C]",
-                isExpanded && item.name !== "Dashboard" && "bg-[#293241]",
+                isExpanded && item.current && "bg-[#3E495C]",
+                isExpanded && !item.current && "bg-[#293241]",
                 "hover:bg-[#1F2530]",
               )}
             >
