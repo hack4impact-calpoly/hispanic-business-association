@@ -1,7 +1,10 @@
+import { useTranslations } from "next-intl";
+
 export default function Page() {
+  const t = useTranslations("HomePage");
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-2xl font-bold text-gray-800">Business Application Page Coming Soon</h1>
+      <h1 className="text-2xl font-bold text-gray-800">{t("title")}</h1>
     </div>
   );
 }
