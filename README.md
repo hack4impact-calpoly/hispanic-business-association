@@ -26,6 +26,7 @@ The Hispanic Business Association team consists of {#} Cal Poly students. Over t
 - [First Last](https://www.linkedin.com/) - Software Developer
 - [Xavier Garcia](https://www.linkedin.com/in/xavier-a-garcia/) - Software Developer
 - [Kevin Rutledge](https://www.linkedin.com/in/kevinrutledge89/) - Software Developer
+- [Andrew Munoz Arvizu](https://www.linkedin.com/in/amunozar/) - Software Devevloper
 
 ## Getting Started And Contributing
 
