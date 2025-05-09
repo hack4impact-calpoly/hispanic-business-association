@@ -1,17 +1,37 @@
 "use client";
 
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useEffect } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "./card";
-import { useTranslations } from "next-intl";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-const RequestDeniedCard = () => {
-  const t = useTranslations();
+interface RequestDeniedCardProps {
+  onClose?: () => void;
+}
 
-  const [isOpen, setIsOpen] = useState(true);
+const RequestDeniedCard = ({ onClose }: RequestDeniedCardProps) => {
   const [denialReason, setDenialReason] = useState("");
+  const isMobile = useIsMobile();
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== "undefined" ? window.innerWidth : 0,
+    height: typeof window !== "undefined" ? window.innerHeight : 0,
+  });
 
-  //Function to count words
+  // Track window resize for responsive scaling
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const countWords = (text: string) => {
     return text.trim().length === 0 ? 0 : text.trim().split(/\s+/).length;
   };
@@ -23,54 +43,77 @@ const RequestDeniedCard = () => {
     }
   };
 
-  return isOpen ? (
-    <div className="fixed top-[189px] left-[45px] w-[305px] h-[533px] bg-white shadow-lg rounded-2xl z-50 ">
-      {/* Close Button */}
-      <button onClick={() => setIsOpen(false)} className="absolute top-2 right-2 text-gray-600">
-        <Image src="/icons/Close.png" alt="Close Button" width={15} height={20} />
-      </button>
+  const handleSend = () => {
+    // Here you could implement sending the denial reason
+    if (onClose) onClose();
+  };
 
-      <Card className="w-full h-full bg-[#D9D9D9] shadow-lg rounded-2xl p-4 sm:p-6 flex flex-col items-center">
-        <CardContent className="flex flex-col items-center w-full">
-          {/* Request Denied Icon */}
-          <Image
-            src="/icons/Request Denied.png"
-            alt="Request Denied Icon"
-            width={102}
-            height={102}
-            className="pt-[42px]"
-          />
+  // Calculate card dimensions based on viewport
+  const cardWidth = isMobile ? "85%" : Math.min(500, windowSize.width * 0.9) + "px";
+  const cardHeight = isMobile ? "calc(100vh - 200px)" : Math.min(650, windowSize.height * 0.9) + "px";
 
-          {/* Title */}
-          <p className="mt-4 text-lg sm:text-[22px] text-center font-semibold">{t("deniedChanges")}</p>
+  return (
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 ${
+        isMobile ? "items-start pb-[25%]" : ""
+      }`}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          width: cardWidth,
+          height: cardHeight,
+          maxWidth: "500px",
+          maxHeight: isMobile ? "calc(100vh - 200px)" : "650px",
+        }}
+        className="relative bg-white rounded-2xl shadow-lg mx-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 p-2 text-gray-600 hover:text-gray-800 z-10"
+          aria-label="Close"
+        >
+          <Image src="/icons/Close.png" alt="Close" width={20} height={20} />
+        </button>
 
-          {/* Textarea and Word Count Container */}
-          <div className="w-full mt-4">
-            {/* Textarea for Reason */}
-            <textarea
-              className="w-full h-[212px] p-1 text-sm border border-gray-400 rounded-md resize-none"
-              placeholder="Reason for denial"
-              value={denialReason}
-              onChange={handleInputChange}
-            />
+        <Card className="w-full h-full bg-[#D9D9D9] shadow-lg rounded-2xl overflow-auto">
+          <CardContent className="flex flex-col h-full px-8 sm:px-16 py-4">
+            {/* Top content with reduced padding for mobile */}
+            <div className={`flex flex-col items-center ${isMobile ? "pt-4" : "pt-10"} mb-4`}>
+              <Image
+                src="/icons/Request Denied.png"
+                alt="Request Denied Icon"
+                width={102}
+                height={102}
+                className="mb-4"
+              />
+              <p className="text-[26px] font-semibold text-center">Changes Denied!</p>
+            </div>
 
-            {/* Word Counter Positioned Below the Textarea */}
-            <p className="text-xs text-gray-600 text-right">
-              {countWords(denialReason)}/500 {t("words")}
-            </p>
+            {/* Middle section with textarea - takes up remaining space */}
+            <div className="w-full flex-1 flex flex-col">
+              <textarea
+                className="w-full flex-1 p-3 text-sm border border-gray-400 rounded-md resize-none min-h-[100px] mt-5"
+                placeholder="Reason for denial"
+                value={denialReason}
+                onChange={handleInputChange}
+              />
+              <p className="mt-1 text-xs text-gray-600 text-right">{countWords(denialReason)}/500 words</p>
+            </div>
 
-            {/* Send Button */}
-            <button
-              className="w-full h-[41px] mt-1 bg-[#405BA9] text-white rounded-full"
-              onClick={() => alert("Denial reason sent!")}
-            >
-              {t("send")}
-            </button>
-          </div>
-        </CardContent>
-      </Card>
+            {/* Button with reduced margins for mobile */}
+            <div className={`w-full mt-3 ${isMobile ? "mb-4" : "mb-6"}`}>
+              <button className="w-full h-12 bg-[#405BA9] text-white rounded-full font-medium" onClick={handleSend}>
+                Send
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  ) : null;
+  );
 };
 
 export default RequestDeniedCard;
