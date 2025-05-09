@@ -4,6 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useActiveBusinessRequest } from "@/lib/swrHooks";
+import { useTranslations } from "next-intl";
 
 // Configures component behavior
 interface EditAboutFormProps {
@@ -14,6 +15,7 @@ interface EditAboutFormProps {
 
 // Renders edit form
 export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescription = "" }: EditAboutFormProps) {
+  const t = useTranslations();
   // Tracks text content
   const [text, setText] = useState("");
   // Tracks submit state
@@ -60,10 +62,7 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
   // Submits form data
   const handleSubmit = async () => {
     if (isOverLimit) {
-      setFeedback({
-        type: "error",
-        message: `Please reduce your description to ${WORD_LIMIT} words or less.`,
-      });
+      setFeedback({ type: "error", message: `${t("reduceDescription")}${WORD_LIMIT} ${"wordsLess"}` });
       return;
     }
 
@@ -71,10 +70,7 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
     setFeedback(null);
 
     try {
-      const requestData = {
-        description: text,
-        date: new Date().toLocaleDateString(),
-      };
+      const requestData = { description: text, date: new Date().toLocaleDateString() };
 
       // If we have an existing request ID, include it for update
       if (existingRequestId) {
@@ -89,24 +85,18 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to submit changes");
+        throw new Error(errorData.error || t("failedChanges"));
       }
 
       // Calls optional callback when submit succeeds
       if (onSubmitSuccess) {
         onSubmitSuccess();
       } else {
-        setFeedback({
-          type: "success",
-          message: "Your changes have been submitted for approval!",
-        });
+        setFeedback({ type: "success", message: t("changesSent") });
       }
     } catch (error: any) {
       console.error("Error submitting changes:", error);
-      setFeedback({
-        type: "error",
-        message: error.message || "An error occurred while submitting your changes. Please try again.",
-      });
+      setFeedback({ type: "error", message: error.message || t("errorSubmittingChanges") });
     } finally {
       setIsSubmitting(false);
     }
@@ -118,7 +108,7 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
       <article className="rounded-lg shadow-sm w-full max-w-[805px] md:max-w-[805px] border border-gray-200 bg-white">
         <section className="flex flex-col py-4 md:py-6 w-full bg-white rounded-lg">
           <div className="flex justify-center items-center h-[200px] md:h-[400px]">
-            <p className="text-gray-500 animate-pulse">Loading business information...</p>
+            <p className="text-gray-500 animate-pulse">{t("loadBizInfo")}</p>
           </div>
         </section>
       </article>
@@ -132,7 +122,7 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
       <section className="flex flex-col py-4 md:py-6 w-full bg-white rounded-lg">
         <div className="flex flex-col px-4 md:px-5 w-full">
           <header className="flex flex-wrap gap-2 md:gap-5 justify-between items-start">
-            <h1 className="mt-2 md:mt-4 text-lg md:text-xl font-medium text-black">Edit About</h1>
+            <h1 className="mt-2 md:mt-4 text-lg md:text-xl font-medium text-black">{t("editAbout")}</h1>
             {onClose && (
               <button
                 onClick={onClose}
@@ -153,7 +143,7 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
           <hr className="shrink-0 mt-4 md:mt-7 h-px border border-solid border-stone-300" />
 
           <p className="self-start mt-4 md:mt-10 text-sm md:text-base font-[450] text-stone-500">
-            Provide brief overview and description about your business, including key services or products offered.
+            {t("descriptionText")}
           </p>
 
           <textarea
@@ -163,7 +153,7 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
               ${isOverLimit ? "border-red-500" : "border-slate-800"} 
               h-[150px] md:h-[249px] w-full p-3 md:p-4 resize-none 
               focus:outline-none focus:ring-2 focus:ring-blue-500`}
-            placeholder="Enter your business description..."
+            placeholder={t("bizDesc")}
             aria-label="Business description"
             aria-describedby="word-count"
             disabled={isSubmitting}
@@ -175,9 +165,9 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
             id="word-count"
             className={`text-sm md:text-base font-medium ${isOverLimit ? "text-red-600" : "text-black"}`}
           >
-            {wordCount}/{WORD_LIMIT} words
+            {wordCount}/{WORD_LIMIT} {t("words")}
           </p>
-          {isOverLimit && <span className="text-xs text-red-600">Word limit exceeded</span>}
+          {isOverLimit && <span className="text-xs text-red-600">{t("wordLimitExceeded")}</span>}
         </div>
 
         {feedback && (
@@ -200,7 +190,7 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
               ${isOverLimit || isSubmitting ? "bg-blue-400 cursor-not-allowed" : "bg-[#405BA9] hover:bg-[#293241]"} 
               rounded-3xl min-h-[36px] md:min-h-[40px] transition-colors w-auto flex justify-center items-center`}
           >
-            {isSubmitting ? <span className="animate-pulse">Saving...</span> : "Submit Changes"}
+            {isSubmitting ? <span className="animate-pulse">{t("saving")}</span> : t("submitChanges")}
           </button>
         </div>
       </section>

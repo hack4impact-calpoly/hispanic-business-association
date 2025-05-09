@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Card, CardHeader, CardContent } from "./card";
+import { useTranslations } from "next-intl";
 
 // Interface for about card content structure
 interface AboutCardInfo {
@@ -15,6 +16,7 @@ interface AboutCardProps {
 }
 
 const AboutCard = ({ info, editable = false, onEditClick }: AboutCardProps) => {
+  const t = useTranslations();
   // Default about text - replaced with prop data when available go ahead and delete
   const cardContent = info ?? {
     description:
@@ -29,7 +31,7 @@ const AboutCard = ({ info, editable = false, onEditClick }: AboutCardProps) => {
     <Card className="w-full bg-[#6884C226] rounded-xl">
       <CardHeader className="font-futura text-left" style={{ fontWeight: "625", paddingTop: "12px" }}>
         <div className="flex justify-between items-center relative">
-          About
+          {t("about")}
           {/* Edit button - conditionally rendered based on editable prop */}
           {editable && (
             <button
@@ -49,7 +51,7 @@ const AboutCard = ({ info, editable = false, onEditClick }: AboutCardProps) => {
           className="text-sm font-medium leading-normal font-serif text-left"
           style={{ textIndent: "1.25rem", paddingBottom: "10px" }}
         >
-          {cardContent.description || "No description available."}
+          {cardContent.description || t("noDesc")}
         </p>
       </CardContent>
     </Card>
