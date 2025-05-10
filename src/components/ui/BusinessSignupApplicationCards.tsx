@@ -9,8 +9,6 @@ import { useForm } from "react-hook-form";
 import { Input } from "./input";
 import { Button } from "./button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
-import { POST as POSTBusiness } from "@/app/api/business/route";
-import { POST as POSTUser } from "@/app/api/user/route";
 import { IUser } from "@/database/userSchema";
 import { IBusiness } from "@/database/businessSchema";
 
@@ -242,96 +240,77 @@ const BusinessSignupApplication = () => {
       });
   };
 
-  // validate password
-  const validateContactInfo = () => {
-    trigger()
-      .then((result) => {
-        if (!result) {
-          setFormErrorMessage(errorMsgs[langOption]);
-          return;
-        }
+  // POST to Clerk
+  const createClerkUser = async (): Promise<string | null> => {
+    const isValid = await trigger();
+    if (!isValid) {
+      setFormErrorMessage(errorMsgs[langOption]);
+      return null;
+    }
 
-        if (password1 !== password2) {
-          const err = langOption === 0 ? "Passwords don't match" : "Las contraseñas no coinciden";
-          console.error(err);
-          setFormErrorMessage(err);
-          return;
-        }
+    if (password1 !== password2) {
+      const err = langOption === 0 ? "Passwords don't match" : "Las contraseñas no coinciden";
+      console.error(err);
+      setFormErrorMessage(err);
+      return null;
+    }
 
-        const email = getValues("contactInfo.email");
+    const email = getValues("contactInfo.email");
 
-        fetch("/api/clerkUser", {
-          method: "POST",
-          body: JSON.stringify({ email: email, password: password1 }),
-          headers: { "Content-Type": "application/json" },
-        })
-          .then((res) =>
-            res
-              .json()
-              .then((data) => {
-                if (!res.ok || data.error) {
-                  const unknownErr = langOption === 0 ? "Problem creating profile" : "Problema al crear perfil";
-
-                  const errMsg = data?.error?.errors?.[0]?.message || unknownErr;
-                  console.error("Error from server:", errMsg);
-                  setFormErrorMessage(errMsg);
-                  return;
-                }
-
-                if (data.user) {
-                  console.log("user exists in data");
-                  setClerkUserID(data.user.id);
-                  setFormErrorMessage("");
-                  setStep(Math.min(numPages, step + 1));
-                } else {
-                  const err =
-                    langOption === 0
-                      ? "Failed to create user from data"
-                      : "Error al crear el usuario a partir de los datos";
-                  console.error(err);
-                  setFormErrorMessage(err);
-                }
-              })
-              .catch((jsonErr) => {
-                console.error("Failed to parse response JSON:", jsonErr);
-                const err = langOption === 0 ? "Invalid response from server." : "Respuesta no válida del servidor.";
-                setFormErrorMessage(err);
-              }),
-          )
-          .catch((fetchErr) => {
-            const err = langOption === 0 ? "Network error. Please try again." : "Error de red. Inténtalo de nuevo.";
-            console.error("Fetch error:", fetchErr);
-            setFormErrorMessage(err);
-          });
-      })
-      .catch((error) => {
-        const err =
-          langOption === 0
-            ? "An unexpected error occurred during validation."
-            : "Se produjo un error inesperado durante la validación.";
-        console.error("Validation error:", error);
-        setFormErrorMessage(err);
+    try {
+      const res = await fetch("/api/clerkUser", {
+        method: "POST",
+        body: JSON.stringify({ email: email, password: password1 }),
+        headers: { "Content-Type": "application/json" },
       });
+
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        const unknownErr = langOption === 0 ? "Problem creating profile" : "Problema al crear perfil";
+        const errMsg = data?.error?.errors?.[0]?.message || unknownErr;
+        console.error("Error from server:", errMsg);
+        setFormErrorMessage(errMsg);
+        return null;
+      }
+
+      if (data.user) {
+        const id = data.user.id;
+        setClerkUserID(id);
+        setFormErrorMessage("");
+        return id;
+      } else {
+        const err =
+          langOption === 0 ? "Failed to create user from data" : "Error al crear el usuario a partir de los datos";
+        console.error(err);
+        setFormErrorMessage(err);
+        return null;
+      }
+    } catch (err) {
+      console.error("Fetch or parsing error:", err);
+      const errMsg = langOption === 0 ? "Network or server error." : "Error de red o del servidor.";
+      setFormErrorMessage(errMsg);
+      return null;
+    }
   };
 
   function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  const gatherAllData = async () => {
+  const postAllData = async (clerkID: string) => {
     const isValid = await trigger();
 
     if (!isValid) throw new Error("Problem getting inputs from form.");
-
     const formValues = getValues();
     const userData: IUser = {
       ...formValues.contactInfo,
       phone: Number(formValues.contactInfo.phone),
       role: "business",
-      clerkUserID: "", // TO DO
+      clerkUserID: clerkID,
     };
     const businessData: IBusiness = {
-      clerkUserID: "", // TO DO
+      clerkUserID: clerkID,
       ...formValues.businessInfo,
       physicalAddress: {
         ...formValues.businessInfo.physicalAddress,
@@ -346,19 +325,18 @@ const BusinessSignupApplication = () => {
         email: formValues.contactInfo.email,
         phoneNumber: Number(formValues.contactInfo.phone),
       },
-
       // TODO - the following are temp values
       membershipFeeType: "",
       membershipExpiryDate: new Date(),
       lastPayDate: new Date(),
     };
 
-    await sleep(3000);
-    console.log("new user: ", userData, "\nnew business: ", businessData);
+    // await sleep(3000);
+    // console.log("new user: ", userData, "\nnew business: ", businessData);
   };
 
   // Step navigation (step # corresponds to which modal displays)
-  const nextStep = () => {
+  const nextStep = async () => {
     switch (step) {
       case 1: // business information page 1
         validateData();
@@ -383,8 +361,11 @@ const BusinessSignupApplication = () => {
         validateData();
         break;
       case 6: // contact information page
-        validateContactInfo();
-        gatherAllData();
+        const clerkID = await createClerkUser();
+        if (clerkID) {
+          await postAllData(clerkID);
+          setStep(Math.min(numPages, step + 1));
+        }
     }
   };
   const prevStep = () => {
