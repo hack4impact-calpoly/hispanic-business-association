@@ -336,7 +336,7 @@ const BusinessSignupApplication = () => {
           <div className="w-[90%] mt-[8%] mr-auto ml-auto">
             <div className="grid gap-4 mt-5">
               <div className="grid grid-cols-12 gap-2">
-                <div className="col-span-4">
+                <div className="col-span-5">
                   <Input
                     key={`physicalAddress-Addr-${step}`}
                     className="w-full border-[#8C8C8C]"
@@ -395,7 +395,7 @@ const BusinessSignupApplication = () => {
               </div>
 
               <div className="grid grid-cols-12 gap-2">
-                <div className="col-span-4">
+                <div className="col-span-5">
                   <Input
                     key={`mailingAddress-Addr-${step}`}
                     className="w-full border-[#8C8C8C]"
@@ -432,13 +432,45 @@ const BusinessSignupApplication = () => {
                     type="text"
                     id="MailAddress-ZIP"
                     placeholder={businessInfoFieldNames[langOption][9]}
-                    {...register("businessInfo.mailingAddress.zip", { required: "ZIP is required" })}
+                    {...register("businessInfo.mailingAddress.zip", {
+                      required: "ZIP is required",
+                      pattern: { value: /^\d{5}$/, message: "ZIP code must be exactly 5 digits" },
+                    })}
                   />
                 </div>
               </div>
               {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
             </div>
 
+            {renderNavButtons(true, false)}
+          </div>
+        );
+      case 3:
+        return (
+          <div className="w-[90%] mt-[8%] mr-auto ml-auto">
+            <div className="grid gap-4 mt-5">
+              <Input
+                className="w-full border-[#8C8C8C]"
+                type="text"
+                id="Facebook"
+                placeholder="Facebook"
+                {...register("socialLinks.FB", { pattern: { value: /^@/, message: "Not in a familiar format." } })}
+              />
+              <Input
+                className="w-full border-[#8C8C8C]"
+                type="text"
+                id="Instagram"
+                placeholder="Instagram"
+                {...register("socialLinks.IG", { pattern: { value: /^@/, message: "Not in a familiar format." } })}
+              />
+              <Input
+                className="w-full border-[#8C8C8C]"
+                type="text"
+                id="X"
+                placeholder="X"
+                {...register("socialLinks.X", { pattern: { value: /^@/, message: "Not in a familiar format." } })}
+              />
+            </div>
             {renderNavButtons(true, false)}
           </div>
         );
@@ -513,45 +545,6 @@ const BusinessSignupApplication = () => {
             {renderNavButtons(true, false)}
           </div>
         );
-      case 3:
-        return (
-          <div>
-            <div className="grid grid-cols-2 gap-6 mt-[80px] justify-start">
-              <div>
-                <Input
-                  className="w-[250px] border-[#8C8C8C]"
-                  type="text"
-                  id="Facebook"
-                  placeholder="Facebook"
-                  {...register("socialLinks.FB", { pattern: { value: /^@/, message: "Not in a familiar format." } })}
-                />
-              </div>
-              <div>
-                <Input
-                  className="w-[250px] border-[#8C8C8C]"
-                  type="text"
-                  id="Instagram"
-                  placeholder="Instagram"
-                  {...register("socialLinks.IG", { pattern: { value: /^@/, message: "Not in a familiar format." } })}
-                />
-              </div>
-              <div>
-                <Input
-                  className="w-[250px] border-[#8C8C8C]"
-                  type="text"
-                  id="X"
-                  placeholder="X"
-                  {...register("socialLinks.X", { pattern: { value: /^@/, message: "Not in a familiar format." } })}
-                />
-              </div>
-            </div>
-            {renderNavButtons(true, false)}
-          </div>
-        );
-      case 4:
-        return <div></div>;
-      case 5:
-        return <div></div>;
     }
   };
 
