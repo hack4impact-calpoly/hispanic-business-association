@@ -117,6 +117,8 @@ const BusinessSignupApplication = () => {
   const submissionSteps = [submissionEnglishSteps, submissionSpanishSteps];
 
   const [step, setStep] = useState(1);
+  const [password1, setPassword1] = useState("");
+  const [password2, setPassword2] = useState("");
   const {
     register,
     formState: { errors },
@@ -136,11 +138,11 @@ const BusinessSignupApplication = () => {
     },
   });
 
-  const [firstErrorMessage, setFirstErrorMessage] = useState("");
+  const [formErrorMessage, setFormErrorMessage] = useState("");
   const changeLanguage = (val: number) => {
     setLangOption(val);
-    if (firstErrorMessage !== "") {
-      setFirstErrorMessage(errorMsgs[val]);
+    if (errorMsgs[0].includes(formErrorMessage) || errorMsgs[1].includes(formErrorMessage)) {
+      setFormErrorMessage(errorMsgs[val]);
     }
   };
 
@@ -153,15 +155,15 @@ const BusinessSignupApplication = () => {
     trigger()
       .then((result) => {
         if (!result) {
-          setFirstErrorMessage(errorMsgs[langOption]);
+          setFormErrorMessage(errorMsgs[langOption]);
         } else {
-          setFirstErrorMessage("");
+          setFormErrorMessage("");
           setStep(Math.min(numPages, step + 1));
         }
       })
       .catch((error) => {
         console.error("Validation error:", error);
-        setFirstErrorMessage("An unexpected error occurred during validation.");
+        setFormErrorMessage("An unexpected error occurred during validation.");
       });
   };
 
@@ -214,7 +216,7 @@ const BusinessSignupApplication = () => {
     }
   };
   const prevStep = () => {
-    setFirstErrorMessage("");
+    setFormErrorMessage("");
     setStep(Math.max(1, step - 1));
   };
 
@@ -325,7 +327,7 @@ const BusinessSignupApplication = () => {
                 {...register("businessInfo.description", { required: "Description is required" })}
               />
 
-              {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
+              {formErrorMessage && <div className="text-red-600">{formErrorMessage}</div>}
             </div>
 
             {renderNavButtons(false, false)}
@@ -439,7 +441,7 @@ const BusinessSignupApplication = () => {
                   />
                 </div>
               </div>
-              {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
+              {formErrorMessage && <div className="text-red-600">{formErrorMessage}</div>}
             </div>
 
             {renderNavButtons(true, false)}
@@ -476,73 +478,74 @@ const BusinessSignupApplication = () => {
         );
       case 4:
         return (
-          <div>
+          <div className="w-[90%] mr-auto ml-auto">
             <div className="grid gap-4 mt-5">
-              <div className="grid grid-cols-12 gap-2">
-                <div className="col-span-12">
-                  <Input
-                    key={`contactName-${step}`}
-                    className="w-full border-[#8C8C8C]"
-                    type="text"
-                    id="ContactName"
-                    placeholder={contactInfoFieldNames[langOption][0]}
-                    {...register("contactInfo.name", { required: "Contact Name is required" })}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-12 gap-2">
-                <div className="col-span-12">
-                  <Input
-                    key={`contactTitle-${step}`}
-                    className="w-full border-[#8C8C8C]"
-                    type="text"
-                    id="ContactTitle"
-                    placeholder={contactInfoFieldNames[langOption][1]}
-                    {...register("contactInfo.name", { required: "Title is required" })}
-                  />
-                </div>
-              </div>
+              <Input
+                key={`contactName-${step}`}
+                className="w-full border-[#8C8C8C]"
+                type="text"
+                id="ContactName"
+                placeholder={contactInfoFieldNames[langOption][0]}
+                {...register("contactInfo.name", { required: "Contact Name is required" })}
+              />
+
+              <Input
+                key={`contactPhone-${step}`}
+                className="w-full border-[#8C8C8C]"
+                type="text"
+                id="Phone"
+                placeholder={contactInfoFieldNames[langOption][1]}
+                {...register("contactInfo.phone", {
+                  required: "Phone Number is required",
+                  pattern: {
+                    value: /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
+                    message: "Phone Number must have nine digits.",
+                  },
+                  onChange: (e) => {
+                    e.target.value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+                  },
+                })}
+              />
+
+              <Input
+                key={`contactEmail-${step}`}
+                className="w-full border-[#8C8C8C]"
+                type="text"
+                id="ContactEmail"
+                placeholder={contactInfoFieldNames[langOption][2]}
+                {...register("contactInfo.email", {
+                  required: "Email is required",
+                  pattern: { value: /^[^@]+@[^@]+$/, message: "Not in a familiar format." },
+                })}
+              />
 
               <div className="grid grid-cols-12 gap-2">
-                <div className="col-span-5">
+                <div className="col-span-6">
                   <Input
-                    key={`contactPhoneNumber-${step}`}
+                    key={`password1-${step}`}
                     className="w-full border-[#8C8C8C]"
-                    type="text"
-                    id="PhoneNumber"
-                    placeholder={contactInfoFieldNames[langOption][2]}
-                    {...register("contactInfo.phone", {
-                      required: "Phone Number is required",
-                      pattern: {
-                        value: /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
-                        message: "Phone Number must have nine digits.",
-                      },
-                      onChange: (e) => {
-                        e.target.value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
-                      },
-                    })}
+                    type="password"
+                    id="Password1"
+                    value={password1}
+                    placeholder={contactInfoFieldNames[langOption][3]}
+                    onChange={(e) => setPassword1(e.target.value)}
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-12 gap-2">
-                <div className="col-span-12">
+                <div className="col-span-6">
                   <Input
-                    key={`contactEmail-${step}`}
+                    key={`password2-${step}`}
                     className="w-full border-[#8C8C8C]"
-                    type="text"
-                    id="ContactEmail"
+                    type="password"
+                    id="Password2"
+                    value={password2}
                     placeholder={contactInfoFieldNames[langOption][4]}
-                    {...register("contactInfo.email", {
-                      required: "Email is required",
-                      pattern: { value: /^[^@]+@[^@]+$/, message: "Not in a familiar format." },
-                    })}
+                    onChange={(e) => setPassword2(e.target.value)}
                   />
                 </div>
               </div>
-              {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
             </div>
-            {renderNavButtons(true, false)}
+            {formErrorMessage && <div className="text-red-600">{formErrorMessage}</div>}
+            {renderNavButtons(true, true)}
           </div>
         );
     }
