@@ -371,7 +371,7 @@ const BusinessSignupApplication = () => {
                     type="text"
                     id="BusinessName"
                     placeholder={businessInfoFieldNames[langOption][0]}
-                    {...register("businessInfo.name", { required: "Business name is required" })}
+                    {...register("businessInfo.businessName", { required: "Business name is required" })}
                   />
                 </div>
               </div>
@@ -384,7 +384,7 @@ const BusinessSignupApplication = () => {
                     type="text"
                     id="WebsiteURL"
                     placeholder={businessInfoFieldNames[langOption][1]}
-                    {...register("businessInfo.websiteURL", { required: "Website URL is required" })}
+                    {...register("businessInfo.website", { required: "Website URL is required" })}
                   />
                 </div>
               </div>
@@ -397,7 +397,7 @@ const BusinessSignupApplication = () => {
                     type="text"
                     id="PhysicalAddress-Addr"
                     placeholder={businessInfoFieldNames[langOption][2]}
-                    {...register("businessInfo.physicalAddress.address", { required: "Address is required" })}
+                    {...register("businessInfo.physicalAddress.street", { required: "Address is required" })}
                   />
                 </div>
                 <div className="col-span-3">
@@ -456,7 +456,7 @@ const BusinessSignupApplication = () => {
                     type="text"
                     id="MailAddress-Addr"
                     placeholder={businessInfoFieldNames[langOption][3]}
-                    {...register("businessInfo.mailingAddress.address", { required: "Address is required" })}
+                    {...register("businessInfo.mailingAddress.street", { required: "Address is required" })}
                   />
                 </div>
                 <div className="col-span-3">
@@ -521,7 +521,7 @@ const BusinessSignupApplication = () => {
                     type="text"
                     id="ContactTitle"
                     placeholder={contactInfoFieldNames[langOption][1]}
-                    {...register("contactInfo.title", { required: "Title is required" })}
+                    {...register("contactInfo.name", { required: "Title is required" })}
                   />
                 </div>
               </div>
@@ -534,29 +534,11 @@ const BusinessSignupApplication = () => {
                     type="text"
                     id="PhoneNumber"
                     placeholder={contactInfoFieldNames[langOption][2]}
-                    {...register("contactInfo.phoneNumber", {
+                    {...register("contactInfo.phone", {
                       required: "Phone Number is required",
                       pattern: {
                         value: /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
                         message: "Phone Number must have nine digits.",
-                      },
-                      onChange: (e) => {
-                        e.target.value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
-                      },
-                    })}
-                  />
-                </div>
-                <div className="col-span-5">
-                  <Input
-                    key={`contactCellNumber-${step}`}
-                    className="w-full border-[#8C8C8C]"
-                    type="text"
-                    id="CellNumber"
-                    placeholder={contactInfoFieldNames[langOption][3]}
-                    {...register("contactInfo.cellNumber", {
-                      pattern: {
-                        value: /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
-                        message: "Cell Number must have ten digits.",
                       },
                       onChange: (e) => {
                         e.target.value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
@@ -596,7 +578,7 @@ const BusinessSignupApplication = () => {
                   type="text"
                   id="Facebook"
                   placeholder="Facebook"
-                  {...register("socialLinks.Facebook", {
+                  {...register("socialLinks.FB", {
                     pattern: { value: /^@/, message: "Not in a familiar format." },
                   })}
                 />
@@ -607,7 +589,7 @@ const BusinessSignupApplication = () => {
                   type="text"
                   id="Instagram"
                   placeholder="Instagram"
-                  {...register("socialLinks.Instagram", {
+                  {...register("socialLinks.IG", {
                     pattern: { value: /^@/, message: "Not in a familiar format." },
                   })}
                 />
@@ -643,7 +625,6 @@ const BusinessSignupApplication = () => {
                 <strong className="text-[24px]">{formTitle[langOption]}</strong>
                 <h4 className="pt-2 text-[16px]">{pageSubtitles[langOption][step - 1]}</h4>
               </div>
-              {displayPaymentInfo()}
             </div>
             <div className="w-[65%] flex justify-center mx-auto">{renderStepForm()}</div>
           </CardContent>
@@ -660,8 +641,6 @@ const BusinessSignupApplication = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              {/* <DropdownMenuItem onClick={() => setLangOption(0)}>{langOptions[0]}</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setLangOption(1)}>{langOptions[1]}</DropdownMenuItem> */}
               <DropdownMenuItem onClick={() => changeLanguage(0)}>{langOptions[0]}</DropdownMenuItem>
               <DropdownMenuItem onClick={() => changeLanguage(1)}>{langOptions[1]}</DropdownMenuItem>
             </DropdownMenuContent>
