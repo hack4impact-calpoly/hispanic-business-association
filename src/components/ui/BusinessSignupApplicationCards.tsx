@@ -63,7 +63,7 @@ const BusinessSignupApplication = () => {
     "Enlaces Sociales",
     "Información del Contacto",
   ];
-  const numPages = 4;
+  const numPages = 5;
   const pageSubtitles = [englishPageSubtitles, spanishPageSubtitles];
 
   // for navigation buttons
@@ -282,6 +282,8 @@ const BusinessSignupApplication = () => {
 
     // await sleep(3000);
     // console.log("new user: ", userData, "\nnew business: ", businessData);
+    setStep(Math.min(numPages, step + 1));
+    return true;
   };
 
   // Step navigation (step # corresponds to which modal displays)
@@ -657,7 +659,7 @@ const BusinessSignupApplication = () => {
     }
   };
 
-  if (step < 4) {
+  if (step < 5) {
     return (
       <div className="w-[70vw] h-[300px]">
         <Card className="relative bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg">
