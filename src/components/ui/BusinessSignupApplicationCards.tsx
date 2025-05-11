@@ -193,6 +193,9 @@ const BusinessSignupApplication = () => {
   const nextStep = () => {
     switch (step) {
       case 1: // business information page
+        validateData();
+        break;
+      case 2: // address information
         if (isMailingAddressSame) {
           // Copy values from physical address to mailing address if checkbox is checked
           setValue("businessInfo.mailingAddress.street", getValues("businessInfo.physicalAddress.street"));
@@ -200,9 +203,6 @@ const BusinessSignupApplication = () => {
           setValue("businessInfo.mailingAddress.state", getValues("businessInfo.physicalAddress.state"));
           setValue("businessInfo.mailingAddress.zip", getValues("businessInfo.physicalAddress.zip"));
         }
-        validateData();
-        break;
-      case 2: // address information
         validateData();
         break;
       case 3: // social links page
@@ -333,7 +333,7 @@ const BusinessSignupApplication = () => {
         );
       case 2:
         return (
-          <div>
+          <div className="w-[90%] mt-[8%] mr-auto ml-auto">
             <div className="grid gap-4 mt-5">
               <div className="grid grid-cols-12 gap-2">
                 <div className="col-span-4">
@@ -342,7 +342,7 @@ const BusinessSignupApplication = () => {
                     className="w-full border-[#8C8C8C]"
                     type="text"
                     id="PhysicalAddress-Addr"
-                    placeholder={businessInfoFieldNames[langOption][2]}
+                    placeholder={businessInfoFieldNames[langOption][5]}
                     {...register("businessInfo.physicalAddress.street", { required: "Address is required" })}
                   />
                 </div>
@@ -352,7 +352,7 @@ const BusinessSignupApplication = () => {
                     className="w-full border-[#8C8C8C]"
                     type="text"
                     id="PhysicalAddress-City"
-                    placeholder={businessInfoFieldNames[langOption][4]}
+                    placeholder={businessInfoFieldNames[langOption][7]}
                     {...register("businessInfo.physicalAddress.city", { required: "City is required" })}
                   />
                 </div>
@@ -362,7 +362,7 @@ const BusinessSignupApplication = () => {
                     className="w-full border-[#8C8C8C]"
                     type="text"
                     id="PhysicalAddress-State"
-                    placeholder={businessInfoFieldNames[langOption][5]}
+                    placeholder={businessInfoFieldNames[langOption][8]}
                     {...register("businessInfo.physicalAddress.state", { required: "State is required" })}
                   />
                 </div>
@@ -372,7 +372,7 @@ const BusinessSignupApplication = () => {
                     className="w-full border-[#8C8C8C]"
                     type="text"
                     id="PhysicalAddress-ZIP"
-                    placeholder={businessInfoFieldNames[langOption][6]}
+                    placeholder={businessInfoFieldNames[langOption][9]}
                     {...register("businessInfo.physicalAddress.zip", {
                       required: "ZIP is required",
                       pattern: { value: /^\d{5}$/, message: "ZIP code must be exactly 5 digits" },
@@ -389,7 +389,7 @@ const BusinessSignupApplication = () => {
                       id="sameAddress"
                       onChange={(e) => setIsMailingAddressSame(e.target.checked)}
                     />
-                    {businessInfoFieldNames[langOption][7]}
+                    {businessInfoFieldNames[langOption][10]}
                   </label>
                 </div>
               </div>
@@ -401,7 +401,7 @@ const BusinessSignupApplication = () => {
                     className="w-full border-[#8C8C8C]"
                     type="text"
                     id="MailAddress-Addr"
-                    placeholder={businessInfoFieldNames[langOption][3]}
+                    placeholder={businessInfoFieldNames[langOption][6]}
                     {...register("businessInfo.mailingAddress.street", { required: "Address is required" })}
                   />
                 </div>
@@ -411,7 +411,7 @@ const BusinessSignupApplication = () => {
                     className="w-full border-[#8C8C8C]"
                     type="text"
                     id="MailAddress-City"
-                    placeholder={businessInfoFieldNames[langOption][4]}
+                    placeholder={businessInfoFieldNames[langOption][7]}
                     {...register("businessInfo.mailingAddress.city", { required: "City is required" })}
                   />
                 </div>
@@ -421,7 +421,7 @@ const BusinessSignupApplication = () => {
                     className="w-full border-[#8C8C8C]"
                     type="text"
                     id="MailAddress-State"
-                    placeholder={businessInfoFieldNames[langOption][5]}
+                    placeholder={businessInfoFieldNames[langOption][8]}
                     {...register("businessInfo.mailingAddress.state", { required: "State is required" })}
                   />
                 </div>
@@ -431,7 +431,7 @@ const BusinessSignupApplication = () => {
                     className="w-full border-[#8C8C8C]"
                     type="text"
                     id="MailAddress-ZIP"
-                    placeholder={businessInfoFieldNames[langOption][6]}
+                    placeholder={businessInfoFieldNames[langOption][9]}
                     {...register("businessInfo.mailingAddress.zip", { required: "ZIP is required" })}
                   />
                 </div>
@@ -555,7 +555,7 @@ const BusinessSignupApplication = () => {
     }
   };
 
-  if (step < 4) {
+  if (step < 5) {
     return (
       <div className="w-[70vw] h-[300px]">
         <Card className="relative bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg">
