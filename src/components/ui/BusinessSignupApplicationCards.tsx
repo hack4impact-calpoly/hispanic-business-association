@@ -11,15 +11,35 @@ import { Button } from "./button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
 
 interface BusinessSignupAppInfo {
-  contactInfo: { name: string; title: string; phoneNumber?: string; cellNumber?: string; email: string };
-  businessInfo: {
+  contactInfo: {
     name: string;
-    websiteURL?: string;
-    numEmployees?: string;
-    physicalAddress: { address: string; city: string; state: string; zip: string };
-    mailingAddress: { address: string; city: string; state: string; zip: string };
+    phone: string;
+    email: string;
   };
-  socialLinks: { Instagram?: string; X?: string; Facebook?: string; LinkedIn?: string };
+  businessInfo: {
+    businessName: string;
+    website: string;
+    businessOwner: string;
+    businessType: string;
+    description: string;
+    physicalAddress: {
+      street: string;
+      city: string;
+      state: string;
+      zip: string;
+    };
+    mailingAddress: {
+      street: string;
+      city: string;
+      state: string;
+      zip: string;
+    };
+  };
+  socialLinks: {
+    IG?: string;
+    X?: string;
+    FB?: string;
+  };
 }
 
 const BusinessSignupApplication = () => {
@@ -36,19 +56,21 @@ const BusinessSignupApplication = () => {
   // page subtitles by language
   const englishPageSubtitles = [
     "Business Information",
-    "Contact Information",
+    "Business Information",
     "Social Links",
     "Payment Information",
     "Payment Method",
+    "Contact Information",
   ];
   const spanishPageSubtitles = [
     "Información Comercial",
-    "Información del Contacto",
+    "Información Comercial",
     "Enlaces Sociales",
     "Información de Pago",
     "Método de Pago",
+    "Información del Contacto",
   ];
-  const numPages = 6;
+  const numPages = 7;
   const pageSubtitles = [englishPageSubtitles, spanishPageSubtitles];
 
   // for navigation buttons
@@ -61,6 +83,9 @@ const BusinessSignupApplication = () => {
   const englishBusinessInfo = [
     "Business Name*",
     "Website URL*",
+    "Business Type*",
+    "Name of Business Owner*",
+    "Description of the Business*",
     "Physical Address*",
     "Mailing Address*",
     "City*",
@@ -71,6 +96,9 @@ const BusinessSignupApplication = () => {
   const spanishBusinessInfo = [
     "Nombre Comercial*",
     "URL del Sitio Web*",
+    "Tipo de Negocio*",
+    "Nombre del Propietario del Negocio*",
+    "Descripción del Negocio*",
     "Dirección Física*",
     "Dirección de Envio",
     "Ciudad*",
@@ -83,31 +111,19 @@ const BusinessSignupApplication = () => {
   // for contact info page
   const englishContactInfo = [
     "Contact Name*",
-    "Title*",
     "Phone Number* (XXX) XXX-XXXX",
-    "Cell Phone Number (XXX) XXX-XXXX",
     "Email Address*",
+    "Enter Password*",
+    "Renter Password*",
   ];
   const spanishContactInfo = [
     "Nombre de Contacto*",
-    "Título*",
     "Número de Teléfono* (XXX) XXX-XXXX",
-    "Número de Teléfono Celular (XXX) XXX-XXXX",
     "Dirección de Correo Electrónico*",
+    "Ingrese la Contraseña*",
+    "Escriba la Contraseña Otra Vez*",
   ];
   const contactInfoFieldNames = [englishContactInfo, spanishContactInfo];
-
-  // for payment method / card info
-  const englishPaymentInfo = ["Name on Card*", "Billing Address*", "Billing ZIP*", "Card Number*", "MM/YY*", "CVC*"];
-  const spanishPaymentInfo = [
-    "Nombre en la Tarjeta*",
-    "Dirección de Envio*",
-    "Código Postal de Facturación*",
-    "Número de Tarjeta*",
-    "MM/YY*",
-    "CVC*",
-  ];
-  const paymentInfoFieldNames = [englishPaymentInfo, spanishPaymentInfo];
 
   // for app submission page
   const submissionTitle = ["Application Submitted", "Solicitud Enviada"];
@@ -136,14 +152,14 @@ const BusinessSignupApplication = () => {
     trigger,
   } = useForm<BusinessSignupAppInfo>({
     defaultValues: {
-      contactInfo: { name: "", title: "", phoneNumber: "", cellNumber: "", email: "" },
+      contactInfo: { name: "", phone: "", email: "" },
       businessInfo: {
-        name: "",
-        websiteURL: "",
-        physicalAddress: { address: "", city: "", state: "", zip: "" },
-        mailingAddress: { address: "", city: "", state: "", zip: "" },
+        businessName: "",
+        website: "",
+        physicalAddress: { street: "", city: "", state: "", zip: "" },
+        mailingAddress: { street: "", city: "", state: "", zip: "" },
       },
-      socialLinks: { Instagram: "", Facebook: "", X: "", LinkedIn: "" },
+      socialLinks: { IG: "", FB: "", X: "" },
     },
   });
 
@@ -153,45 +169,6 @@ const BusinessSignupApplication = () => {
     if (firstErrorMessage !== "") {
       setFirstErrorMessage(errorMsgs[val]);
     }
-  };
-
-  // for fourth page: Payment Information
-  const displayPaymentInfo = () => {
-    const englishPlans = ["Annual Membership Investment", "Ribbon Cutting", "Additional Category"];
-    const spanishPlans = ["Inversión Anual de Membresía", "Corte de Cinta", "Categoría Adicional"];
-    const langPlans = [englishPlans, spanishPlans];
-
-    const pricesInOrder = ["$250", "$50", "$20"];
-
-    if (step == 4) {
-      return (
-        <div className="flex flex-row w-[92%] h-[full] bg-[#3F5EBB] text-white p-1 rounded-lg mt-4 text-[14px]">
-          {/* <div className="flex flex-row justify-between p-1 w-full"> */}
-          <div className="flex flex-col items-start w-[80%] pl-2">
-            <p>{langPlans[langOption][0]}</p>
-            <p>{langPlans[langOption][1]}</p>
-            <p>{langPlans[langOption][2]}</p>
-          </div>
-          <div className="flex flex-col items-end w-[20%] pr-2">
-            <p>{pricesInOrder[0]}</p>
-            <p>{pricesInOrder[1]}</p>
-            <p>{pricesInOrder[2]}</p>
-          </div>
-          {/* </div> */}
-        </div>
-      );
-    } else {
-      return <div></div>;
-    }
-  };
-
-  const formatMoneyValue = (input: string) => {
-    // Remove $ and commas
-    const cleaned = input.replace(/[$,]/g, "");
-    // Ensure valid float format
-    const floatVal = parseFloat(cleaned);
-    // Return as string with two decimal places
-    return isNaN(floatVal) ? "" : floatVal.toFixed(2);
   };
 
   // validate form entries
@@ -245,7 +222,7 @@ const BusinessSignupApplication = () => {
       case 1: // business information page
         if (isMailingAddressSame) {
           // Copy values from physical address to mailing address if checkbox is checked
-          setValue("businessInfo.mailingAddress.address", getValues("businessInfo.physicalAddress.address"));
+          setValue("businessInfo.mailingAddress.street", getValues("businessInfo.physicalAddress.street"));
           setValue("businessInfo.mailingAddress.city", getValues("businessInfo.physicalAddress.city"));
           setValue("businessInfo.mailingAddress.state", getValues("businessInfo.physicalAddress.state"));
           setValue("businessInfo.mailingAddress.zip", getValues("businessInfo.physicalAddress.zip"));
@@ -326,6 +303,64 @@ const BusinessSignupApplication = () => {
     switch (step) {
       case 1:
         return (
+          // <div>
+          //   <div className="grid gap-4 mt-[20px] justify-start items-start">
+          //     <div>
+          //       <Input
+          //         key={`businessName-${step}`}
+          //         className="w-[550px] border-[#8C8C8C]"
+          //         type="text"
+          //         id="BusinessName"
+          //         placeholder={businessInfoFieldNames[langOption][0]}
+          //         {...register("businessInfo.businessName", { required: "Business name is required" })}
+          //       />
+          //     </div>
+
+          //     <div>
+          //       <Input
+          //         key={`websiteURL-${step}`}
+          //         className="w-[550px] border-[#8C8C8C]"
+          //         type="text"
+          //         id="WebsiteURL"
+          //         placeholder={businessInfoFieldNames[langOption][1]}
+          //         {...register("businessInfo.website", { required: "Website URL is required" })}
+          //       />
+          //     </div>
+
+          //     <div className="flex items-center gap-2">
+          //       <Input
+          //         key={`businessType-${step}`}
+          //         className="w-[275px] border-[#8C8C8C]"
+          //         type="text"
+          //         id="businessType"
+          //         placeholder={businessInfoFieldNames[langOption][2]}
+          //         {...register("businessInfo.businessType", { required: "Business Type is required" })}
+          //       />
+          //       <Input
+          //         key={`businessOwner-${step}`}
+          //         className="w-[275px] border-[#8C8C8C]"
+          //         type="text"
+          //         id="businessOwner"
+          //         placeholder={businessInfoFieldNames[langOption][3]}
+          //         {...register("businessInfo.businessOwner", { required: "Business Owner is required" })}
+          //       />
+          //     </div>
+
+          //     <div>
+          //       <Input
+          //         key={`description-${step}`}
+          //         className="w-[550px] border-[#8C8C8C]"
+          //         type="text"
+          //         id="description"
+          //         placeholder={businessInfoFieldNames[langOption][4]}
+          //         {...register("businessInfo.description", { required: "Description is required" })}
+          //       />
+          //     </div>
+          //     {formErrorMessage && <div className="text-red-600">{formErrorMessage}</div>}
+          //   </div>
+          //   {renderNavButtons(false, false)}
+          // </div>
+
           <div>
             <div className="grid gap-4 mt-5">
               <div className="grid grid-cols-12 gap-2">
@@ -591,122 +626,9 @@ const BusinessSignupApplication = () => {
           </div>
         );
       case 4:
-        // NOTE: There may be code below that is not currently used because field is
-        // not required until we have a payment system set up.
-        return (
-          <div className="w-full flex flex-col items-start justify-start">
-            <Input
-              key={`amountPaid-${step}`}
-              className="w-[350px] border-[#8C8C8C] mt-[140px] ml-[40px]"
-              type="text"
-              id="AmountPaid"
-              placeholder={langOption == 0 ? "Amount Paid ($)*" : "Monto Pagado ($)*"}
-              // {...register("amountPaid", {
-              // required: "Amount Paid is required",
-              // pattern: {
-              //   value: /^\$?\d{1,3}(,\d{3})*(\.\d{2})?$/,
-              //   message: "Not in a familiar format.",
-              // },
-              // })}
-            />
-            <div className="w-[350px] mt-[10px] ml-[25px]">
-              {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
-            </div>
-            {renderNavButtons(true, false)}
-          </div>
-        );
+        return <div></div>;
       case 5:
-        // NOTE: There may be code below that is not currently used because field is
-        // not required until we have a payment system set up.
-        return (
-          <div>
-            <div className="grid gap-4 mt-[60px] justify-start items-start">
-              <div>
-                <Input
-                  key={`cardName-${step}`}
-                  className="w-[550px] border-[#8C8C8C]"
-                  type="text"
-                  id="CardName"
-                  placeholder={paymentInfoFieldNames[langOption][0]}
-                  // {...register()}
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Input
-                  key={`billingAddress-${step}`}
-                  className="w-[372px] border-[#8C8C8C]"
-                  type="text"
-                  id="BillingAddress"
-                  placeholder={paymentInfoFieldNames[langOption][1]}
-                  // {...register()}
-                />
-                <Input
-                  key={`billingZIP-${step}`}
-                  className="w-[170px] border-[#8C8C8C]"
-                  type="text"
-                  id="BillingZIP"
-                  placeholder={paymentInfoFieldNames[langOption][2]}
-                  // {...register()}
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Input
-                  key={`cardNumber-${step}`}
-                  className="w-[372px] border-[#8C8C8C]"
-                  type="text"
-                  id="CardNumber"
-                  placeholder={paymentInfoFieldNames[langOption][3]}
-                  // {...register(, {
-                  //   required: "Card Number is required",
-                  //   pattern: {
-                  //     value: /^(?:\d{4}[-\s]?){3}\d{4}|\d{13,19}$/,
-                  //     message: "Card Number not recognizable digits.",
-                  //   },
-                  //   onChange: (e) => {
-                  //     e.target.value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
-                  //   }
-                  // })}
-                />
-                <Input
-                  key={`cardExpiration-${step}`}
-                  className="w-[81px] border-[#8C8C8C]"
-                  type="text"
-                  id="CardExpiration"
-                  placeholder={paymentInfoFieldNames[langOption][4]}
-                  // {...register(, {
-                  //   pattern: {
-                  //     value: /^(0[1-9]|1[0-2])\/\d{2}$/,
-                  //     message: "Expiration must follow MM/YY format.",
-                  //   },
-                  //   onChange: (e) => {
-                  //     e.target.value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
-                  //   },
-                  // })}
-                />
-                <Input
-                  key={`CVC-${step}`}
-                  className="w-[81px] border-[#8C8C8C]"
-                  type="text"
-                  id="CVC"
-                  placeholder={paymentInfoFieldNames[langOption][5]}
-                  // {...register(, {
-                  //   pattern: {
-                  //     value: /^\d{3}$/,
-                  //     message: "CVC must follow XXX format.",
-                  //   },
-                  //   onChange: (e) => {
-                  //     e.target.value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
-                  //   },
-                  // })}
-                />
-              </div>
-              {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
-            </div>
-            {renderNavButtons(true, false)}
-          </div>
-        );
+        return <div></div>;
     }
   };
 
