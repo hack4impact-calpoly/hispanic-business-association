@@ -274,7 +274,7 @@ const BusinessSignupApplication = () => {
         email: formValues.contactInfo.email,
         phoneNumber: Number(formValues.contactInfo.phone),
       },
-      // TODO - the following are temp values
+      // the following are dummy values
       membershipFeeType: "",
       membershipExpiryDate: new Date(),
       lastPayDate: new Date(),
@@ -657,7 +657,7 @@ const BusinessSignupApplication = () => {
     }
   };
 
-  if (step < 5) {
+  if (step < 4) {
     return (
       <div className="w-[70vw] h-[300px]">
         <Card className="relative bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg">
