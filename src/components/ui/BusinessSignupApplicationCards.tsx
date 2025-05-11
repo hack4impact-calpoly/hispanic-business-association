@@ -56,23 +56,14 @@ const BusinessSignupApplication = () => {
   const formTitle = ["Membership Application", "Solicitud de Membresía"];
 
   // page subtitles by language
-  const englishPageSubtitles = [
-    "Business Information",
-    "Business Information",
-    "Social Links",
-    "Payment Information",
-    "Payment Method",
-    "Contact Information",
-  ];
+  const englishPageSubtitles = ["Business Information", "Business Information", "Social Links", "Contact Information"];
   const spanishPageSubtitles = [
     "Información Comercial",
     "Información Comercial",
     "Enlaces Sociales",
-    "Información de Pago",
-    "Método de Pago",
     "Información del Contacto",
   ];
-  const numPages = 7;
+  const numPages = 4;
   const pageSubtitles = [englishPageSubtitles, spanishPageSubtitles];
 
   // for navigation buttons
@@ -127,18 +118,6 @@ const BusinessSignupApplication = () => {
   ];
   const contactInfoFieldNames = [englishContactInfo, spanishContactInfo];
 
-  // for payment method / card info
-  const englishPaymentInfo = ["Name on Card*", "Billing Address*", "Billing ZIP*", "Card Number*", "MM/YY*", "CVC*"];
-  const spanishPaymentInfo = [
-    "Nombre en la Tarjeta*",
-    "Dirección de Envio*",
-    "Código Postal de Facturación*",
-    "Número de Tarjeta*",
-    "MM/YY*",
-    "CVC*",
-  ];
-  const paymentInfoFieldNames = [englishPaymentInfo, spanishPaymentInfo];
-
   // for app submission page
   const submissionTitle = ["Application Submitted", "Solicitud Enviada"];
   const submissionSubtitle = [
@@ -186,36 +165,6 @@ const BusinessSignupApplication = () => {
     setLangOption(val);
     if (errorMsgs[0].includes(formErrorMessage) || errorMsgs[1].includes(formErrorMessage)) {
       setFormErrorMessage(errorMsgs[val]);
-    }
-  };
-
-  // for fourth page: Payment Information
-  const displayPaymentInfo = () => {
-    const englishPlans = ["Annual Membership Investment", "Ribbon Cutting", "Additional Category"];
-    const spanishPlans = ["Inversión Anual de Membresía", "Corte de Cinta", "Categoría Adicional"];
-    const langPlans = [englishPlans, spanishPlans];
-
-    const pricesInOrder = ["$250", "$50", "$20"];
-
-    if (step == 4) {
-      return (
-        <div className="flex flex-row w-[92%] h-[full] bg-[#3F5EBB] text-white p-1 rounded-lg mt-4 text-[14px]">
-          {/* <div className="flex flex-row justify-between p-1 w-full"> */}
-          <div className="flex flex-col items-start w-[80%] pl-2">
-            <p>{langPlans[langOption][0]}</p>
-            <p>{langPlans[langOption][1]}</p>
-            <p>{langPlans[langOption][2]}</p>
-          </div>
-          <div className="flex flex-col items-end w-[20%] pr-2">
-            <p>{pricesInOrder[0]}</p>
-            <p>{pricesInOrder[1]}</p>
-            <p>{pricesInOrder[2]}</p>
-          </div>
-          {/* </div> */}
-        </div>
-      );
-    } else {
-      return <div></div>;
     }
   };
 
@@ -354,13 +303,7 @@ const BusinessSignupApplication = () => {
       case 3: // social links page
         setStep(Math.min(numPages, step + 1));
         break;
-      case 4: // payment information page
-        validateData();
-        break;
-      case 5: // payment method page
-        validateData();
-        break;
-      case 6: // contact information page
+      case 4: // contact information page
         const clerkID = await createClerkUser();
         if (clerkID) {
           await postAllData(clerkID);
@@ -632,123 +575,6 @@ const BusinessSignupApplication = () => {
           </div>
         );
       case 4:
-        // NOTE: There may be code below that is not currently used because field is
-        // not required until we have a payment system set up.
-        return (
-          <div className="w-full flex flex-col items-start justify-start">
-            <Input
-              key={`amountPaid-${step}`}
-              className="w-[350px] border-[#8C8C8C] mt-[140px] ml-[40px]"
-              type="text"
-              id="AmountPaid"
-              placeholder={langOption == 0 ? "Amount Paid ($)*" : "Monto Pagado ($)*"}
-              // {...register("amountPaid", {
-              // required: "Amount Paid is required",
-              // pattern: {
-              //   value: /^\$?\d{1,3}(,\d{3})*(\.\d{2})?$/,
-              //   message: "Not in a familiar format.",
-              // },
-              // })}
-            />
-            <div className="w-[350px] mt-[10px] ml-[25px]">
-              {formErrorMessage && <div className="text-red-600">{formErrorMessage}</div>}
-            </div>
-            {renderNavButtons(true, false)}
-          </div>
-        );
-      case 5:
-        // NOTE: There may be code below that is not currently used because field is
-        // not required until we have a payment system set up.
-        return (
-          <div>
-            <div className="grid gap-4 mt-[60px] justify-start items-start">
-              <div>
-                <Input
-                  key={`cardName-${step}`}
-                  className="w-[550px] border-[#8C8C8C]"
-                  type="text"
-                  id="CardName"
-                  placeholder={paymentInfoFieldNames[langOption][0]}
-                  // {...register()}
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Input
-                  key={`billingAddress-${step}`}
-                  className="w-[372px] border-[#8C8C8C]"
-                  type="text"
-                  id="BillingAddress"
-                  placeholder={paymentInfoFieldNames[langOption][1]}
-                  // {...register()}
-                />
-                <Input
-                  key={`billingZIP-${step}`}
-                  className="w-[170px] border-[#8C8C8C]"
-                  type="text"
-                  id="BillingZIP"
-                  placeholder={paymentInfoFieldNames[langOption][2]}
-                  // {...register()}
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Input
-                  key={`cardNumber-${step}`}
-                  className="w-[372px] border-[#8C8C8C]"
-                  type="text"
-                  id="CardNumber"
-                  placeholder={paymentInfoFieldNames[langOption][3]}
-                  // {...register(, {
-                  //   required: "Card Number is required",
-                  //   pattern: {
-                  //     value: /^(?:\d{4}[-\s]?){3}\d{4}|\d{13,19}$/,
-                  //     message: "Card Number not recognizable digits.",
-                  //   },
-                  //   onChange: (e) => {
-                  //     e.target.value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
-                  //   }
-                  // })}
-                />
-                <Input
-                  key={`cardExpiration-${step}`}
-                  className="w-[81px] border-[#8C8C8C]"
-                  type="text"
-                  id="CardExpiration"
-                  placeholder={paymentInfoFieldNames[langOption][4]}
-                  // {...register(, {
-                  //   pattern: {
-                  //     value: /^(0[1-9]|1[0-2])\/\d{2}$/,
-                  //     message: "Expiration must follow MM/YY format.",
-                  //   },
-                  //   onChange: (e) => {
-                  //     e.target.value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
-                  //   },
-                  // })}
-                />
-                <Input
-                  key={`CVC-${step}`}
-                  className="w-[81px] border-[#8C8C8C]"
-                  type="text"
-                  id="CVC"
-                  placeholder={paymentInfoFieldNames[langOption][5]}
-                  // {...register(, {
-                  //   pattern: {
-                  //     value: /^\d{3}$/,
-                  //     message: "CVC must follow XXX format.",
-                  //   },
-                  //   onChange: (e) => {
-                  //     e.target.value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
-                  //   },
-                  // })}
-                />
-              </div>
-              {formErrorMessage && <div className="text-red-600">{formErrorMessage}</div>}
-            </div>
-            {renderNavButtons(true, false)}
-          </div>
-        );
-      case 6:
         return (
           <div>
             <div className="grid gap-4 justify-start items-start">
@@ -831,7 +657,7 @@ const BusinessSignupApplication = () => {
     }
   };
 
-  if (step < 7) {
+  if (step < 5) {
     return (
       <div className="w-[70vw] h-[300px]">
         <Card className="relative bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg">
@@ -842,7 +668,6 @@ const BusinessSignupApplication = () => {
                 <strong className="text-[24px]">{formTitle[langOption]}</strong>
                 <h4 className="pt-2 text-[16px]">{pageSubtitles[langOption][step - 1]}</h4>
               </div>
-              {displayPaymentInfo()}
             </div>
             <div className="w-[65%] flex justify-center">{renderStepForm()}</div>
           </CardContent>
