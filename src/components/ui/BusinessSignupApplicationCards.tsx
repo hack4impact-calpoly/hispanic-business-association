@@ -11,35 +11,17 @@ import { Button } from "./button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
 
 interface BusinessSignupAppInfo {
-  contactInfo: {
-    name: string;
-    phone: string;
-    email: string;
-  };
+  contactInfo: { name: string; phone: string; email: string };
   businessInfo: {
     businessName: string;
     website: string;
     businessOwner: string;
     businessType: string;
     description: string;
-    physicalAddress: {
-      street: string;
-      city: string;
-      state: string;
-      zip: string;
-    };
-    mailingAddress: {
-      street: string;
-      city: string;
-      state: string;
-      zip: string;
-    };
+    physicalAddress: { street: string; city: string; state: string; zip: string };
+    mailingAddress: { street: string; city: string; state: string; zip: string };
   };
-  socialLinks: {
-    IG?: string;
-    X?: string;
-    FB?: string;
-  };
+  socialLinks: { IG?: string; X?: string; FB?: string };
 }
 
 const BusinessSignupApplication = () => {
@@ -54,23 +36,14 @@ const BusinessSignupApplication = () => {
   const formTitle = ["Membership Application", "Solicitud de Membresía"];
 
   // page subtitles by language
-  const englishPageSubtitles = [
-    "Business Information",
-    "Business Information",
-    "Social Links",
-    "Payment Information",
-    "Payment Method",
-    "Contact Information",
-  ];
+  const englishPageSubtitles = ["Business Information", "Business Information", "Social Links", "Contact Information"];
   const spanishPageSubtitles = [
     "Información Comercial",
     "Información Comercial",
     "Enlaces Sociales",
-    "Información de Pago",
-    "Método de Pago",
     "Información del Contacto",
   ];
-  const numPages = 7;
+  const numPages = 4;
   const pageSubtitles = [englishPageSubtitles, spanishPageSubtitles];
 
   // for navigation buttons
@@ -229,18 +202,15 @@ const BusinessSignupApplication = () => {
         }
         validateData();
         break;
-      case 2: // contact information page
+      case 2: // address information
         validateData();
         break;
       case 3: // social links page
         setStep(Math.min(numPages, step + 1));
         break;
-      case 4: // payment information page
+      case 4: // contact information page
         validateData();
         break;
-      case 5: // payment method page
-        gatherAllData();
-        setStep(Math.min(numPages, step + 1));
     }
   };
   const prevStep = () => {
@@ -303,92 +273,68 @@ const BusinessSignupApplication = () => {
     switch (step) {
       case 1:
         return (
-          // <div>
-          //   <div className="grid gap-4 mt-[20px] justify-start items-start">
-          //     <div>
-          //       <Input
-          //         key={`businessName-${step}`}
-          //         className="w-[550px] border-[#8C8C8C]"
-          //         type="text"
-          //         id="BusinessName"
-          //         placeholder={businessInfoFieldNames[langOption][0]}
-          //         {...register("businessInfo.businessName", { required: "Business name is required" })}
-          //       />
-          //     </div>
+          <div className="w-[90%] mr-auto ml-auto">
+            <div className="grid gap-4 mt-5">
+              <Input
+                key={`businessName-${step}`}
+                className="w-full border-[#8C8C8C]"
+                type="text"
+                id="BusinessName"
+                placeholder={businessInfoFieldNames[langOption][0]}
+                {...register("businessInfo.businessName", { required: "Business name is required" })}
+              />
 
-          //     <div>
-          //       <Input
-          //         key={`websiteURL-${step}`}
-          //         className="w-[550px] border-[#8C8C8C]"
-          //         type="text"
-          //         id="WebsiteURL"
-          //         placeholder={businessInfoFieldNames[langOption][1]}
-          //         {...register("businessInfo.website", { required: "Website URL is required" })}
-          //       />
-          //     </div>
+              <Input
+                key={`websiteURL-${step}`}
+                className="w-full border-[#8C8C8C]"
+                type="text"
+                id="WebsiteURL"
+                placeholder={businessInfoFieldNames[langOption][1]}
+                {...register("businessInfo.website", { required: "Website URL is required" })}
+              />
 
-          //     <div className="flex items-center gap-2">
-          //       <Input
-          //         key={`businessType-${step}`}
-          //         className="w-[275px] border-[#8C8C8C]"
-          //         type="text"
-          //         id="businessType"
-          //         placeholder={businessInfoFieldNames[langOption][2]}
-          //         {...register("businessInfo.businessType", { required: "Business Type is required" })}
-          //       />
-          //       <Input
-          //         key={`businessOwner-${step}`}
-          //         className="w-[275px] border-[#8C8C8C]"
-          //         type="text"
-          //         id="businessOwner"
-          //         placeholder={businessInfoFieldNames[langOption][3]}
-          //         {...register("businessInfo.businessOwner", { required: "Business Owner is required" })}
-          //       />
-          //     </div>
+              <div className="grid grid-cols-12 gap-2">
+                <div className="col-span-6">
+                  <Input
+                    key={`businessType-${step}`}
+                    className="w-full border-[#8C8C8C]"
+                    type="text"
+                    id="businessType"
+                    placeholder={businessInfoFieldNames[langOption][2]}
+                    {...register("businessInfo.businessType", { required: "Business Type is required" })}
+                  />
+                </div>
+                <div className="col-span-6">
+                  <Input
+                    key={`businessOwner-${step}`}
+                    className="w-full border-[#8C8C8C]"
+                    type="text"
+                    id="businessOwner"
+                    placeholder={businessInfoFieldNames[langOption][3]}
+                    {...register("businessInfo.businessOwner", { required: "Business Owner is required" })}
+                  />
+                </div>
+              </div>
 
-          //     <div>
-          //       <Input
-          //         key={`description-${step}`}
-          //         className="w-[550px] border-[#8C8C8C]"
-          //         type="text"
-          //         id="description"
-          //         placeholder={businessInfoFieldNames[langOption][4]}
-          //         {...register("businessInfo.description", { required: "Description is required" })}
-          //       />
-          //     </div>
-          //     {formErrorMessage && <div className="text-red-600">{formErrorMessage}</div>}
-          //   </div>
-          //   {renderNavButtons(false, false)}
-          // </div>
+              <Input
+                key={`description-${step}`}
+                className="w-full border-[#8C8C8C]"
+                type="text"
+                id="description"
+                placeholder={businessInfoFieldNames[langOption][4]}
+                {...register("businessInfo.description", { required: "Description is required" })}
+              />
 
+              {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
+            </div>
+
+            {renderNavButtons(false, false)}
+          </div>
+        );
+      case 2:
+        return (
           <div>
             <div className="grid gap-4 mt-5">
-              <div className="grid grid-cols-12 gap-2">
-                <div className="col-span-11">
-                  <Input
-                    key={`businessName-${step}`}
-                    className="w-full border-[#8C8C8C]"
-                    type="text"
-                    id="BusinessName"
-                    placeholder={businessInfoFieldNames[langOption][0]}
-                    {...register("businessInfo.businessName", { required: "Business name is required" })}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-12 gap-2">
-                <div className="col-span-11">
-                  <Input
-                    key={`websiteURL-${step}`}
-                    className="w-full border-[#8C8C8C]"
-                    type="text"
-                    id="WebsiteURL"
-                    placeholder={businessInfoFieldNames[langOption][1]}
-                    {...register("businessInfo.website", { required: "Website URL is required" })}
-                  />
-                </div>
-              </div>
-
               <div className="grid grid-cols-12 gap-2">
                 <div className="col-span-4">
                   <Input
@@ -490,19 +436,18 @@ const BusinessSignupApplication = () => {
                   />
                 </div>
               </div>
-
               {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
             </div>
 
-            {renderNavButtons(false, false)}
+            {renderNavButtons(true, false)}
           </div>
         );
-      case 2:
+      case 4:
         return (
           <div>
             <div className="grid gap-4 mt-5">
               <div className="grid grid-cols-12 gap-2">
-                <div className="col-span-11">
+                <div className="col-span-12">
                   <Input
                     key={`contactName-${step}`}
                     className="w-full border-[#8C8C8C]"
@@ -514,7 +459,7 @@ const BusinessSignupApplication = () => {
                 </div>
               </div>
               <div className="grid grid-cols-12 gap-2">
-                <div className="col-span-11">
+                <div className="col-span-12">
                   <Input
                     key={`contactTitle-${step}`}
                     className="w-full border-[#8C8C8C]"
@@ -549,7 +494,7 @@ const BusinessSignupApplication = () => {
               </div>
 
               <div className="grid grid-cols-12 gap-2">
-                <div className="col-span-11">
+                <div className="col-span-12">
                   <Input
                     key={`contactEmail-${step}`}
                     className="w-full border-[#8C8C8C]"
@@ -578,9 +523,7 @@ const BusinessSignupApplication = () => {
                   type="text"
                   id="Facebook"
                   placeholder="Facebook"
-                  {...register("socialLinks.FB", {
-                    pattern: { value: /^@/, message: "Not in a familiar format." },
-                  })}
+                  {...register("socialLinks.FB", { pattern: { value: /^@/, message: "Not in a familiar format." } })}
                 />
               </div>
               <div>
@@ -589,9 +532,7 @@ const BusinessSignupApplication = () => {
                   type="text"
                   id="Instagram"
                   placeholder="Instagram"
-                  {...register("socialLinks.IG", {
-                    pattern: { value: /^@/, message: "Not in a familiar format." },
-                  })}
+                  {...register("socialLinks.IG", { pattern: { value: /^@/, message: "Not in a familiar format." } })}
                 />
               </div>
               <div>
@@ -614,7 +555,7 @@ const BusinessSignupApplication = () => {
     }
   };
 
-  if (step < 6) {
+  if (step < 4) {
     return (
       <div className="w-[70vw] h-[300px]">
         <Card className="relative bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg">
@@ -626,7 +567,7 @@ const BusinessSignupApplication = () => {
                 <h4 className="pt-2 text-[16px]">{pageSubtitles[langOption][step - 1]}</h4>
               </div>
             </div>
-            <div className="w-[65%] flex justify-center mx-auto">{renderStepForm()}</div>
+            <div className="w-[65%] flex mx-auto">{renderStepForm()}</div>
           </CardContent>
         </Card>
         <div className="flex flex-row justify-start">
