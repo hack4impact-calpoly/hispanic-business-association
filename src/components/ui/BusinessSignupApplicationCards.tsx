@@ -11,36 +11,15 @@ import { Button } from "./button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
 
 interface BusinessSignupAppInfo {
-  contactInfo: {
-    name: string;
-    title: string;
-    phoneNumber?: string;
-    cellNumber?: string;
-    email: string;
-  };
+  contactInfo: { name: string; title: string; phoneNumber?: string; cellNumber?: string; email: string };
   businessInfo: {
     name: string;
     websiteURL?: string;
     numEmployees?: string;
-    physicalAddress: {
-      address: string;
-      city: string;
-      state: string;
-      zip: string;
-    };
-    mailingAddress: {
-      address: string;
-      city: string;
-      state: string;
-      zip: string;
-    };
+    physicalAddress: { address: string; city: string; state: string; zip: string };
+    mailingAddress: { address: string; city: string; state: string; zip: string };
   };
-  socialLinks: {
-    Instagram?: string;
-    X?: string;
-    Facebook?: string;
-    LinkedIn?: string;
-  };
+  socialLinks: { Instagram?: string; X?: string; Facebook?: string; LinkedIn?: string };
 }
 
 const BusinessSignupApplication = () => {
@@ -82,7 +61,6 @@ const BusinessSignupApplication = () => {
   const englishBusinessInfo = [
     "Business Name*",
     "Website URL*",
-    "Number of Employees",
     "Physical Address*",
     "Mailing Address*",
     "City*",
@@ -93,7 +71,6 @@ const BusinessSignupApplication = () => {
   const spanishBusinessInfo = [
     "Nombre Comercial*",
     "URL del Sitio Web*",
-    "Numero de Empleados",
     "Dirección Física*",
     "Dirección de Envio",
     "Ciudad*",
@@ -163,7 +140,6 @@ const BusinessSignupApplication = () => {
       businessInfo: {
         name: "",
         websiteURL: "",
-        numEmployees: "",
         physicalAddress: { address: "", city: "", state: "", zip: "" },
         mailingAddress: { address: "", city: "", state: "", zip: "" },
       },
@@ -351,127 +327,138 @@ const BusinessSignupApplication = () => {
       case 1:
         return (
           <div>
-            <div className="grid gap-4 mt-[20px] justify-start items-start">
-              <div>
-                <Input
-                  key={`businessName-${step}`}
-                  className="w-[550px] border-[#8C8C8C]"
-                  type="text"
-                  id="BusinessName"
-                  placeholder={businessInfoFieldNames[langOption][0]}
-                  {...register("businessInfo.name", { required: "Business name is required" })}
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Input
-                  key={`websiteURL-${step}`}
-                  className="w-[356px] border-[#8C8C8C]"
-                  type="text"
-                  id="WebsiteURL"
-                  placeholder={businessInfoFieldNames[langOption][1]}
-                  {...register("businessInfo.websiteURL", { required: "Website URL is required" })}
-                />
-                <Input
-                  key={`numEmployees-${step}`}
-                  className="w-[186px] border-[#8C8C8C]"
-                  type="text"
-                  id="NumEmployees"
-                  placeholder={businessInfoFieldNames[langOption][2]}
-                  {...register("businessInfo.numEmployees", {
-                    validate: (value) => value === "" || Number(value) >= 0 || "Number of employees cannot be negative",
-                  })}
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Input
-                  key={`physicalAddress-Addr-${step}`}
-                  className="w-[264px] border-[#8C8C8C]"
-                  type="text"
-                  id="PhysicalAddress-Addr"
-                  placeholder={businessInfoFieldNames[langOption][3]}
-                  {...register("businessInfo.physicalAddress.address", { required: "Address is required" })}
-                />
-                <Input
-                  key={`physicalAddress-City-${step}`}
-                  className="w-[130px] border-[#8C8C8C]"
-                  type="text"
-                  id="PhysicalAddress-City"
-                  placeholder={businessInfoFieldNames[langOption][5]}
-                  {...register("businessInfo.physicalAddress.city", { required: "City is required" })}
-                />
-                <Input
-                  key={`physicalAddress-State-${step}`}
-                  className="w-[72px] border-[#8C8C8C]"
-                  type="text"
-                  id="PhysicalAddress-State"
-                  placeholder={businessInfoFieldNames[langOption][6]}
-                  {...register("businessInfo.physicalAddress.state", { required: "State is required" })}
-                />
-                <Input
-                  key={`physicalAddress-ZIP-${step}`}
-                  className="w-[60px] border-[#8C8C8C]"
-                  type="text"
-                  id="PhysicalAddress-ZIP"
-                  placeholder={businessInfoFieldNames[langOption][7]}
-                  {...register("businessInfo.physicalAddress.zip", {
-                    required: "ZIP is required",
-                    pattern: {
-                      value: /^\d{5}$/, // Ensures exactly 5 digits
-                      message: "ZIP code must be exactly 5 digits",
-                    },
-                  })}
-                />
-              </div>
-
-              <div className="flex items-center mt-[-8px] mb-[-8px] text-[13px]">
-                <label htmlFor="sameAddress" className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="sameAddress"
-                    onChange={(e) => setIsMailingAddressSame(e.target.checked)} // use state to track if the checkbox is checked
+            <div className="grid gap-4 mt-5">
+              <div className="grid grid-cols-12 gap-2">
+                <div className="col-span-11">
+                  <Input
+                    key={`businessName-${step}`}
+                    className="w-full border-[#8C8C8C]"
+                    type="text"
+                    id="BusinessName"
+                    placeholder={businessInfoFieldNames[langOption][0]}
+                    {...register("businessInfo.name", { required: "Business name is required" })}
                   />
-                  {businessInfoFieldNames[langOption][8]}
-                </label>
+                </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Input
-                  key={`mailingAddress-Addr-${step}`}
-                  className="w-[264px] border-[#8C8C8C]"
-                  type="text"
-                  id="MailAddress-Addr"
-                  placeholder={businessInfoFieldNames[langOption][4]}
-                  {...register("businessInfo.mailingAddress.address", { required: "Address is required" })}
-                />
-                <Input
-                  key={`mailingAddress-City-${step}`}
-                  className="w-[130px] border-[#8C8C8C]"
-                  type="text"
-                  id="MailAddress-City"
-                  placeholder={businessInfoFieldNames[langOption][5]}
-                  {...register("businessInfo.mailingAddress.city", { required: "City is required" })}
-                />
-                <Input
-                  key={`mailingAddress-State-${step}`}
-                  className="w-[72px] border-[#8C8C8C]"
-                  type="text"
-                  id="MailAddress-State"
-                  placeholder={businessInfoFieldNames[langOption][6]}
-                  {...register("businessInfo.mailingAddress.state", { required: "State is required" })}
-                />
-                <Input
-                  key={`mailingAddress-ZIP-${step}`}
-                  className="w-[60px] border-[#8C8C8C]"
-                  type="text"
-                  id="MailAddress-ZIP"
-                  placeholder={businessInfoFieldNames[langOption][7]}
-                  {...register("businessInfo.mailingAddress.zip", { required: "ZIP is required" })}
-                />
+              <div className="grid grid-cols-12 gap-2">
+                <div className="col-span-11">
+                  <Input
+                    key={`websiteURL-${step}`}
+                    className="w-full border-[#8C8C8C]"
+                    type="text"
+                    id="WebsiteURL"
+                    placeholder={businessInfoFieldNames[langOption][1]}
+                    {...register("businessInfo.websiteURL", { required: "Website URL is required" })}
+                  />
+                </div>
               </div>
+
+              <div className="grid grid-cols-12 gap-2">
+                <div className="col-span-4">
+                  <Input
+                    key={`physicalAddress-Addr-${step}`}
+                    className="w-full border-[#8C8C8C]"
+                    type="text"
+                    id="PhysicalAddress-Addr"
+                    placeholder={businessInfoFieldNames[langOption][2]}
+                    {...register("businessInfo.physicalAddress.address", { required: "Address is required" })}
+                  />
+                </div>
+                <div className="col-span-3">
+                  <Input
+                    key={`physicalAddress-City-${step}`}
+                    className="w-full border-[#8C8C8C]"
+                    type="text"
+                    id="PhysicalAddress-City"
+                    placeholder={businessInfoFieldNames[langOption][4]}
+                    {...register("businessInfo.physicalAddress.city", { required: "City is required" })}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <Input
+                    key={`physicalAddress-State-${step}`}
+                    className="w-full border-[#8C8C8C]"
+                    type="text"
+                    id="PhysicalAddress-State"
+                    placeholder={businessInfoFieldNames[langOption][5]}
+                    {...register("businessInfo.physicalAddress.state", { required: "State is required" })}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <Input
+                    key={`physicalAddress-ZIP-${step}`}
+                    className="w-full border-[#8C8C8C]"
+                    type="text"
+                    id="PhysicalAddress-ZIP"
+                    placeholder={businessInfoFieldNames[langOption][6]}
+                    {...register("businessInfo.physicalAddress.zip", {
+                      required: "ZIP is required",
+                      pattern: { value: /^\d{5}$/, message: "ZIP code must be exactly 5 digits" },
+                    })}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-12 gap-2 text-[13px]">
+                <div className="col-span-10 flex items-center mt-[-8px] mb-[-8px]">
+                  <label htmlFor="sameAddress" className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="sameAddress"
+                      onChange={(e) => setIsMailingAddressSame(e.target.checked)}
+                    />
+                    {businessInfoFieldNames[langOption][8]}
+                  </label>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-12 gap-2">
+                <div className="col-span-4">
+                  <Input
+                    key={`mailingAddress-Addr-${step}`}
+                    className="w-full border-[#8C8C8C]"
+                    type="text"
+                    id="MailAddress-Addr"
+                    placeholder={businessInfoFieldNames[langOption][3]}
+                    {...register("businessInfo.mailingAddress.address", { required: "Address is required" })}
+                  />
+                </div>
+                <div className="col-span-3">
+                  <Input
+                    key={`mailingAddress-City-${step}`}
+                    className="w-full border-[#8C8C8C]"
+                    type="text"
+                    id="MailAddress-City"
+                    placeholder={businessInfoFieldNames[langOption][4]}
+                    {...register("businessInfo.mailingAddress.city", { required: "City is required" })}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <Input
+                    key={`mailingAddress-State-${step}`}
+                    className="w-full border-[#8C8C8C]"
+                    type="text"
+                    id="MailAddress-State"
+                    placeholder={businessInfoFieldNames[langOption][5]}
+                    {...register("businessInfo.mailingAddress.state", { required: "State is required" })}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <Input
+                    key={`mailingAddress-ZIP-${step}`}
+                    className="w-full border-[#8C8C8C]"
+                    type="text"
+                    id="MailAddress-ZIP"
+                    placeholder={businessInfoFieldNames[langOption][6]}
+                    {...register("businessInfo.mailingAddress.zip", { required: "ZIP is required" })}
+                  />
+                </div>
+              </div>
+
               {firstErrorMessage && <div className="text-red-600">{firstErrorMessage}</div>}
             </div>
+
             {renderNavButtons(false, false)}
           </div>
         );
@@ -543,10 +530,7 @@ const BusinessSignupApplication = () => {
                   placeholder={contactInfoFieldNames[langOption][4]}
                   {...register("contactInfo.email", {
                     required: "Email is required",
-                    pattern: {
-                      value: /^[^@]+@[^@]+$/,
-                      message: "Not in a familiar format.",
-                    },
+                    pattern: { value: /^[^@]+@[^@]+$/, message: "Not in a familiar format." },
                   })}
                 />
               </div>
@@ -566,10 +550,7 @@ const BusinessSignupApplication = () => {
                   id="Facebook"
                   placeholder="Facebook"
                   {...register("socialLinks.Facebook", {
-                    pattern: {
-                      value: /^@/,
-                      message: "Not in a familiar format.",
-                    },
+                    pattern: { value: /^@/, message: "Not in a familiar format." },
                   })}
                 />
               </div>
@@ -580,10 +561,7 @@ const BusinessSignupApplication = () => {
                   id="Instagram"
                   placeholder="Instagram"
                   {...register("socialLinks.Instagram", {
-                    pattern: {
-                      value: /^@/,
-                      message: "Not in a familiar format.",
-                    },
+                    pattern: { value: /^@/, message: "Not in a familiar format." },
                   })}
                 />
               </div>
@@ -593,12 +571,7 @@ const BusinessSignupApplication = () => {
                   type="text"
                   id="X"
                   placeholder="X"
-                  {...register("socialLinks.X", {
-                    pattern: {
-                      value: /^@/,
-                      message: "Not in a familiar format.",
-                    },
-                  })}
+                  {...register("socialLinks.X", { pattern: { value: /^@/, message: "Not in a familiar format." } })}
                 />
               </div>
             </div>
@@ -729,7 +702,7 @@ const BusinessSignupApplication = () => {
     return (
       <div className="w-[70vw] h-[300px]">
         <Card className="relative bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg">
-          <CardContent className="flex w-full h-[320px] mt-[15px] p-1">
+          <CardContent className="flex flex-col md:flex-row w-full h-[320px] mt-[15px] p-1">
             <div className="w-[35%] flex flex-col items-start text-left p-4">
               <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
               <div className="mt-[40px]">
@@ -738,7 +711,7 @@ const BusinessSignupApplication = () => {
               </div>
               {displayPaymentInfo()}
             </div>
-            <div className="w-[65%] flex justify-center">{renderStepForm()}</div>
+            <div className="w-[65%] flex justify-center mx-auto">{renderStepForm()}</div>
           </CardContent>
         </Card>
         <div className="flex flex-row justify-start">
