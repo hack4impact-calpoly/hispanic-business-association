@@ -43,7 +43,7 @@ const BusinessSignupApplication = () => {
     "Enlaces Sociales",
     "Información del Contacto",
   ];
-  const numPages = 4;
+  const numPages = 5;
   const pageSubtitles = [englishPageSubtitles, spanishPageSubtitles];
 
   // for navigation buttons
@@ -327,7 +327,7 @@ const BusinessSignupApplication = () => {
                 {...register("businessInfo.description", { required: "Description is required" })}
               />
 
-              {formErrorMessage && <div className="text-red-600">{formErrorMessage}</div>}
+              {formErrorMessage && <div className="text-red-600 w-full pr-16">{formErrorMessage}</div>}
             </div>
 
             {renderNavButtons(false, false)}
@@ -441,7 +441,7 @@ const BusinessSignupApplication = () => {
                   />
                 </div>
               </div>
-              {formErrorMessage && <div className="text-red-600">{formErrorMessage}</div>}
+              {formErrorMessage && <div className="text-red-600 w-full">{formErrorMessage}</div>}
             </div>
 
             {renderNavButtons(true, false)}
@@ -544,7 +544,7 @@ const BusinessSignupApplication = () => {
                 </div>
               </div>
             </div>
-            {formErrorMessage && <div className="text-red-600">{formErrorMessage}</div>}
+            {formErrorMessage && <div className="text-red-600 w-full pr-16">{formErrorMessage}</div>}
             {renderNavButtons(true, true)}
           </div>
         );
