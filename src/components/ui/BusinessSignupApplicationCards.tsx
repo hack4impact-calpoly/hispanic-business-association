@@ -553,7 +553,7 @@ const BusinessSignupApplication = () => {
 
   if (step < 5) {
     return (
-      <div className="w-full md:max-w-[70vw] md:h-auto overflow-hidden">
+      <div className="w-full md:max-w-[70vw] md:h-auto">
         <Card className="relative md:shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] h-screen md:h-full rounded-none md:rounded-lg">
           <CardContent className="flex flex-col md:flex-row h-full md:h-[320px] mt-[15px] p-1">
             <div className="w-auto md:w-[35%] flex flex-col items-start text-left p-4">
@@ -564,6 +564,23 @@ const BusinessSignupApplication = () => {
               </div>
             </div>
             <div className="w-full md:w-[65%] flex mx-auto">{renderStepForm()}</div>
+            <div className="md:hidden flex mx-auto mt-[4%]">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    className="bg-[#293241] text-white hover:text-blue-500 hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
+                    type="button"
+                  >
+                    {langOptions[langOption]}
+                    <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => changeLanguage(0)}>{langOptions[0]}</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => changeLanguage(1)}>{langOptions[1]}</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </CardContent>
         </Card>
         <div className="hidden md:block md:flex md:flex-row md:justify-start">
@@ -587,15 +604,16 @@ const BusinessSignupApplication = () => {
     );
   } else {
     return (
-      <div className="w-full h-screen md:max-w-[70vw] md:h-auto overflow-hidden">
+      <div className="w-full md:max-w-[70vw] md:h-auto">
         <Card className="relative shadow-none md:shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] h-screen md:h-full rounded-none md:rounded-lg">
-          <CardContent className="flex flex-col w-full h-[320px] mt-[15px] items-center">
+          {/* <CardContent className="flex flex-col w-full h-[320px] mt-[15px] items-center"> */}
+          <CardContent className="md:flex-row h-full md:h-[320px] mt-[15px] items-center p-4">
             <div className="w-full flex items-start p-4">
               <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
             </div>
             <div className="flex flex-col justify-center items-center w-full h-[60%]">
               <Image src="/icons/Request Approved.png" alt="Checkmark" width={60} height={60} />
-              <strong className="text-[18px]">{submissionTitle[langOption]}</strong>
+              <strong className="text-[18px] text-center">{submissionTitle[langOption]}</strong>
               <h5>{submissionSubtitle[langOption]}</h5>
               <div className="bg-[#3F5EBB] text-white p-4 rounded-lg mt-4">
                 <ol className="list-decimal list-inside space-y-2 text-left text-[14px]">
@@ -604,6 +622,23 @@ const BusinessSignupApplication = () => {
                   <li>{submissionSteps[langOption][2]}</li>
                 </ol>
               </div>
+            </div>
+            <div className="md:hidden flex mx-auto justify-center">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    className="bg-[#293241] text-white hover:text-blue-500 hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
+                    type="button"
+                  >
+                    {langOptions[langOption]}
+                    <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => changeLanguage(0)}>{langOptions[0]}</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => changeLanguage(1)}>{langOptions[1]}</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </CardContent>
         </Card>

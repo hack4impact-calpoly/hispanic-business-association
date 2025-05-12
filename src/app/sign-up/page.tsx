@@ -2,8 +2,8 @@ import BusinessSignupApplication from "@/components/ui/BusinessSignupApplication
 
 export default function Page() {
   return (
-    <main className="flex justify-center items-center min-h-screen bg-[#293241] gap-x-28">
+    <div className="flex h-screen items-center justify-center bg-[#293241]">
       <BusinessSignupApplication />
-    </main>
+    </div>
   );
 }
