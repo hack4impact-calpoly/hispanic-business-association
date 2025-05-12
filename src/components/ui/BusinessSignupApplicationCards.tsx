@@ -141,7 +141,11 @@ const BusinessSignupApplication = () => {
   const [formErrorMessage, setFormErrorMessage] = useState("");
   const changeLanguage = (val: number) => {
     setLangOption(val);
-    if (errorMsgs[0].includes(formErrorMessage) || errorMsgs[1].includes(formErrorMessage)) {
+    console.log(`formErrorMessage: ${formErrorMessage}`);
+    if (
+      formErrorMessage !== "" &&
+      (errorMsgs[0].includes(formErrorMessage) || errorMsgs[1].includes(formErrorMessage))
+    ) {
       setFormErrorMessage(errorMsgs[val]);
     }
   };
@@ -230,7 +234,12 @@ const BusinessSignupApplication = () => {
       return (
         <div className="absolute bottom-0 left-0 right-0 p-4 flex flex-row items-end justify-between">
           <Button
-            className="bg-white text-[#405BA9] border border-[#405BA9] rounded-3xl"
+            variant="outline"
+            className="
+              text-[#405BA9] border-[#405BA9] rounded-3xl
+              focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none
+              hover:bg-gray-100
+            "
             type="button"
             onClick={prevStep}
           >
@@ -257,7 +266,12 @@ const BusinessSignupApplication = () => {
       return (
         <div className="absolute bottom-0 left-0 right-0 p-4 flex flex-row items-end justify-between">
           <Button
-            className="bg-white text-[#405BA9] border border-[#405BA9] rounded-3xl"
+            variant="outline"
+            className="
+              text-[#405BA9] border-[#405BA9] rounded-3xl
+              focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none
+              hover:bg-gray-100
+            "
             type="button"
             onClick={prevStep}
           >
@@ -431,7 +445,7 @@ const BusinessSignupApplication = () => {
                   />
                 </div>
               </div>
-              {formErrorMessage && <div className="text-red-600 w-full">{formErrorMessage}</div>}
+              {formErrorMessage && <div className="text-red-600 w-full pr-16">{formErrorMessage}</div>}
             </div>
 
             {renderNavButtons(true, false)}
