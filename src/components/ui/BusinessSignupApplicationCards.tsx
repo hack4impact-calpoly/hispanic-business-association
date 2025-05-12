@@ -224,6 +224,21 @@ const BusinessSignupApplication = () => {
     setStep(Math.max(1, step - 1));
   };
 
+  const handleSameMailingAddressCheckbox = (e) => {
+    const checked = e.target.checked;
+    setFormErrorMessage("");
+    if (!checked) {
+      if (isMailingAddressSame) {
+        // flush out mailing address info if checkbox is unchecked
+        setValue("businessInfo.mailingAddress.street", "");
+        setValue("businessInfo.mailingAddress.city", "");
+        setValue("businessInfo.mailingAddress.state", "");
+        setValue("businessInfo.mailingAddress.zip", "");
+      }
+    }
+    setIsMailingAddressSame(checked);
+  };
+
   // handle business addresses
   const [isMailingAddressSame, setIsMailingAddressSame] = useState(false);
 
@@ -349,7 +364,7 @@ const BusinessSignupApplication = () => {
         );
       case 2:
         return (
-          <div className="w-[90%] mr-auto ml-auto">
+          <div className="w-[90%] mr-auto ml-auto mt-[-10px]">
             <div className="grid gap-4 mt-5">
               <Input
                 key={`physicalAddress-Addr-${step}`}
@@ -395,56 +410,66 @@ const BusinessSignupApplication = () => {
                 </div>
               </div>
 
-              <div className="flex items-center mt-[-8px] mb-[-8px] text-[13px]">
+              <div className="flex items-center mt-[-8px] mb-[-25px] text-[13px]">
                 <label htmlFor="sameAddress" className="flex items-center">
-                  <input type="checkbox" id="sameAddress" onChange={(e) => setIsMailingAddressSame(e.target.checked)} />
+                  <input
+                    type="checkbox"
+                    className="mr-[4px]"
+                    id="sameAddress"
+                    checked={isMailingAddressSame}
+                    onChange={handleSameMailingAddressCheckbox}
+                  />
                   {businessInfoFieldNames[langOption][10]}
                 </label>
               </div>
 
-              <Input
-                key={`mailingAddress-Addr-${step}`}
-                className="w-full border-[#8C8C8C]"
-                type="text"
-                id="MailAddress-Addr"
-                placeholder={businessInfoFieldNames[langOption][6]}
-                {...register("businessInfo.mailingAddress.street", { required: "Address is required" })}
-              />
-              <div className="grid grid-cols-12 gap-2">
-                <div className="col-span-5">
+              {!isMailingAddressSame && (
+                <div className="grid gap-4 mt-5">
                   <Input
-                    key={`mailingAddress-City-${step}`}
+                    key={`mailingAddress-Addr-${step}`}
                     className="w-full border-[#8C8C8C]"
                     type="text"
-                    id="MailAddress-City"
-                    placeholder={businessInfoFieldNames[langOption][7]}
-                    {...register("businessInfo.mailingAddress.city", { required: "City is required" })}
+                    id="MailAddress-Addr"
+                    placeholder={businessInfoFieldNames[langOption][6]}
+                    {...register("businessInfo.mailingAddress.street", { required: "Address is required" })}
                   />
+                  <div className="grid grid-cols-12 gap-2">
+                    <div className="col-span-5">
+                      <Input
+                        key={`mailingAddress-City-${step}`}
+                        className="w-full border-[#8C8C8C]"
+                        type="text"
+                        id="MailAddress-City"
+                        placeholder={businessInfoFieldNames[langOption][7]}
+                        {...register("businessInfo.mailingAddress.city", { required: "City is required" })}
+                      />
+                    </div>
+                    <div className="col-span-4">
+                      <Input
+                        key={`mailingAddress-State-${step}`}
+                        className="w-full border-[#8C8C8C]"
+                        type="text"
+                        id="MailAddress-State"
+                        placeholder={businessInfoFieldNames[langOption][8]}
+                        {...register("businessInfo.mailingAddress.state", { required: "State is required" })}
+                      />
+                    </div>
+                    <div className="col-span-3">
+                      <Input
+                        key={`mailingAddress-ZIP-${step}`}
+                        className="w-full border-[#8C8C8C]"
+                        type="text"
+                        id="MailAddress-ZIP"
+                        placeholder={businessInfoFieldNames[langOption][9]}
+                        {...register("businessInfo.mailingAddress.zip", {
+                          required: "ZIP is required",
+                          pattern: { value: /^\d{5}$/, message: "ZIP code must be exactly 5 digits" },
+                        })}
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="col-span-4">
-                  <Input
-                    key={`mailingAddress-State-${step}`}
-                    className="w-full border-[#8C8C8C]"
-                    type="text"
-                    id="MailAddress-State"
-                    placeholder={businessInfoFieldNames[langOption][8]}
-                    {...register("businessInfo.mailingAddress.state", { required: "State is required" })}
-                  />
-                </div>
-                <div className="col-span-3">
-                  <Input
-                    key={`mailingAddress-ZIP-${step}`}
-                    className="w-full border-[#8C8C8C]"
-                    type="text"
-                    id="MailAddress-ZIP"
-                    placeholder={businessInfoFieldNames[langOption][9]}
-                    {...register("businessInfo.mailingAddress.zip", {
-                      required: "ZIP is required",
-                      pattern: { value: /^\d{5}$/, message: "ZIP code must be exactly 5 digits" },
-                    })}
-                  />
-                </div>
-              </div>
+              )}
               {formErrorMessage && <div className="text-red-600 w-full pr-16">{formErrorMessage}</div>}
             </div>
 
