@@ -553,20 +553,20 @@ const BusinessSignupApplication = () => {
 
   if (step < 5) {
     return (
-      <div className="w-[70vw] h-[300px]">
-        <Card className="relative bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg">
-          <CardContent className="flex flex-col md:flex-row w-full h-[320px] mt-[15px] p-1">
-            <div className="w-[35%] flex flex-col items-start text-left p-4">
+      <div className="w-full md:max-w-[70vw] md:h-auto overflow-hidden">
+        <Card className="relative md:shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] h-screen md:h-full rounded-none md:rounded-lg">
+          <CardContent className="flex flex-col md:flex-row h-full md:h-[320px] mt-[15px] p-1">
+            <div className="w-auto md:w-[35%] flex flex-col items-start text-left p-4">
               <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
               <div className="mt-[40px]">
                 <strong className="text-[24px]">{formTitle[langOption]}</strong>
                 <h4 className="pt-2 text-[16px]">{pageSubtitles[langOption][step - 1]}</h4>
               </div>
             </div>
-            <div className="w-[65%] flex mx-auto">{renderStepForm()}</div>
+            <div className="w-full md:w-[65%] flex mx-auto">{renderStepForm()}</div>
           </CardContent>
         </Card>
-        <div className="flex flex-row justify-start">
+        <div className="hidden md:block md:flex md:flex-row md:justify-start">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -587,9 +587,9 @@ const BusinessSignupApplication = () => {
     );
   } else {
     return (
-      <div className="w-[70vw] h-[300px]">
-        <Card className="relative bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-lg">
-          <CardContent className="flex flex-col w-full h-[320px] mt-[15px] p-1 items-center">
+      <div className="w-full h-screen md:max-w-[70vw] md:h-auto overflow-hidden">
+        <Card className="relative shadow-none md:shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] h-screen md:h-full rounded-none md:rounded-lg">
+          <CardContent className="flex flex-col w-full h-[320px] mt-[15px] items-center">
             <div className="w-full flex items-start p-4">
               <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
             </div>
@@ -607,7 +607,7 @@ const BusinessSignupApplication = () => {
             </div>
           </CardContent>
         </Card>
-        <div className="flex flex-row justify-start">
+        <div className="hidden md:block md:flex md:flex-row md:justify-start">
           <DropdownMenu>
             <DropdownMenuTrigger>
               <Button
