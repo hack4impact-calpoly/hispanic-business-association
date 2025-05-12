@@ -356,7 +356,9 @@ const BusinessSignupApplication = () => {
                 {...register("businessInfo.description", { required: "Description is required" })}
               />
 
-              {formErrorMessage && <div className="text-red-600 w-full pr-16">{formErrorMessage}</div>}
+              {formErrorMessage && (
+                <div className="text-red-600 w-full md:pr-16 text-center md:text-start">{formErrorMessage}</div>
+              )}
             </div>
 
             {renderNavButtons(false, false)}
@@ -470,7 +472,9 @@ const BusinessSignupApplication = () => {
                   </div>
                 </div>
               )}
-              {formErrorMessage && <div className="text-red-600 w-full pr-16">{formErrorMessage}</div>}
+              {formErrorMessage && (
+                <div className="text-red-600 w-full md:pr-16 text-center md:text-start">{formErrorMessage}</div>
+              )}
             </div>
 
             {renderNavButtons(true, false)}
@@ -573,7 +577,9 @@ const BusinessSignupApplication = () => {
                 </div>
               </div>
             </div>
-            {formErrorMessage && <div className="text-red-600 w-full pr-16">{formErrorMessage}</div>}
+            {formErrorMessage && (
+              <div className="text-red-600 w-full md:pr-16 text-center md:text-start">{formErrorMessage}</div>
+            )}
             {renderNavButtons(true, true)}
           </div>
         );
@@ -597,7 +603,7 @@ const BusinessSignupApplication = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    className="bg-[#293241] text-white hover:text-blue-500 hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
+                    className="bg-[#405BA9] text-white hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
                     type="button"
                   >
                     {langOptions[langOption]}
@@ -655,7 +661,7 @@ const BusinessSignupApplication = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    className="bg-[#293241] text-white hover:text-blue-500 hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
+                    className="bg-[#405BA9] text-white hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
                     type="button"
                   >
                     {langOptions[langOption]}
