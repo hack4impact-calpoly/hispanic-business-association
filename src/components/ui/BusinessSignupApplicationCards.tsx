@@ -559,8 +559,8 @@ const BusinessSignupApplication = () => {
     return (
       <div className="w-full md:max-w-[70vw] md:h-auto">
         <Card className="relative md:shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] min-h-screen md:min-h-full rounded-none md:rounded-lg">
-          <CardContent className="flex flex-col md:flex-row h-full md:h-[320px] mt-[15px] p-1">
-            <div className="w-auto md:w-[35%] flex flex-col items-start text-left p-4">
+          <CardContent className="flex flex-col md:flex-row justify-center md:justify-start items-center md:items-start h-full md:h-[320px] mt-[15px] p-1">
+            <div className="w-auto md:w-[35%] flex flex-col justify-center items-center text-center p-4">
               <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
               <div className="mt-[40px]">
                 <strong className="text-[24px]">{formTitle[langOption]}</strong>
@@ -611,7 +611,7 @@ const BusinessSignupApplication = () => {
       <div className="w-full md:max-w-[70vw] md:h-auto">
         <Card className="relative shadow-none md:shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] min-h-screen md:min-h-full rounded-none md:rounded-lg">
           <CardContent className="md:flex-row h-full md:h-[320px] mt-[15px] items-center p-4">
-            <div className="w-full flex items-start p-4">
+            <div className="w-full flex justify-center md:justify-start items-center md:items-start p-4">
               <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
             </div>
             <div className="flex flex-col justify-center items-center w-full h-[60%]">
@@ -626,7 +626,7 @@ const BusinessSignupApplication = () => {
                 </ol>
               </div>
             </div>
-            <div className="md:hidden flex mx-auto justify-center">
+            <div className="md:hidden flex mx-auto justify-center mt-5">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
