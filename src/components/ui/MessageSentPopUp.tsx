@@ -5,6 +5,7 @@ import { Card, CardContent } from "./card";
 import React from "react";
 import ReactDOM from "react-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useTranslations } from "next-intl";
 
 interface MessageSentPopUpProps {
   isOpen: boolean;
@@ -12,6 +13,8 @@ interface MessageSentPopUpProps {
 }
 
 const MessageSentPopUp: React.FC<MessageSentPopUpProps> = ({ isOpen, onClose }) => {
+  const t = useTranslations();
+
   const isMobile = useIsMobile();
 
   if (!isOpen) {
@@ -40,7 +43,7 @@ const MessageSentPopUp: React.FC<MessageSentPopUpProps> = ({ isOpen, onClose }) 
         </button>
         <CardContent className="flex flex-col justify-center items-center p-6">
           <Image src="/icons/Check In Circle.png" alt="Success Icon" width={iconSize} height={iconSize} />
-          <p className={`font-futura mt-4 text-center ${messageFontSize}`}>Message Sent!</p>
+          <p className={`font-futura mt-4 text-center ${messageFontSize}`}>{t("messageSent")}</p>
         </CardContent>
       </Card>
     </div>,
