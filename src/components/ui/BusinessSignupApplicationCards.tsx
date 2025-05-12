@@ -224,7 +224,7 @@ const BusinessSignupApplication = () => {
     setStep(Math.max(1, step - 1));
   };
 
-  const handleSameMailingAddressCheckbox = (e) => {
+  const handleSameMailingAddressCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
     const checked = e.target.checked;
     setFormErrorMessage("");
     if (!checked) {
