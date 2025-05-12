@@ -335,20 +335,18 @@ const BusinessSignupApplication = () => {
         );
       case 2:
         return (
-          <div className="w-[90%] mt-[8%] mr-auto ml-auto">
+          <div className="w-[90%] mr-auto ml-auto">
             <div className="grid gap-4 mt-5">
+              <Input
+                key={`physicalAddress-Addr-${step}`}
+                className="w-full border-[#8C8C8C]"
+                type="text"
+                id="PhysicalAddress-Addr"
+                placeholder={businessInfoFieldNames[langOption][5]}
+                {...register("businessInfo.physicalAddress.street", { required: "Address is required" })}
+              />
               <div className="grid grid-cols-12 gap-2">
                 <div className="col-span-5">
-                  <Input
-                    key={`physicalAddress-Addr-${step}`}
-                    className="w-full border-[#8C8C8C]"
-                    type="text"
-                    id="PhysicalAddress-Addr"
-                    placeholder={businessInfoFieldNames[langOption][5]}
-                    {...register("businessInfo.physicalAddress.street", { required: "Address is required" })}
-                  />
-                </div>
-                <div className="col-span-3">
                   <Input
                     key={`physicalAddress-City-${step}`}
                     className="w-full border-[#8C8C8C]"
@@ -358,7 +356,7 @@ const BusinessSignupApplication = () => {
                     {...register("businessInfo.physicalAddress.city", { required: "City is required" })}
                   />
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-4">
                   <Input
                     key={`physicalAddress-State-${step}`}
                     className="w-full border-[#8C8C8C]"
@@ -368,7 +366,7 @@ const BusinessSignupApplication = () => {
                     {...register("businessInfo.physicalAddress.state", { required: "State is required" })}
                   />
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-3">
                   <Input
                     key={`physicalAddress-ZIP-${step}`}
                     className="w-full border-[#8C8C8C]"
@@ -383,31 +381,23 @@ const BusinessSignupApplication = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-12 gap-2 text-[13px]">
-                <div className="col-span-10 flex items-center mt-[-8px] mb-[-8px]">
-                  <label htmlFor="sameAddress" className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="sameAddress"
-                      onChange={(e) => setIsMailingAddressSame(e.target.checked)}
-                    />
-                    {businessInfoFieldNames[langOption][10]}
-                  </label>
-                </div>
+              <div className="flex items-center mt-[-8px] mb-[-8px] text-[13px]">
+                <label htmlFor="sameAddress" className="flex items-center">
+                  <input type="checkbox" id="sameAddress" onChange={(e) => setIsMailingAddressSame(e.target.checked)} />
+                  {businessInfoFieldNames[langOption][10]}
+                </label>
               </div>
 
+              <Input
+                key={`mailingAddress-Addr-${step}`}
+                className="w-full border-[#8C8C8C]"
+                type="text"
+                id="MailAddress-Addr"
+                placeholder={businessInfoFieldNames[langOption][6]}
+                {...register("businessInfo.mailingAddress.street", { required: "Address is required" })}
+              />
               <div className="grid grid-cols-12 gap-2">
                 <div className="col-span-5">
-                  <Input
-                    key={`mailingAddress-Addr-${step}`}
-                    className="w-full border-[#8C8C8C]"
-                    type="text"
-                    id="MailAddress-Addr"
-                    placeholder={businessInfoFieldNames[langOption][6]}
-                    {...register("businessInfo.mailingAddress.street", { required: "Address is required" })}
-                  />
-                </div>
-                <div className="col-span-3">
                   <Input
                     key={`mailingAddress-City-${step}`}
                     className="w-full border-[#8C8C8C]"
@@ -417,7 +407,7 @@ const BusinessSignupApplication = () => {
                     {...register("businessInfo.mailingAddress.city", { required: "City is required" })}
                   />
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-4">
                   <Input
                     key={`mailingAddress-State-${step}`}
                     className="w-full border-[#8C8C8C]"
@@ -427,7 +417,7 @@ const BusinessSignupApplication = () => {
                     {...register("businessInfo.mailingAddress.state", { required: "State is required" })}
                   />
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-3">
                   <Input
                     key={`mailingAddress-ZIP-${step}`}
                     className="w-full border-[#8C8C8C]"
