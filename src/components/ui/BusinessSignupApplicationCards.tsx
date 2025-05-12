@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { Input } from "./input";
 import { Button } from "./button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
+import { Eye, EyeOff } from "lucide-react";
 
 interface BusinessSignupAppInfo {
   contactInfo: { name: string; phone: string; email: string };
@@ -87,7 +88,7 @@ const BusinessSignupApplication = () => {
     "Phone Number* (XXX) XXX-XXXX",
     "Email Address*",
     "Enter Password*",
-    "Renter Password*",
+    "Re-enter Password*",
   ];
   const spanishContactInfo = [
     "Nombre de Contacto*",
@@ -119,6 +120,17 @@ const BusinessSignupApplication = () => {
   const [step, setStep] = useState(1);
   const [password1, setPassword1] = useState("");
   const [password2, setPassword2] = useState("");
+  const [showPassword1, setShowPassword1] = useState(false);
+  const [showPassword2, setShowPassword2] = useState(false);
+
+  // Toggle password visibilities
+  const togglePassword1Visibility = () => {
+    setShowPassword1(!showPassword1);
+  };
+  const togglePassword2Visibility = () => {
+    setShowPassword2(!showPassword2);
+  };
+
   const {
     register,
     formState: { errors },
@@ -357,7 +369,9 @@ const BusinessSignupApplication = () => {
               />
 
               {formErrorMessage && (
-                <div className="text-red-600 w-full md:pr-16 text-center md:text-start">{formErrorMessage}</div>
+                <div className="text-red-600 w-full md:pr-[4.3em] md:mt-[-0.5em] text-center md:text-start">
+                  {formErrorMessage}
+                </div>
               )}
             </div>
 
@@ -412,7 +426,7 @@ const BusinessSignupApplication = () => {
                 </div>
               </div>
 
-              <div className="flex items-center mt-[-8px] mb-[-25px] text-[13px]">
+              <div className="flex items-center mt-[-8px] text-[13px]">
                 <label htmlFor="sameAddress" className="flex items-center">
                   <input
                     type="checkbox"
@@ -426,7 +440,7 @@ const BusinessSignupApplication = () => {
               </div>
 
               {!isMailingAddressSame && (
-                <div className="grid gap-4 mt-5">
+                <div className="grid gap-4 mt-[-0.25em]">
                   <Input
                     key={`mailingAddress-Addr-${step}`}
                     className="w-full border-[#8C8C8C]"
@@ -473,7 +487,9 @@ const BusinessSignupApplication = () => {
                 </div>
               )}
               {formErrorMessage && (
-                <div className="text-red-600 w-full md:pr-16 text-center md:text-start">{formErrorMessage}</div>
+                <div className="text-red-600 w-full md:pr-[4.3em] md:mt-[-0.5em] text-center md:text-start">
+                  {formErrorMessage}
+                </div>
               )}
             </div>
 
@@ -512,7 +528,7 @@ const BusinessSignupApplication = () => {
       case 4:
         return (
           <div className="w-[90%] mr-auto ml-auto">
-            <div className="grid gap-4 mt-5">
+            <div className="grid gap-3">
               <Input
                 key={`contactName-${step}`}
                 className="w-full border-[#8C8C8C]"
@@ -552,33 +568,56 @@ const BusinessSignupApplication = () => {
                 })}
               />
 
-              <div className="grid grid-cols-12 gap-2">
-                <div className="col-span-6">
-                  <Input
-                    key={`password1-${step}`}
-                    className="w-full border-[#8C8C8C]"
-                    type="password"
-                    id="Password1"
-                    value={password1}
-                    placeholder={contactInfoFieldNames[langOption][3]}
-                    onChange={(e) => setPassword1(e.target.value)}
-                  />
-                </div>
-                <div className="col-span-6">
-                  <Input
-                    key={`password2-${step}`}
-                    className="w-full border-[#8C8C8C]"
-                    type="password"
-                    id="Password2"
-                    value={password2}
-                    placeholder={contactInfoFieldNames[langOption][4]}
-                    onChange={(e) => setPassword2(e.target.value)}
-                  />
-                </div>
+              <div className="relative w-full">
+                <Input
+                  key={`password1-${step}`}
+                  className="w-full border-[#8C8C8C] pr-[4.3em]"
+                  type={showPassword1 ? "text" : "password"}
+                  id="Password1"
+                  value={password1}
+                  placeholder={contactInfoFieldNames[langOption][3]}
+                  onChange={(e) => setPassword1(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={togglePassword1Visibility}
+                  className="absolute right-3 top-1/2 -translate-y-1/2"
+                >
+                  {showPassword1 ? (
+                    <EyeOff className="h-5 w-5 text-gray-400" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-400" />
+                  )}
+                </button>
+              </div>
+
+              <div className="relative w-full">
+                <Input
+                  key={`password2-${step}`}
+                  className="w-full border-[#8C8C8C] pr-[4.3em]"
+                  type={showPassword2 ? "text" : "password"}
+                  id="Password2"
+                  value={password2}
+                  placeholder={contactInfoFieldNames[langOption][4]}
+                  onChange={(e) => setPassword2(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={togglePassword2Visibility}
+                  className="absolute right-3 top-1/2 -translate-y-1/2"
+                >
+                  {showPassword2 ? (
+                    <EyeOff className="h-5 w-5 text-gray-400" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-400" />
+                  )}
+                </button>
               </div>
             </div>
             {formErrorMessage && (
-              <div className="text-red-600 w-full md:pr-16 text-center md:text-start">{formErrorMessage}</div>
+              <div className="text-red-600 w-full md:pr-[4.3em] md:mt-[-0.5em] text-center md:text-start pt-2">
+                {formErrorMessage}
+              </div>
             )}
             {renderNavButtons(true, true)}
           </div>
@@ -599,7 +638,7 @@ const BusinessSignupApplication = () => {
               </div>
             </div>
             <div className="w-full md:w-[65%] flex mx-auto">{renderStepForm()}</div>
-            <div className="md:hidden flex mx-auto mt-[4%]">
+            <div className="md:hidden flex mx-auto mt-[8%]">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -678,7 +717,7 @@ const BusinessSignupApplication = () => {
         </Card>
         <div className="hidden md:block md:flex md:flex-row md:justify-start">
           <DropdownMenu>
-            <DropdownMenuTrigger>
+            <DropdownMenuTrigger asChild>
               <Button
                 className="bg-[#293241] text-white hover:text-blue-500 hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
                 type="button"
