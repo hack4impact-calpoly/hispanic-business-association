@@ -544,7 +544,7 @@ const BusinessSignupApplication = () => {
   if (step < 5) {
     return (
       <div className="w-full md:max-w-[70vw] md:h-auto">
-        <Card className="relative md:shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] h-screen md:h-full rounded-none md:rounded-lg">
+        <Card className="relative md:shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] min-h-screen md:min-h-full rounded-none md:rounded-lg">
           <CardContent className="flex flex-col md:flex-row h-full md:h-[320px] mt-[15px] p-1">
             <div className="w-auto md:w-[35%] flex flex-col items-start text-left p-4">
               <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
@@ -595,8 +595,7 @@ const BusinessSignupApplication = () => {
   } else {
     return (
       <div className="w-full md:max-w-[70vw] md:h-auto">
-        <Card className="relative shadow-none md:shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] h-screen md:h-full rounded-none md:rounded-lg">
-          {/* <CardContent className="flex flex-col w-full h-[320px] mt-[15px] items-center"> */}
+        <Card className="relative shadow-none md:shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] min-h-screen md:min-h-full rounded-none md:rounded-lg">
           <CardContent className="md:flex-row h-full md:h-[320px] mt-[15px] items-center p-4">
             <div className="w-full flex items-start p-4">
               <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
