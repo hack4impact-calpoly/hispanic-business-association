@@ -12,6 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { IUser } from "@/database/userSchema";
 import { IBusiness } from "@/database/businessSchema";
 import { Eye, EyeOff } from "lucide-react";
+import { useSignUp, SignUp } from "@clerk/nextjs";
 
 interface BusinessSignupAppInfo {
   contactInfo: {
@@ -139,7 +140,10 @@ const BusinessSignupApplication = () => {
 
   const [step, setStep] = useState(1);
 
-  const [clerkUserID, setClerkUserID] = useState("");
+  const { signUp, setActive, isLoaded } = useSignUp();
+  const [pendingVerification, setPendingVerification] = useState(false);
+  const [clerkCode, setClerkCode] = useState("");
+
   const [password1, setPassword1] = useState("");
   const [password2, setPassword2] = useState("");
   const [showPassword1, setShowPassword1] = useState(false);
@@ -206,7 +210,9 @@ const BusinessSignupApplication = () => {
   };
 
   // POST to Clerk
-  const createClerkUser = async (): Promise<string | null> => {
+  const sendClerkCode = async (): Promise<string | null> => {
+    if (!isLoaded) return null;
+
     const isValid = await trigger();
     if (!isValid) {
       setFormErrorMessage(errorMsgs[langOption]);
@@ -223,39 +229,99 @@ const BusinessSignupApplication = () => {
     const email = getValues("contactInfo.email");
 
     try {
-      const res = await fetch("/api/clerkUser", {
-        method: "POST",
-        body: JSON.stringify({ email: email, password: password1 }),
-        headers: { "Content-Type": "application/json" },
+      // const res = await fetch("/api/clerkUser", {
+      //   method: "POST",
+      //   body: JSON.stringify({ email: email, password: password1 }),
+      //   headers: { "Content-Type": "application/json" },
+      // });
+      console.log(`email: ${email}`);
+      console.log(`password: ${password1}`);
+
+      const res = await signUp.create({
+        emailAddress: email,
+        password: password1,
       });
 
-      const data = await res.json();
+      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      setPendingVerification(true);
 
-      if (!res.ok || data.error) {
-        const unknownErr = langOption === 0 ? "Problem creating profile" : "Problema al crear perfil";
-        const errMsg = data?.error?.errors?.[0]?.message || unknownErr;
-        console.error("Error from server:", errMsg);
-        setFormErrorMessage(errMsg);
-        return null;
-      }
+      // } catch (e: any) {
+      //   if (e.errors && e.errors.length > 0) {
+      //     setFormErrorMessage(e.errors[0].message);
+      //   }
+      //   console.error(`Sign up error: ${e}`);
+      // }
 
-      if (data.user) {
-        const id = data.user.id;
-        setClerkUserID(id);
+      if (res.status === "complete") {
+        await setActive({ session: res.createdSessionId });
+        const id: string | null = res.createdUserId;
+
         setFormErrorMessage("");
         return id;
       } else {
-        const err =
-          langOption === 0 ? "Failed to create user from data" : "Error al crear el usuario a partir de los datos";
-        console.error(err);
-        setFormErrorMessage(err);
+        if (res?.status) {
+          setFormErrorMessage(res.status);
+        }
+        console.log("Missing requirements:", res.requiredFields);
+        console.log("Missing verifications:", res.verifications);
+        console.log(res.status);
         return null;
       }
-    } catch (err) {
-      console.error("Fetch or parsing error:", err);
-      const errMsg = langOption === 0 ? "Network or server error." : "Error de red o del servidor.";
-      setFormErrorMessage(errMsg);
+    } catch (e: any) {
+      if (e.errors && e.errors.length > 0) {
+        setFormErrorMessage(e.errors[0].message);
+      }
+      console.error(`Sign up error: ${e}`);
       return null;
+    }
+
+    // const data = await res.json();
+
+    //   if (!res.ok || data.error) {
+    //     const unknownErr = langOption === 0 ? "Problem creating profile" : "Problema al crear perfil";
+    //     const errMsg = data?.error?.errors?.[0]?.message || unknownErr;
+    //     console.error("Error from server:", errMsg);
+    //     setFormErrorMessage(errMsg);
+    //     return null;
+    //   }
+
+    //   if (data.user) {
+    //     const id = data.user.id;
+    //     setFormErrorMessage("");
+    //     return id;
+    //   } else {
+    //     const err =
+    //       langOption === 0 ? "Failed to create user from data" : "Error al crear el usuario a partir de los datos";
+    //     console.error(err);
+    //     setFormErrorMessage(err);
+    //     return null;
+    //   }
+    // } catch (err) {
+    //   console.error("Fetch or parsing error:", err);
+    //   const errMsg = langOption === 0 ? "Network or server error." : "Error de red o del servidor.";
+    //   setFormErrorMessage(errMsg);
+    //   return null;
+    // }
+  };
+
+  const handleClerkCode = async (e: React.FocusEvent) => {
+    e.preventDefault();
+    if (!isLoaded) return null;
+
+    try {
+      const res = await signUp.attemptEmailAddressVerification({ code: clerkCode });
+
+      if (res.status === "complete") {
+        await setActive({ session: res.createdSessionId });
+        const id = res.createdUserId;
+      } else if (res.status) {
+        setFormErrorMessage(res.status);
+      }
+    } catch (e: any) {
+      if (e.errors && e.errors.length > 0) {
+        setFormErrorMessage(e.errors[0].message);
+      }
+      console.error(`Sign up error: ${e}`);
     }
   };
 
@@ -322,7 +388,7 @@ const BusinessSignupApplication = () => {
         setStep(Math.min(numPages, step + 1));
         break;
       case 4: // contact information page
-        const clerkID = await createClerkUser();
+        const clerkID = await sendClerkCode();
         if (clerkID) {
           await postAllData(clerkID);
           setStep(Math.min(numPages, step + 1));
@@ -712,6 +778,7 @@ const BusinessSignupApplication = () => {
                 </button>
               </div>
             </div>
+            {/* <div id="clerk-captcha" className="relative w-auto h-auto z-50 pointer-events-auto" /> */}
             {formErrorMessage && (
               <div className="text-red-600 w-full md:pr-[4.3em] md:mt-[-0.5em] text-center md:text-start pt-3">
                 {formErrorMessage}
