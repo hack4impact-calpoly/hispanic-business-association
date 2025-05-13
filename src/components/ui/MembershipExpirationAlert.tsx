@@ -3,6 +3,8 @@
 import React from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import axios from "axios";
+import { useTranslations } from "next-intl";
 
 interface MembershipExpirationAlertProps {
   // Months until expiration
@@ -19,6 +21,7 @@ const MembershipExpirationAlert = ({
   onRenewClick,
   className,
 }: MembershipExpirationAlertProps) => {
+  const t = useTranslations();
   // CONDITIONAL: Skip rendering for expiration > 1 month
   if (expiresInMonths > 1) {
     return null;
@@ -40,9 +43,7 @@ const MembershipExpirationAlert = ({
       }
       const response = await fetch("/api/square/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: 123, // Example userId
           amount: amt,
@@ -51,7 +52,7 @@ const MembershipExpirationAlert = ({
       });
 
       if (!response.ok) {
-        throw new Error("Failed to renew membership");
+        throw new Error(t("failRenew")); // "Failed to renew membership"
       }
 
       const data = await response.json();
@@ -87,10 +88,11 @@ const MembershipExpirationAlert = ({
 
       {/* MESSAGE: Expiration notification with renewal call-to-action */}
       <p className="flex-grow">
-        Membership expires in {expiresInMonths} month{expiresInMonths !== 1 ? "s" : ""}.{" "}
+        {t("membershipexpiration")} {expiresInMonths} {t("month")}
+        {expiresInMonths !== 1 ? "s" : ""}.{" "}
         {
           <button onClick={handleRenewClick} className="underline cursor-pointer focus:outline-none">
-            Renew here now.
+            {t("renew")}
           </button>
         }
       </p>

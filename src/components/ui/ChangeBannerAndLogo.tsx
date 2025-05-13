@@ -6,6 +6,7 @@ import { Card, CardContent } from "./card";
 import { Button } from "./button";
 import { uploadToS3 } from "@/lib/s3Client";
 import { useActiveBusinessRequest } from "@/lib/swrHooks";
+import { useTranslations } from "next-intl";
 
 interface ChangeBannerAndLogoProps {
   onClose?: () => void;
@@ -20,6 +21,7 @@ export default function ChangeBannerAndLogo({
   initialBannerUrl = "/logo/Default_Banner.jpg",
   initialLogoUrl = "/logo/Default_Logo.jpg",
 }: ChangeBannerAndLogoProps) {
+  const t = useTranslations();
   // Track file inputs and previews
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -87,11 +89,7 @@ export default function ChangeBannerAndLogo({
       const logoUrl = logoFile ? await uploadToS3(logoFile) : logoPreview;
 
       // Create request data
-      const requestData = {
-        bannerUrl,
-        logoUrl,
-        date: new Date().toLocaleDateString(),
-      };
+      const requestData = { bannerUrl, logoUrl, date: new Date().toLocaleDateString() };
 
       // If we have an existing request ID, include it for update
       if (existingRequestId) {
@@ -107,24 +105,18 @@ export default function ChangeBannerAndLogo({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to submit changes");
+        throw new Error(errorData.error || t("failedChanges"));
       }
 
       // Call success callback if provided
       if (onSubmitSuccess) {
         onSubmitSuccess();
       } else {
-        setFeedback({
-          type: "success",
-          message: "Your changes have been submitted for approval!",
-        });
+        setFeedback({ type: "success", message: t("changesSent") });
       }
     } catch (error: any) {
       console.error("Error submitting changes:", error);
-      setFeedback({
-        type: "error",
-        message: error.message || "An error occurred while submitting your changes.",
-      });
+      setFeedback({ type: "error", message: error.message || t("errorSubmittingChanges") });
     } finally {
       setIsSubmitting(false);
     }
@@ -136,7 +128,7 @@ export default function ChangeBannerAndLogo({
         <CardContent className="flex flex-col py-4 sm:py-7 px-6 sm:px-8 w-full bg-white rounded-lg">
           {/* Header */}
           <header className="flex justify-between items-center">
-            <h1 className="text-lg sm:text-xl font-medium text-black">Change Banner and Logo</h1>
+            <h1 className="text-lg sm:text-xl font-medium text-black">{t("changeBannerAndLogo")}</h1>
             {onClose && (
               <button
                 onClick={onClose}
@@ -166,11 +158,11 @@ export default function ChangeBannerAndLogo({
               </div>
 
               <div className="flex-grow">
-                <h2 className="text-base font-medium text-black">Upload a banner photo</h2>
+                <h2 className="text-base font-medium text-black">{t("uploadBanner")}</h2>
                 <p className="mt-8 text-sm text-stone-500">
-                  Add a high-quality banner photo to showcase your business.
+                  {t("addHighQualitybanner")}
                   <br className="hidden sm:block" />
-                  Suggested images: storefront, team, featured products, or a behind-the-scenes shot.
+                  {t("suggestedImages")}
                 </p>
 
                 {/* Banner preview */}
@@ -182,7 +174,7 @@ export default function ChangeBannerAndLogo({
 
                 {/* Banner upload button - left-aligned and fixed width */}
                 <label className="inline-block mt-8 py-2 px-3 w-[152px] text-center text-xs sm:text-sm font-bold rounded-3xl border border-solid border-zinc-400 text-zinc-400 cursor-pointer">
-                  Upload a photo
+                  {t("uploadPhoto")}
                   <input
                     type="file"
                     accept="image/*"
@@ -202,10 +194,8 @@ export default function ChangeBannerAndLogo({
               </div>
 
               <div className="flex-grow">
-                <h2 className="text-base font-medium text-black">Upload your logo</h2>
-                <p className="mt-8 text-sm text-stone-500">
-                  Add a high-quality graphic of your logo to be used for your business&apos;s profile photo.
-                </p>
+                <h2 className="text-base font-medium text-black">{t("uploadLogo")}</h2>
+                <p className="mt-8 text-sm text-stone-500">{t("addHighQualityLogo")}</p>
 
                 {/* Logo preview */}
                 {logoPreview && (
@@ -216,7 +206,7 @@ export default function ChangeBannerAndLogo({
 
                 {/* Logo upload button - left-aligned and fixed width */}
                 <label className="inline-block mt-8 py-2 px-3 w-[152px] text-center text-xs sm:text-sm font-bold rounded-3xl border border-solid border-zinc-400 text-zinc-400 cursor-pointer">
-                  Upload a photo
+                  {t("uploadPhoto")}
                   <input
                     type="file"
                     accept="image/*"
@@ -252,7 +242,7 @@ export default function ChangeBannerAndLogo({
                 ${isSubmitting ? "bg-blue-400" : "bg-[#405BA9] hover:bg-[#293241]"}
                 rounded-3xl flex items-center justify-center min-h-10`}
             >
-              {isSubmitting ? <span className="animate-pulse">Saving...</span> : "Submit Changes"}
+              {isSubmitting ? <span className="animate-pulse">{t("saving")}</span> : "Submit Changes"}
             </Button>
           </footer>
         </CardContent>

@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { Card, CardContent } from "./card";
+import { useTranslations } from "next-intl";
 
 interface ChangeRequestConfirmationProps {
   onClose?: () => void;
@@ -10,6 +11,8 @@ interface ChangeRequestConfirmationProps {
 }
 
 const ChangeRequestConfirmation: React.FC<ChangeRequestConfirmationProps> = ({ onClose, onBackToHome }) => {
+  const t = useTranslations();
+
   return (
     <Card className="w-full max-w-[805px] rounded-lg shadow-sm">
       <CardContent className="flex flex-col p-5 py-6 w-full">
@@ -23,16 +26,12 @@ const ChangeRequestConfirmation: React.FC<ChangeRequestConfirmationProps> = ({ o
 
         <main className="flex flex-col items-center">
           <h1 className="mt-20 text-4xl font-futura font-medium text-center text-black max-md:mt-10">
-            Your change has been received <br />
-            and is now pending
+            {t("changeReceived")}
+            <br />
+            {t("nowPending")}
           </h1>
 
-          <p className="mt-7 text-xl text-[#293241] w-[620px] max-md:max-w-full text-left">
-            A HBA admin will approve or deny your change request within the next 30 days. If your request is approved,
-            you will see the changes automatically made on your dashboard. If your request was rejected, a HBA admin
-            will let you know why and your information will stay the same until a new change request is made and
-            approved.
-          </p>
+          <p className="mt-7 text-xl text-[#293241] w-[620px] max-md:max-w-full text-left">{t("requestMessage")}</p>
         </main>
 
         <hr className="shrink-0 mt-24 h-px border border-solid border-[#BEBEBE] w-full max-md:mt-10" />
@@ -42,7 +41,7 @@ const ChangeRequestConfirmation: React.FC<ChangeRequestConfirmationProps> = ({ o
             onClick={onBackToHome}
             className="w-[154px] h-[41px] bg-[#405BA9] text-white rounded-[23px] font-futura font-medium text-[16px] leading-[21.25px] hover:bg-[#293241] transition-colors"
           >
-            Back to Home
+            {t("backHome")}
           </button>
         </footer>
       </CardContent>
