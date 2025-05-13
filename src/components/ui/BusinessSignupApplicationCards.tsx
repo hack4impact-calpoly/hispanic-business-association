@@ -4,12 +4,13 @@ import React from "react";
 import Image from "next/image";
 import { Card, CardHeader, CardContent } from "./card";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Input } from "./input";
 import { Button } from "./button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
 import { Eye, EyeOff } from "lucide-react";
+import { NextIntlClientProvider, useTranslations, useLocale } from "next-intl";
 
 interface BusinessSignupAppInfo {
   contactInfo: { name: string; phone: string; email: string };
@@ -26,6 +27,68 @@ interface BusinessSignupAppInfo {
 }
 
 const BusinessSignupApplication = () => {
+  const t = useTranslations();
+
+  const [locale, setLocale] = useState("en");
+
+  // useEffect(() => {
+  //   // Get the locale from the cookie
+  //   const cookieLocale = document.cookie
+  //     .split("; ")
+  //     .find((row) => row.startsWith("NEXT_LOCALE="))
+  //     ?.split("=")[1];
+
+  //   // Set the locale from the cookie or default to "en"
+  //   setLocale(cookieLocale || "en");
+  // }, []);
+
+  // const handleSwitch = (newLocale: string) => {
+  //   if (newLocale === locale) return;
+
+  //   // Set the new locale in the cookie
+  //   document.cookie = `NEXT_LOCALE=${newLocale}; path=/`;
+
+  //   // Update the state to trigger a re-render with the new locale
+  //   setLocale(newLocale);
+  // };
+  useEffect(() => {
+    const cookieLocale = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("NEXT_LOCALE="))
+      ?.split("=")[1];
+    setLocale(cookieLocale || "en");
+  }, []);
+
+  const handleSwitch = (newLocale: string) => {
+    if (newLocale === locale) return;
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/`;
+    location.reload();
+  };
+  // const [messages, setMessages] = useState<any>(null);
+
+  // useEffect(() => {
+  //   const cookieLocale = document.cookie
+  //     .split('; ')
+  //     .find((row) => row.startsWith('NEXT_LOCALE='))
+  //     ?.split('=')[1];
+
+  //   const initialLocale = cookieLocale || 'en';
+  //   loadMessages(initialLocale);
+  // }, []);
+
+  // const loadMessages = async (newLocale: string) => {
+  //   const newMessages = await import(`../../../messages/${newLocale}.json`);
+  //   setMessages(newMessages);
+  //   setLocale(newLocale);
+  //   document.cookie = `NEXT_LOCALE=${newLocale}; path=/`;
+  // };
+
+  // const handleSwitch = (newLocale: string) => {
+  //   if (newLocale === locale) return;
+  //   loadMessages(newLocale);
+  //   console.log()
+  // };
+
   const router = useRouter();
 
   const [langOption, setLangOption] = useState(0); // either 0 or 1 for language preference
@@ -45,8 +108,9 @@ const BusinessSignupApplication = () => {
     "Información del Contacto",
   ];
   const numPages = 5;
-  const pageSubtitles = [englishPageSubtitles, spanishPageSubtitles];
+  // const pageSubtitles = [englishPageSubtitles, spanishPageSubtitles];
 
+  const pageSubtitles = [t("businessInformation"), t("businessInformation"), t("socialLink"), t("contactInfo")];
   // for navigation buttons
   const englishNav = ["Back", "Next"];
   const spanishNav = ["Atrás", "Próximo"];
@@ -171,7 +235,7 @@ const BusinessSignupApplication = () => {
     trigger()
       .then((result) => {
         if (!result) {
-          setFormErrorMessage(errorMsgs[langOption]);
+          setFormErrorMessage(t("errorMsgs"));
         } else {
           setFormErrorMessage("");
           setStep(Math.min(numPages, step + 1));
@@ -179,7 +243,7 @@ const BusinessSignupApplication = () => {
       })
       .catch((error) => {
         console.error("Validation error:", error);
-        setFormErrorMessage("An unexpected error occurred during validation.");
+        setFormErrorMessage(t("unknownError"));
       });
   };
 
@@ -270,10 +334,10 @@ const BusinessSignupApplication = () => {
             type="button"
             onClick={prevStep}
           >
-            {navTitles[langOption][0]}
+            {t("back")}
           </Button>
           <Button className="bg-[#405BA9] rounded-3xl" type="button" onClick={nextStep}>
-            {navTitles[langOption][1]}
+            {t("next")}
           </Button>
         </div>
       );
@@ -283,7 +347,7 @@ const BusinessSignupApplication = () => {
       return (
         <div className="absolute bottom-0 left-0 right-0 p-4 flex flex-row items-end justify-end">
           <Button className="bg-[#405BA9] rounded-3xl" type="button" onClick={nextStep}>
-            {navTitles[langOption][1]}
+            {t("next")}
           </Button>
         </div>
       );
@@ -302,10 +366,10 @@ const BusinessSignupApplication = () => {
             type="button"
             onClick={prevStep}
           >
-            {navTitles[langOption][0]}
+            {t("back")}
           </Button>
           <Button className="bg-[#405BA9] rounded-3xl" type="button" onClick={nextStep}>
-            {navSubmit[langOption]}
+            {t("submit")}
           </Button>
         </div>
       );
@@ -323,7 +387,7 @@ const BusinessSignupApplication = () => {
                 className="w-full border-[#8C8C8C]"
                 type="text"
                 id="BusinessName"
-                placeholder={businessInfoFieldNames[langOption][0]}
+                placeholder={t("businessName") + "*"}
                 {...register("businessInfo.businessName", { required: "Business name is required" })}
               />
 
@@ -332,7 +396,7 @@ const BusinessSignupApplication = () => {
                 className="w-full border-[#8C8C8C]"
                 type="text"
                 id="WebsiteURL"
-                placeholder={businessInfoFieldNames[langOption][1]}
+                placeholder={t("website") + "*"}
                 {...register("businessInfo.website", { required: "Website URL is required" })}
               />
 
@@ -343,7 +407,7 @@ const BusinessSignupApplication = () => {
                     className="w-full border-[#8C8C8C]"
                     type="text"
                     id="businessType"
-                    placeholder={businessInfoFieldNames[langOption][2]}
+                    placeholder={t("businessType") + "*"}
                     {...register("businessInfo.businessType", { required: "Business Type is required" })}
                   />
                 </div>
@@ -353,7 +417,7 @@ const BusinessSignupApplication = () => {
                     className="w-full border-[#8C8C8C]"
                     type="text"
                     id="businessOwner"
-                    placeholder={businessInfoFieldNames[langOption][3]}
+                    placeholder={t("nameBizOwner") + "*"}
                     {...register("businessInfo.businessOwner", { required: "Business Owner is required" })}
                   />
                 </div>
@@ -364,7 +428,7 @@ const BusinessSignupApplication = () => {
                 className="w-full border-[#8C8C8C]"
                 type="text"
                 id="description"
-                placeholder={businessInfoFieldNames[langOption][4]}
+                placeholder={t("bizDescrip") + "*"}
                 {...register("businessInfo.description", { required: "Description is required" })}
               />
 
@@ -387,7 +451,7 @@ const BusinessSignupApplication = () => {
                 className="w-full border-[#8C8C8C]"
                 type="text"
                 id="PhysicalAddress-Addr"
-                placeholder={businessInfoFieldNames[langOption][5]}
+                placeholder={t("physAdd") + "*"}
                 {...register("businessInfo.physicalAddress.street", { required: "Address is required" })}
               />
               <div className="grid grid-cols-12 gap-2">
@@ -397,7 +461,7 @@ const BusinessSignupApplication = () => {
                     className="w-full border-[#8C8C8C]"
                     type="text"
                     id="PhysicalAddress-City"
-                    placeholder={businessInfoFieldNames[langOption][7]}
+                    placeholder={t("city") + "*"}
                     {...register("businessInfo.physicalAddress.city", { required: "City is required" })}
                   />
                 </div>
@@ -407,7 +471,7 @@ const BusinessSignupApplication = () => {
                     className="w-full border-[#8C8C8C]"
                     type="text"
                     id="PhysicalAddress-State"
-                    placeholder={businessInfoFieldNames[langOption][8]}
+                    placeholder={t("state") + "*"}
                     {...register("businessInfo.physicalAddress.state", { required: "State is required" })}
                   />
                 </div>
@@ -417,7 +481,7 @@ const BusinessSignupApplication = () => {
                     className="w-full border-[#8C8C8C]"
                     type="text"
                     id="PhysicalAddress-ZIP"
-                    placeholder={businessInfoFieldNames[langOption][9]}
+                    placeholder={t("zip") + "*"}
                     {...register("businessInfo.physicalAddress.zip", {
                       required: "ZIP is required",
                       pattern: { value: /^\d{5}$/, message: "ZIP code must be exactly 5 digits" },
@@ -435,7 +499,7 @@ const BusinessSignupApplication = () => {
                     checked={isMailingAddressSame}
                     onChange={handleSameMailingAddressCheckbox}
                   />
-                  {businessInfoFieldNames[langOption][10]}
+                  {t("mailsame")}
                 </label>
               </div>
 
@@ -446,7 +510,7 @@ const BusinessSignupApplication = () => {
                     className="w-full border-[#8C8C8C]"
                     type="text"
                     id="MailAddress-Addr"
-                    placeholder={businessInfoFieldNames[langOption][6]}
+                    placeholder={t("mailAdd") + "*"}
                     {...register("businessInfo.mailingAddress.street", { required: "Address is required" })}
                   />
                   <div className="grid grid-cols-12 gap-2">
@@ -456,7 +520,7 @@ const BusinessSignupApplication = () => {
                         className="w-full border-[#8C8C8C]"
                         type="text"
                         id="MailAddress-City"
-                        placeholder={businessInfoFieldNames[langOption][7]}
+                        placeholder={t("city") + "*"}
                         {...register("businessInfo.mailingAddress.city", { required: "City is required" })}
                       />
                     </div>
@@ -466,7 +530,7 @@ const BusinessSignupApplication = () => {
                         className="w-full border-[#8C8C8C]"
                         type="text"
                         id="MailAddress-State"
-                        placeholder={businessInfoFieldNames[langOption][8]}
+                        placeholder={t("state") + "*"}
                         {...register("businessInfo.mailingAddress.state", { required: "State is required" })}
                       />
                     </div>
@@ -476,7 +540,7 @@ const BusinessSignupApplication = () => {
                         className="w-full border-[#8C8C8C]"
                         type="text"
                         id="MailAddress-ZIP"
-                        placeholder={businessInfoFieldNames[langOption][9]}
+                        placeholder={t("zip") + "*"}
                         {...register("businessInfo.mailingAddress.zip", {
                           required: "ZIP is required",
                           pattern: { value: /^\d{5}$/, message: "ZIP code must be exactly 5 digits" },
@@ -534,7 +598,7 @@ const BusinessSignupApplication = () => {
                 className="w-full border-[#8C8C8C]"
                 type="text"
                 id="ContactName"
-                placeholder={contactInfoFieldNames[langOption][0]}
+                placeholder={t("contactName") + "*"}
                 {...register("contactInfo.name", { required: "Contact Name is required" })}
               />
 
@@ -543,7 +607,7 @@ const BusinessSignupApplication = () => {
                 className="w-full border-[#8C8C8C]"
                 type="text"
                 id="Phone"
-                placeholder={contactInfoFieldNames[langOption][1]}
+                placeholder={t("bizPhoneNum") + "*"}
                 {...register("contactInfo.phone", {
                   required: "Phone Number is required",
                   pattern: {
@@ -561,7 +625,7 @@ const BusinessSignupApplication = () => {
                 className="w-full border-[#8C8C8C]"
                 type="text"
                 id="ContactEmail"
-                placeholder={contactInfoFieldNames[langOption][2]}
+                placeholder={t("email") + "*"}
                 {...register("contactInfo.email", {
                   required: "Email is required",
                   pattern: { value: /^[^@]+@[^@]+$/, message: "Not in a familiar format." },
@@ -575,7 +639,7 @@ const BusinessSignupApplication = () => {
                   type={showPassword1 ? "text" : "password"}
                   id="Password1"
                   value={password1}
-                  placeholder={contactInfoFieldNames[langOption][3]}
+                  placeholder={t("enterPass") + "*"}
                   onChange={(e) => setPassword1(e.target.value)}
                 />
                 <button
@@ -598,7 +662,7 @@ const BusinessSignupApplication = () => {
                   type={showPassword2 ? "text" : "password"}
                   id="Password2"
                   value={password2}
-                  placeholder={contactInfoFieldNames[langOption][4]}
+                  placeholder={t("reEnterPass") + "*"}
                   onChange={(e) => setPassword2(e.target.value)}
                 />
                 <button
@@ -633,8 +697,8 @@ const BusinessSignupApplication = () => {
             <div className="w-auto md:w-[35%] flex flex-col justify-center items-center text-center p-4">
               <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
               <div className="mt-[40px]">
-                <strong className="text-[24px]">{formTitle[langOption]}</strong>
-                <h4 className="pt-2 text-[16px]">{pageSubtitles[langOption][step - 1]}</h4>
+                <strong className="text-[24px]">{t("formTitleSign")}</strong>
+                <h4 className="pt-2 text-[16px]">{pageSubtitles[step - 1]}</h4>
               </div>
             </div>
             <div className="w-full md:w-[65%] flex mx-auto">{renderStepForm()}</div>
@@ -642,35 +706,65 @@ const BusinessSignupApplication = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    className="bg-[#405BA9] text-white hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
+                    className="bg-[#293241] text-white hover:text-blue-500 hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
                     type="button"
                   >
-                    {langOptions[langOption]}
+                    {locale}
                     <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => changeLanguage(0)}>{langOptions[0]}</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => changeLanguage(1)}>{langOptions[1]}</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSwitch("en")}>English (United States)</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSwitch("es")}>Español</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              {/* <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                className="bg-[#293241] text-white hover:text-blue-500 hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
+                type="button"
+              >
+                {locale}
+                <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => handleSwitch("en")}>English (United States)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleSwitch("es")}>Español</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu> */}
             </div>
           </CardContent>
         </Card>
         <div className="hidden md:block md:flex md:flex-row md:justify-start">
+          {/* <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          className="bg-[#293241] text-white hover:text-blue-500 hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
+          type="button"
+        >
+          {currentLocale === 'en' ? 'English (United States)' : 'Español'}
+          <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem onClick={() => handleSwitch("en")}>English (United States)</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleSwitch("es")}>Español</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu> */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 className="bg-[#293241] text-white hover:text-blue-500 hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
                 type="button"
               >
-                {langOptions[langOption]}
+                {locale}
                 <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => changeLanguage(0)}>{langOptions[0]}</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => changeLanguage(1)}>{langOptions[1]}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleSwitch("en")}>English (United States)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleSwitch("es")}>Español</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -686,49 +780,79 @@ const BusinessSignupApplication = () => {
             </div>
             <div className="flex flex-col justify-center items-center w-full h-[60%]">
               <Image src="/icons/Request Approved.png" alt="Checkmark" width={60} height={60} />
-              <strong className="text-[18px] text-center">{submissionTitle[langOption]}</strong>
-              <h5>{submissionSubtitle[langOption]}</h5>
+              <strong className="text-[18px] text-center">{t("submissionTitle")}</strong>
+              <h5>{t("submissionSubtitle")}</h5>
               <div className="bg-[#3F5EBB] text-white p-4 rounded-lg mt-4">
                 <ol className="list-decimal list-inside space-y-2 text-left text-[14px]">
-                  <li>{submissionSteps[langOption][0]}</li>
-                  <li>{submissionSteps[langOption][1]}</li>
-                  <li>{submissionSteps[langOption][2]}</li>
+                  <li>{t("submissionSteps0")}</li>
+                  <li>{t("submissionSteps1")}</li>
+                  <li>{t("submissionSteps2")}</li>
                 </ol>
               </div>
             </div>
             <div className="md:hidden flex mx-auto justify-center mt-5">
+              {/* <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          className="bg-[#293241] text-white hover:text-blue-500 hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
+          type="button"
+        >
+          {currentLocale === 'en' ? 'English (United States)' : 'Español'}
+          <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem onClick={() => handleSwitch("en")}>English (United States)</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleSwitch("es")}>Español</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu> */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    className="bg-[#405BA9] text-white hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
+                    className="bg-[#293241] text-white hover:text-blue-500 hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
                     type="button"
                   >
-                    {langOptions[langOption]}
+                    {locale}
                     <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => changeLanguage(0)}>{langOptions[0]}</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => changeLanguage(1)}>{langOptions[1]}</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSwitch("en")}>English (United States)</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSwitch("es")}>Español</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
           </CardContent>
         </Card>
         <div className="hidden md:block md:flex md:flex-row md:justify-start">
+          {/* <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          className="bg-[#293241] text-white hover:text-blue-500 hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
+          type="button"
+        >
+          {currentLocale === 'en' ? 'English (United States)' : 'Español'}
+          <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem onClick={() => handleSwitch("en")}>English (United States)</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleSwitch("es")}>Español</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu> */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 className="bg-[#293241] text-white hover:text-blue-500 hover:bg-[#293241] hover:opacity-100 hover:shadow-none"
                 type="button"
               >
-                {langOptions[langOption]}
+                {locale}
                 <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setLangOption(0)}>{langOptions[0]}</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setLangOption(1)}>{langOptions[1]}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleSwitch("en")}>English (United States)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleSwitch("es")}>Español</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
