@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Card, CardHeader, CardContent } from "./card";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 // Business details data structure
 interface BusinessInfo {
@@ -10,14 +11,7 @@ interface BusinessInfo {
   type: string;
   owner: string;
   website: string;
-  address: {
-    formatted?: string;
-    street: string;
-    suite?: string;
-    city: string;
-    state: string;
-    zip: string;
-  };
+  address: { formatted?: string; street: string; suite?: string; city: string; state: string; zip: string };
 }
 
 interface BusinessInfoCardProps {
@@ -28,6 +22,9 @@ interface BusinessInfoCardProps {
 
 const BusinessInfoCard = ({ info, editable = false, onEditClick }: BusinessInfoCardProps) => {
   const router = useRouter();
+  const t = useTranslations();
+  console.log(t("businessInformation"));
+  // console.log({t('businessInformation')})
 
   // Default business info - replaced with prop data when available
   const businessInfo = info ?? {
@@ -35,13 +32,7 @@ const BusinessInfoCard = ({ info, editable = false, onEditClick }: BusinessInfoC
     type: "Beauty & Personal Care",
     owner: "Selena Lilies",
     website: "https://halohairpasorobles.com/",
-    address: {
-      street: "1413 Riverside Ave.",
-      suite: "Suite G",
-      city: "Paso Robles",
-      state: "CA",
-      zip: "93446",
-    },
+    address: { street: "1413 Riverside Ave.", suite: "Suite G", city: "Paso Robles", state: "CA", zip: "93446" },
   };
 
   // Handle edit button click
@@ -59,7 +50,7 @@ const BusinessInfoCard = ({ info, editable = false, onEditClick }: BusinessInfoC
         <div>
           <div className="flex justify-between items-center">
             <h2 className="text-[16px] font-bold text-[#293241] font-['Futura'] leading-[21.26px] truncate">
-              BUSINESS INFORMATION
+              {t("businessInformation")}
             </h2>
             {/* Edit button - conditionally rendered based on editable prop */}
             {editable && (
@@ -80,19 +71,23 @@ const BusinessInfoCard = ({ info, editable = false, onEditClick }: BusinessInfoC
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-[26px]">
             <div>
-              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">Business Name</p>
+              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">
+                {t("businessName")}
+              </p>
               <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
                 {businessInfo.name}
               </p>
             </div>
             <div>
-              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">Business Type</p>
+              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">
+                {t("businessType")}
+              </p>
               <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
                 {businessInfo.type}
               </p>
             </div>
             <div>
-              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">Owner</p>
+              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">{t("owner")}</p>
               <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
                 {businessInfo.owner}
               </p>
@@ -100,13 +95,13 @@ const BusinessInfoCard = ({ info, editable = false, onEditClick }: BusinessInfoC
           </div>
           <div className="space-y-[26px]">
             <div>
-              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">Website</p>
+              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">{t("website")}</p>
               <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
                 {businessInfo.website}
               </p>
             </div>
             <div>
-              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">Address</p>
+              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">{t("address")}</p>
               {/* Address with natural line breaks */}
               <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
                 {businessInfo.address.street}

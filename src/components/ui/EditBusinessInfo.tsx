@@ -4,6 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useActiveBusinessRequest } from "@/lib/swrHooks";
+import { useTranslations } from "next-intl";
 
 // Configures component behavior
 interface EditBusinessInfoProps {
@@ -23,6 +24,7 @@ interface BusinessFormData {
 
 // Renders edit form
 export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusinessInfoProps) {
+  const t = useTranslations();
   // Tracks submit state
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Tracks loading state
@@ -46,10 +48,7 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   // Sets initial data and check for existing request
@@ -114,24 +113,18 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to submit changes");
+        throw new Error(errorData.error || t("failedChanges"));
       }
 
       // Calls optional callback when submit succeeds
       if (onSubmitSuccess) {
         onSubmitSuccess();
       } else {
-        setFeedback({
-          type: "success",
-          message: "Your changes have been submitted for approval!",
-        });
+        setFeedback({ type: "success", message: t("changesSent") });
       }
     } catch (error: any) {
       console.error("Error submitting changes:", error);
-      setFeedback({
-        type: "error",
-        message: error.message || "An error occurred while submitting your changes. Please try again.",
-      });
+      setFeedback({ type: "error", message: error.message || t("errorSubmittingChanges") });
     } finally {
       setIsSubmitting(false);
     }
@@ -143,7 +136,7 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
       <article className="rounded-lg shadow-sm w-full max-w-[805px] md:max-w-[805px] border border-gray-200 bg-white">
         <section className="flex flex-col py-4 md:py-6 w-full bg-white rounded-lg">
           <div className="flex justify-center items-center h-[200px] md:h-[400px]">
-            <p className="text-gray-500 animate-pulse">Loading business information...</p>
+            <p className="text-gray-500 animate-pulse">{t("loadBizInfo")}</p>
           </div>
         </section>
       </article>
@@ -156,7 +149,7 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
       <section className="flex flex-col py-4 md:py-6 w-full bg-white rounded-lg overflow-y-auto">
         <div className="flex flex-col px-4 md:px-5 w-full">
           <header className="flex flex-wrap gap-2 md:gap-5 justify-between items-start">
-            <h1 className="mt-2 md:mt-4 text-lg md:text-xl font-medium text-black">Edit Business Information</h1>
+            <h1 className="mt-2 md:mt-4 text-lg md:text-xl font-medium text-black">{t("editBizInfo")}</h1>
             {onClose && (
               <button
                 onClick={onClose}
@@ -171,19 +164,19 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
           <hr className="shrink-0 mt-4 md:mt-7 h-px border border-solid border-stone-300" />
 
           <p className="self-start mt-4 text-sm text-stone-500 mb-4">
-            <span className="text-red-500">*</span> indicates required
+            <span className="text-red-500">*</span> {t("required")}
           </p>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             {/* Business Name */}
             <div>
               <label className="block text-sm font-medium mb-1">
-                Business Name <span className="text-red-500">*</span>
+                {t("businessName")} <span className="text-red-500">*</span>
               </label>
               <input
                 name="businessName"
                 type="text"
-                placeholder="Official Registered Name"
+                placeholder={t("officialRegisteredName")}
                 value={formData.businessName}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -194,7 +187,7 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
             {/* Business Type */}
             <div>
               <label className="block text-sm font-medium mb-1">
-                Business Type <span className="text-red-500">*</span>
+                {t("businessType")} <span className="text-red-500">*</span>
               </label>
               <select
                 name="businessType"
@@ -203,7 +196,7 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
                 required
                 className="w-full border border-gray-300 rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select Type</option>
+                <option value="">{t("selectType")}</option>
                 <option value="Retail">Retail</option>
                 <option value="Service">Service</option>
                 <option value="Manufacturing">Manufacturing</option>
@@ -214,13 +207,13 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
             {/* Business Owner */}
             <div>
               <label className="block text-sm font-medium mb-1">
-                Business Owner <span className="text-red-500">*</span>
+                {t("bizowner")} <span className="text-red-500">*</span>
               </label>
               <div className="flex space-x-2 mb-2">
                 <input
                   name="ownerFirstName"
                   type="text"
-                  placeholder="First Name"
+                  placeholder={t("firstName")}
                   value={formData.ownerFirstName}
                   onChange={handleChange}
                   className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -229,7 +222,7 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
                 <input
                   name="ownerLastName"
                   type="text"
-                  placeholder="Last Name"
+                  placeholder={t("lastName")}
                   value={formData.ownerLastName}
                   onChange={handleChange}
                   className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -239,7 +232,7 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
               <input
                 name="ownerAdditionalName"
                 type="text"
-                placeholder="Additional Name"
+                placeholder={t("additionalName")}
                 value={formData.ownerAdditionalName}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -248,12 +241,12 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
 
             {/* Business Co-owner */}
             <div>
-              <label className="block text-sm font-medium mb-1">Business Co-owner</label>
+              <label className="block text-sm font-medium mb-1">{t("bizCoOwner")}</label>
               <div className="flex space-x-2">
                 <input
                   name="coOwnerFirstName"
                   type="text"
-                  placeholder="First Name"
+                  placeholder={t("firstName")}
                   value={formData.coOwnerFirstName}
                   onChange={handleChange}
                   className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -261,7 +254,7 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
                 <input
                   name="coOwnerLastName"
                   type="text"
-                  placeholder="Last Name"
+                  placeholder={t("lastName")}
                   value={formData.coOwnerLastName}
                   onChange={handleChange}
                   className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -279,7 +272,7 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
               ${isSubmitting ? "bg-blue-400 cursor-not-allowed" : "bg-[#405BA9] hover:bg-[#293241]"} 
               rounded-3xl min-h-[36px] md:min-h-[40px] transition-colors w-auto flex justify-center items-center`}
               >
-                {isSubmitting ? <span className="animate-pulse">Saving...</span> : "Submit Changes"}
+                {isSubmitting ? <span className="animate-pulse">{t("saving")}</span> : t("submitChanges")}
               </button>
             </div>
           </form>

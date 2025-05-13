@@ -6,17 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSignIn, useAuth } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams, usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
   // Existing form state
-  const [formData, setFormData] = useState<{ username: string; password: string }>({
-    username: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState<{ username: string; password: string }>({ username: "", password: "" });
 
   // Add password visibility state
   const [showPassword, setShowPassword] = useState(false);
@@ -56,9 +53,9 @@ export default function Login() {
     if (isSignedIn && user) {
       const role = user.publicMetadata?.role;
       if (role === "admin") {
-        router.replace("/admin");
+        router.replace(`/admin`);
       } else {
-        router.replace("/business");
+        router.replace(`/business`);
       }
     }
   }, [isSignedIn, user, router]);
@@ -89,10 +86,7 @@ export default function Login() {
     setIsLoggingIn(true);
 
     try {
-      const result = await signIn.create({
-        identifier: formData.username,
-        password: formData.password,
-      });
+      const result = await signIn.create({ identifier: formData.username, password: formData.password });
 
       if (result.status === "complete" && result.createdSessionId) {
         await setActive({ session: result.createdSessionId });
@@ -191,11 +185,11 @@ export default function Login() {
           </form>
 
           <div className="mt-4 text-center text-sm">
-            <a href="/sign-up" className="text-blue-600 hover:underline">
+            <a href={`/sign-up`} className="text-blue-600 hover:underline">
               Sign up
             </a>{" "}
             |
-            <a href="/forgot-password" className="text-blue-600 hover:underline ml-1">
+            <a href={`/forgot-password`} className="text-blue-600 hover:underline ml-1">
               Forgot password?
             </a>
           </div>
