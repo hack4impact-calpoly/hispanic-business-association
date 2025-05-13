@@ -478,7 +478,7 @@ const BusinessSignupApplication = () => {
         );
       case 2:
         return (
-          <div className="w-[90%] mr-auto ml-auto mt-[-10px]">
+          <div className="w-[90%] mr-auto ml-auto mt-[-5px]">
             <div className="grid gap-4 mt-5">
               <Input
                 key={`physicalAddress-Addr-${step}`}
@@ -626,7 +626,7 @@ const BusinessSignupApplication = () => {
       case 4:
         return (
           <div className="w-[90%] mr-auto ml-auto">
-            <div className="grid gap-3">
+            <div className="grid gap-2 pt-1">
               <Input
                 key={`contactName-${step}`}
                 className="w-full border-[#8C8C8C]"
@@ -713,7 +713,7 @@ const BusinessSignupApplication = () => {
               </div>
             </div>
             {formErrorMessage && (
-              <div className="text-red-600 w-full md:pr-[4.3em] md:mt-[-0.5em] text-center md:text-start pt-2">
+              <div className="text-red-600 w-full md:pr-[4.3em] md:mt-[-0.5em] text-center md:text-start pt-3">
                 {formErrorMessage}
               </div>
             )}
@@ -728,14 +728,14 @@ const BusinessSignupApplication = () => {
       <div className="w-full md:max-w-[70vw] md:h-auto">
         <Card className="relative md:shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] min-h-screen md:min-h-full rounded-none md:rounded-lg">
           <CardContent className="flex flex-col md:flex-row justify-center md:justify-start items-center md:items-start h-full md:h-[320px] mt-[15px] p-1">
-            <div className="w-auto md:w-[35%] flex flex-col justify-center items-center text-center p-4">
+            <div className="w-auto md:w-[29%] flex flex-col justify-center items-center text-center p-4">
               <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
               <div className="mt-[40px]">
                 <strong className="text-[24px]">{formTitle[langOption]}</strong>
                 <h4 className="pt-2 text-[16px]">{pageSubtitles[langOption][step - 1]}</h4>
               </div>
             </div>
-            <div className="w-full md:w-[65%] flex mx-auto">{renderStepForm()}</div>
+            <div className="w-full md:w-[71%] flex mx-auto">{renderStepForm()}</div>
             <div className="md:hidden flex mx-auto mt-[8%]">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
