@@ -59,6 +59,30 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
 
     setIsSubmitting(true);
     // add sign up logic
+    try {
+      const response = await fetch("/api/signup/approve", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          requestId: id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to approve request");
+      }
+
+      // Show approval card after successful API call
+      setShowApprovedCard(true);
+      mutateRequest();
+    } catch (error) {
+      console.error("Error approving request:", error);
+      alert("Error approving request");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Handle declining the request
@@ -67,7 +91,7 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
 
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/request/deny", {
+      const response = await fetch("/api/signup/deny", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -135,12 +159,13 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
               <h2 className="font-futura font-bold text-[22px] sm:text-[26px] leading-[34.55px] text-black mb-6 sm:mb-8">
                 {newInfo.businessName}
               </h2>
-
-              {/* Cards Container - Flex column on mobile, row on desktop */}
-              <div className="w-full flex justify-center">
-                <div className="w-full lg:max-w-[600px]">
-                  <h3 className="font-futura font-medium text-xl text-black mb-4">New Information</h3>
-                  <InformationCard type="new" businessInfo={newInfo} />
+              <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 mb-12 lg:mb-16">
+                {/* Cards Container - Flex column on mobile, row on desktop */}
+                <div className="w-full flex justify-center">
+                  <div className="w-full lg:max-w-[600px]">
+                    <h3 className="font-futura font-medium text-xl text-black mb-4">New Information</h3>
+                    <InformationCard type="signup" businessInfo={newInfo} />
+                  </div>
                 </div>
               </div>
 
