@@ -45,6 +45,12 @@ export async function POST(req: NextRequest) {
     // Get the clerkUserID from the body or use the current user's ID
     const clerkUserID = body["clerkUserID"] || user.id;
 
+    // Dynamically build socialMediaHandles with non-empty values only
+    const socialMediaHandles: Record<string, string> = {};
+    if (body.socialMediaHandles?.IG) socialMediaHandles.IG = body.socialMediaHandles.IG;
+    if (body.socialMediaHandles?.twitter) socialMediaHandles.twitter = body.socialMediaHandles.twitter;
+    if (body.socialMediaHandles?.FB) socialMediaHandles.FB = body.socialMediaHandles.FB;
+
     // Build request object for the database
     const requestData = {
       clerkUserID,
@@ -64,18 +70,16 @@ export async function POST(req: NextRequest) {
         phoneNumber: body["pointOfContact"]["phoneNumber"],
         email: body["pointOfContact"]["email"],
       },
-      socialMediaHandles: body["socialMediaHandles"]
-        ? {
-            IG: body["socialMediaHandles"]["IG"],
-            twitter: body["socialMediaHandles"]["twitter"],
-            FB: body["socialMediaHandles"]["FB"],
-          }
-        : undefined,
       description: body["description"],
       date: body["date"],
       status: body["status"],
       decision: null,
     };
+
+    // Only add socialMediaHandles if it's not empty
+    if (Object.keys(socialMediaHandles).length > 0) {
+      (requestData as any).socialMediaHandles = socialMediaHandles;
+    }
 
     // Create a new request
     const newRequest = await SignupRequest.collection.insertOne(requestData);

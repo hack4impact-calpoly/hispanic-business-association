@@ -26,7 +26,7 @@ interface BusinessSignupAppInfo {
     physicalAddress: { street: string; city: string; state: string; zip: string };
     mailingAddress: { street: string; city: string; state: string; zip: string };
   };
-  socialLinks: { IG?: string; X?: string; FB?: string };
+  socialLinks: { IG?: string; twitter?: string; FB?: string };
 }
 
 const BusinessSignupApplication = () => {
@@ -209,6 +209,12 @@ const BusinessSignupApplication = () => {
 
   const postAllData = async (clerkID: string) => {
     const values = getValues();
+
+    const socialMediaHandles: Partial<typeof values.socialLinks> = {};
+    if (values.socialLinks.IG) socialMediaHandles.IG = values.socialLinks.IG;
+    if (values.socialLinks.twitter) socialMediaHandles.twitter = values.socialLinks.twitter;
+    if (values.socialLinks.FB) socialMediaHandles.FB = values.socialLinks.FB;
+
     const businessData: ISignupRequest = {
       clerkUserID: clerkID,
       businessName: values.businessInfo.businessName,
@@ -227,11 +233,9 @@ const BusinessSignupApplication = () => {
         email: values.contactInfo.email,
         phoneNumber: Number(values.contactInfo.phone),
       },
-      socialMediaHandles: {
-        IG: values.socialLinks.IG,
-        twitter: values.socialLinks.X,
-        FB: values.socialLinks.FB,
-      },
+      ...(Object.keys(socialMediaHandles).length > 0 && {
+        socialMediaHandles,
+      }),
       date: new Date(),
     };
 
