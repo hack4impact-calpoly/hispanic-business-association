@@ -234,6 +234,23 @@ const BusinessSignupApplication = () => {
       },
       date: new Date(),
     };
+
+    // POST to signup requests
+    try {
+      const response = await fetch("api/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(businessData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create request");
+      }
+    } catch (err) {
+      console.error("Error creating request:", err);
+    }
   };
 
   const handleClerkVerification = async () => {
