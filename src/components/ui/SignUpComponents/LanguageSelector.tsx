@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Button } from "../button";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../dropdown-menu"; // adjust path if needed
 
 interface LanguageSelectorProps {
   langOptions: string[];
@@ -9,19 +10,21 @@ interface LanguageSelectorProps {
 
 const LanguageSelector = ({ langOptions, langOption, changeLanguage }: LanguageSelectorProps) => {
   return (
-    <div>
-      <Button className="bg-[#293241] text-white hover:text-blue-500 hover:bg-[#293241]" type="button">
-        {langOptions[langOption]}
-        <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
-      </Button>
-      <div className="absolute bg-white border rounded mt-1 shadow-lg z-10">
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button className="bg-[#293241] text-white hover:text-blue-500 hover:bg-[#293241]" type="button">
+          {langOptions[langOption]}
+          <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} className="ml-2" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
         {langOptions.map((label, index) => (
-          <div key={label} className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => changeLanguage(index)}>
+          <DropdownMenuItem key={label} onClick={() => changeLanguage(index)}>
             {label}
-          </div>
+          </DropdownMenuItem>
         ))}
-      </div>
-    </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
