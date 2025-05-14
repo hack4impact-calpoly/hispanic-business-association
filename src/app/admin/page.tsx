@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import BusinessCard from "@/components/ui/BusinessCard";
 import FilterButton from "@/components/ui/FilterButton";
-import { useBusinesses, useUser } from "@/lib/swrHooks";
+import { useBusinesses, useUser } from "@/hooks/swrHooks";
 import { SignInButton } from "@clerk/nextjs";
 
 type FilterType = "Business Name A-Z" | "Business Name Z-A" | "Most Recent" | "Oldest";

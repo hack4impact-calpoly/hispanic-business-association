@@ -5,7 +5,7 @@ import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import { RequestCard } from "@/components/ui/RequestCard";
 import StatsCard from "@/components/ui/StatsCard";
 import FilterButton from "@/components/ui/FilterButton";
-import { useRequests, useUser, useBusinesses } from "@/lib/swrHooks";
+import { useRequests, useUser, useBusinesses } from "@/hooks/swrHooks";
 import { useRouter } from "next/navigation";
 
 type FilterType = "Most Recent" | "Oldest" | "Business Name A-Z" | "Business Name Z-A";

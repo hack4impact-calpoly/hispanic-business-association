@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
-import { useSignUp } from "@clerk/nextjs";
 import { Card, CardContent } from "../card";
 import Step1_BusinessInfo from "./Step1_BusinessInfo";
 import Step2_Address from "./Step2_Address";
@@ -15,6 +14,7 @@ import LanguageSelector from "./LanguageSelector";
 
 import { IUser } from "@/database/userSchema";
 import { IBusiness } from "@/database/businessSchema";
+import { useClerkSignup } from "@/hooks/useClerkSignup";
 
 interface BusinessSignupAppInfo {
   contactInfo: { name: string; phone: string; email: string };
@@ -36,30 +36,17 @@ const BusinessSignupApplication = () => {
   const [formErrorMessage, setFormErrorMessage] = useState("");
   const [isMailingAddressSame, setIsMailingAddressSame] = useState(false);
 
-  const { signUp, setActive, isLoaded } = useSignUp();
   const [password1, setPassword1] = useState("");
   const [password2, setPassword2] = useState("");
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
   const [clerkCode, setClerkCode] = useState("");
-  const handleClerkVerification = async () => {
-    if (!isLoaded || !signUp || !setActive) return;
 
-    try {
-      const res = await signUp.attemptEmailAddressVerification({ code: clerkCode });
+  const { startSignup, verifyCode, error } = useClerkSignup();
 
-      if (res.status === "complete") {
-        await setActive({ session: res.createdSessionId });
-        await postAllData(res.createdUserId || "");
-        setStep(step + 1);
-      } else {
-        setFormErrorMessage(res.status || "Verification incomplete.");
-      }
-    } catch (err: any) {
-      const msg = err?.errors?.[0]?.message || "Verification failed.";
-      setFormErrorMessage(msg);
-    }
-  };
+  useEffect(() => {
+    if (error) setFormErrorMessage(error);
+  }, [error]);
 
   const {
     register,
@@ -203,21 +190,14 @@ const BusinessSignupApplication = () => {
           setFormErrorMessage(langOption === 0 ? "Passwords don't match" : "Las contraseñas no coinciden");
           return;
         }
-        try {
-          if (!isLoaded || !signUp) return;
-          const res = await signUp.create({ emailAddress: email, password: password1 });
-          await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-          if (res.status === "complete") {
-            await setActive({ session: res.createdSessionId });
-            await postAllData(res.createdUserId || "");
-            setStep(step + 1);
-          } else {
-            setStep(5);
-          }
-        } catch (e: any) {
-          const err = e?.errors?.[0]?.message || "Unknown signup error";
-          setFormErrorMessage(err);
-          console.error("Signup error:", e);
+        const status = await startSignup(email, password1);
+        if (status === "verified") {
+          await postAllData(""); // You can modify hook to return userId if needed
+          setStep(6);
+        } else if (status === "needs_verification") {
+          setStep(5);
+        } else if (status === "error") {
+          setFormErrorMessage(error);
         }
         break;
     }
@@ -257,9 +237,19 @@ const BusinessSignupApplication = () => {
       lastPayDate: new Date(),
     };
 
-    // Send userData and businessData to your backend
     console.log("User:", userData);
     console.log("Business:", businessData);
+  };
+
+  const handleClerkVerification = async () => {
+    const success = await verifyCode(clerkCode, async (userId: string) => {
+      await postAllData(userId);
+    });
+    if (success) {
+      setStep(step + 1);
+    } else {
+      setFormErrorMessage(error);
+    }
   };
 
   const renderStep = () => {
@@ -343,6 +333,7 @@ const BusinessSignupApplication = () => {
         );
     }
   };
+
   if (step === 6) {
     return (
       <div className="w-full md:max-w-[70vw] md:h-auto">
