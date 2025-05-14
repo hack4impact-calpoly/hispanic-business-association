@@ -11,8 +11,7 @@ import Step4_ContactInfo from "./Step4_ContactInfo";
 import Step5_Verification from "./Step5_Verification";
 import Step6_Submission from "./Step6_Submission";
 import LanguageSelector from "./LanguageSelector";
-
-import { IUser } from "@/database/userSchema";
+import { ISignupRequest } from "@/database/signupRequestSchema";
 import { IBusiness } from "@/database/businessSchema";
 import { useClerkSignup } from "@/hooks/useClerkSignup";
 
@@ -210,19 +209,14 @@ const BusinessSignupApplication = () => {
 
   const postAllData = async (clerkID: string) => {
     const values = getValues();
-    const userData: IUser = {
-      ...values.contactInfo,
-      phone: Number(values.contactInfo.phone),
-      role: "business",
-      clerkUserID: clerkID,
-    };
-    const businessData: IBusiness = {
+    const businessData: ISignupRequest = {
       clerkUserID: clerkID,
       businessName: values.businessInfo.businessName,
       website: values.businessInfo.website,
       businessOwner: values.businessInfo.businessOwner,
       businessType: values.businessInfo.businessType,
       description: values.businessInfo.description,
+      status: "open",
       address: {
         ...values.businessInfo.physicalAddress,
         zip: Number(values.businessInfo.physicalAddress.zip),
@@ -238,13 +232,7 @@ const BusinessSignupApplication = () => {
         twitter: values.socialLinks.X,
         FB: values.socialLinks.FB,
       },
-      membershipFeeType: "",
-      membershipExpiryDate: new Date(),
-      lastPayDate: new Date(),
     };
-
-    console.log("User:", userData);
-    console.log("Business:", businessData);
   };
 
   const handleClerkVerification = async () => {
