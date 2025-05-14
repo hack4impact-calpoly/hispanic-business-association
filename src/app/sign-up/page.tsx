@@ -1,4 +1,4 @@
-import BusinessSignupApplication from "@/components/ui/BusinessSignupApplicationCards";
+import BusinessSignupApplication from "@/components/ui/SignUpComponents/BusinessSignupApplication";
 
 export default function Page() {
   return (

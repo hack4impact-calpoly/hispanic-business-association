@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Card, CardContent } from "./card";
 import { Button } from "./button";
 import { uploadToS3 } from "@/lib/s3Client";
-import { useActiveBusinessRequest } from "@/lib/swrHooks";
+import { useActiveBusinessRequest } from "@/hooks/swrHooks";
 import { useTranslations } from "next-intl";
 
 interface ChangeBannerAndLogoProps {

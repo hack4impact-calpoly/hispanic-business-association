@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { useActiveBusinessRequest } from "@/lib/swrHooks";
+import { useActiveBusinessRequest } from "@/hooks/swrHooks";
 import { useTranslations } from "next-intl";
 
 // Configures component behavior

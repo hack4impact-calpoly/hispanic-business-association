@@ -5,7 +5,7 @@ import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import { RequestCard } from "@/components/ui/RequestCard";
 import StatsCard from "@/components/ui/StatsCard";
 import FilterButton from "@/components/ui/FilterButton";
-import { useRequests, useUser, useBusinesses, useSignUpRequests } from "@/lib/swrHooks";
+import { useRequests, useUser, useBusinesses, useSignUpRequests } from "@/hooks/swrHooks";
 import { useRouter } from "next/navigation";
 import SignUpRequest from "@/database/signupRequestSchema";
 

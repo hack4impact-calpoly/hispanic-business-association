@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
-import { useBusiness } from "@/lib/swrHooks";
+import { useBusiness } from "@/hooks/swrHooks";
 
 interface DesktopHeroProps {
   title: string;

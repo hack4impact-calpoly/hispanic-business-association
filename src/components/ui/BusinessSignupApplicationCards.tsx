@@ -9,20 +9,41 @@ import { useForm } from "react-hook-form";
 import { Input } from "./input";
 import { Button } from "./button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
+import { IUser } from "@/database/userSchema";
+import { IBusiness } from "@/database/businessSchema";
 import { Eye, EyeOff } from "lucide-react";
+import { useSignUp, SignUp } from "@clerk/nextjs";
 
 interface BusinessSignupAppInfo {
-  contactInfo: { name: string; phone: string; email: string };
+  contactInfo: {
+    name: string;
+    phone: string;
+    email: string;
+  };
   businessInfo: {
     businessName: string;
     website: string;
     businessOwner: string;
     businessType: string;
     description: string;
-    physicalAddress: { street: string; city: string; state: string; zip: string };
-    mailingAddress: { street: string; city: string; state: string; zip: string };
+    physicalAddress: {
+      street: string;
+      city: string;
+      state: string;
+      zip: string;
+    };
+    mailingAddress: {
+      street: string;
+      city: string;
+      state: string;
+      zip: string;
+    };
   };
-  socialLinks: { IG?: string; X?: string; FB?: string };
+  socialLinks: {
+    IG?: string;
+    X?: string;
+    FB?: string;
+  };
 }
 
 const BusinessSignupApplication = () => {
@@ -118,6 +139,11 @@ const BusinessSignupApplication = () => {
   const submissionSteps = [submissionEnglishSteps, submissionSpanishSteps];
 
   const [step, setStep] = useState(1);
+
+  const { signUp, setActive, isLoaded } = useSignUp();
+  const [pendingVerification, setPendingVerification] = useState(false);
+  const [clerkCode, setClerkCode] = useState("");
+
   const [password1, setPassword1] = useState("");
   const [password2, setPassword2] = useState("");
   const [showPassword1, setShowPassword1] = useState(false);
@@ -182,35 +208,177 @@ const BusinessSignupApplication = () => {
       });
   };
 
-  const gatherAllData = async () => {
+  // POST to Clerk
+  const sendClerkCode = async (): Promise<string | null> => {
+    if (!isLoaded) return null;
+
+    const isValid = await trigger();
+    if (!isValid) {
+      setFormErrorMessage(errorMsgs[langOption]);
+      return null;
+    }
+
+    if (password1 !== password2) {
+      const err = langOption === 0 ? "Passwords don't match" : "Las contraseñas no coinciden";
+      console.error(err);
+      setFormErrorMessage(err);
+      return null;
+    }
+
+    const email = getValues("contactInfo.email");
+
+    try {
+      // const res = await fetch("/api/clerkUser", {
+      //   method: "POST",
+      //   body: JSON.stringify({ email: email, password: password1 }),
+      //   headers: { "Content-Type": "application/json" },
+      // });
+      console.log(`email: ${email}`);
+      console.log(`password: ${password1}`);
+
+      const res = await signUp.create({
+        emailAddress: email,
+        password: password1,
+      });
+
+      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      setPendingVerification(true);
+
+      // } catch (e: any) {
+      //   if (e.errors && e.errors.length > 0) {
+      //     setFormErrorMessage(e.errors[0].message);
+      //   }
+      //   console.error(`Sign up error: ${e}`);
+      // }
+
+      if (res.status === "complete") {
+        await setActive({ session: res.createdSessionId });
+        const id: string | null = res.createdUserId;
+
+        setFormErrorMessage("");
+        return id;
+      } else {
+        if (res?.status) {
+          setFormErrorMessage(res.status);
+        }
+        console.log("Missing requirements:", res.requiredFields);
+        console.log("Missing verifications:", res.verifications);
+        console.log(res.status);
+        return null;
+      }
+    } catch (e: any) {
+      if (e.errors && e.errors.length > 0) {
+        setFormErrorMessage(e.errors[0].message);
+      }
+      console.error(`Sign up error: ${e}`);
+      return null;
+    }
+
+    // const data = await res.json();
+
+    //   if (!res.ok || data.error) {
+    //     const unknownErr = langOption === 0 ? "Problem creating profile" : "Problema al crear perfil";
+    //     const errMsg = data?.error?.errors?.[0]?.message || unknownErr;
+    //     console.error("Error from server:", errMsg);
+    //     setFormErrorMessage(errMsg);
+    //     return null;
+    //   }
+
+    //   if (data.user) {
+    //     const id = data.user.id;
+    //     setFormErrorMessage("");
+    //     return id;
+    //   } else {
+    //     const err =
+    //       langOption === 0 ? "Failed to create user from data" : "Error al crear el usuario a partir de los datos";
+    //     console.error(err);
+    //     setFormErrorMessage(err);
+    //     return null;
+    //   }
+    // } catch (err) {
+    //   console.error("Fetch or parsing error:", err);
+    //   const errMsg = langOption === 0 ? "Network or server error." : "Error de red o del servidor.";
+    //   setFormErrorMessage(errMsg);
+    //   return null;
+    // }
+  };
+
+  const handleClerkCode = async (e: React.FocusEvent) => {
+    e.preventDefault();
+    if (!isLoaded) return null;
+
+    try {
+      const res = await signUp.attemptEmailAddressVerification({ code: clerkCode });
+
+      if (res.status === "complete") {
+        await setActive({ session: res.createdSessionId });
+        const id = res.createdUserId;
+      } else if (res.status) {
+        setFormErrorMessage(res.status);
+      }
+    } catch (e: any) {
+      if (e.errors && e.errors.length > 0) {
+        setFormErrorMessage(e.errors[0].message);
+      }
+      console.error(`Sign up error: ${e}`);
+    }
+  };
+
+  // function sleep(ms: number): Promise<void> {
+  //   return new Promise((resolve) => setTimeout(resolve, ms));
+  // }
+
+  const postAllData = async (clerkID: string) => {
     const isValid = await trigger();
 
     if (!isValid) throw new Error("Problem getting inputs from form.");
-
     const formValues = getValues();
-    const businessData = {
-      ...formValues,
-      businessInfo: {
-        ...formValues.businessInfo,
-        physicalAddress: {
-          ...formValues.businessInfo.physicalAddress,
-          zip: Number(formValues.businessInfo.physicalAddress.zip),
-        },
-        mailingAddress: {
-          ...formValues.businessInfo.mailingAddress,
-          zip: Number(formValues.businessInfo.mailingAddress.zip),
-        },
-      },
+    const userData: IUser = {
+      ...formValues.contactInfo,
+      phone: Number(formValues.contactInfo.phone),
+      role: "business",
+      clerkUserID: clerkID,
     };
+    const businessData: IBusiness = {
+      clerkUserID: clerkID,
+      businessName: formValues.businessInfo.businessName,
+      website: formValues.businessInfo.website,
+      businessOwner: formValues.businessInfo.businessOwner,
+      businessType: formValues.businessInfo.businessType,
+      description: formValues.businessInfo.description,
+      address: {
+        ...formValues.businessInfo.physicalAddress,
+        zip: Number(formValues.businessInfo.physicalAddress.zip),
+        county: "", // or fill in a default if you’re not collecting this yet
+      },
+      pointOfContact: {
+        name: formValues.contactInfo.name,
+        email: formValues.contactInfo.email,
+        phoneNumber: Number(formValues.contactInfo.phone),
+      },
+      socialMediaHandles: {
+        IG: formValues.socialLinks.IG,
+        twitter: formValues.socialLinks.X,
+        FB: formValues.socialLinks.FB,
+      },
+      membershipFeeType: "",
+      membershipExpiryDate: new Date(),
+      lastPayDate: new Date(),
+    };
+
+    // await sleep(3000);
+    // console.log("new user: ", userData, "\nnew business: ", businessData);
+    setStep(Math.min(numPages, step + 1));
+    return true;
   };
 
   // Step navigation (step # corresponds to which modal displays)
-  const nextStep = () => {
+  const nextStep = async () => {
     switch (step) {
-      case 1: // business information page
+      case 1: // business information page 1
         validateData();
         break;
-      case 2: // address information
+      case 2: // business information page 2
         if (isMailingAddressSame) {
           // Copy values from physical address to mailing address if checkbox is checked
           setValue("businessInfo.mailingAddress.street", getValues("businessInfo.physicalAddress.street"));
@@ -224,8 +392,11 @@ const BusinessSignupApplication = () => {
         setStep(Math.min(numPages, step + 1));
         break;
       case 4: // contact information page
-        validateData();
-        break;
+        const clerkID = await sendClerkCode();
+        if (clerkID) {
+          await postAllData(clerkID);
+          setStep(Math.min(numPages, step + 1));
+        }
     }
   };
   const prevStep = () => {
@@ -377,7 +548,7 @@ const BusinessSignupApplication = () => {
         );
       case 2:
         return (
-          <div className="w-[90%] mr-auto ml-auto mt-[-10px]">
+          <div className="w-[90%] mr-auto ml-auto mt-[-5px]">
             <div className="grid gap-4 mt-5">
               <Input
                 key={`physicalAddress-Addr-${step}`}
@@ -525,7 +696,7 @@ const BusinessSignupApplication = () => {
       case 4:
         return (
           <div className="w-[90%] mr-auto ml-auto">
-            <div className="grid gap-3">
+            <div className="grid gap-2 pt-1">
               <Input
                 key={`contactName-${step}`}
                 className="w-full border-[#8C8C8C]"
@@ -611,8 +782,9 @@ const BusinessSignupApplication = () => {
                 </button>
               </div>
             </div>
+            {/* <div id="clerk-captcha" className="relative w-auto h-auto z-50 pointer-events-auto" /> */}
             {formErrorMessage && (
-              <div className="text-red-600 w-full md:pr-[4.3em] md:mt-[-0.5em] text-center md:text-start pt-2">
+              <div className="text-red-600 w-full md:pr-[4.3em] md:mt-[-0.5em] text-center md:text-start pt-3">
                 {formErrorMessage}
               </div>
             )}
@@ -627,14 +799,14 @@ const BusinessSignupApplication = () => {
       <div className="w-full md:max-w-[70vw] md:h-auto">
         <Card className="relative md:shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] min-h-screen md:min-h-full rounded-none md:rounded-lg">
           <CardContent className="flex flex-col md:flex-row justify-center md:justify-start items-center md:items-start h-full md:h-[320px] mt-[15px] p-1">
-            <div className="w-auto md:w-[35%] flex flex-col justify-center items-center text-center p-4">
+            <div className="w-auto md:w-[29%] flex flex-col justify-center items-center text-center p-4">
               <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
               <div className="mt-[40px]">
                 <strong className="text-[24px]">{formTitle[langOption]}</strong>
                 <h4 className="pt-2 text-[16px]">{pageSubtitles[langOption][step - 1]}</h4>
               </div>
             </div>
-            <div className="w-full md:w-[65%] flex mx-auto">{renderStepForm()}</div>
+            <div className="w-full md:w-[71%] flex mx-auto">{renderStepForm()}</div>
             <div className="md:hidden flex mx-auto mt-[8%]">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
