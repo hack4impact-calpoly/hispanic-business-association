@@ -11,6 +11,7 @@ import { Button } from "./button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
 import { Eye, EyeOff } from "lucide-react";
 import { NextIntlClientProvider, useTranslations, useLocale } from "next-intl";
+import { LocaleContext } from "@/app/Providers";
 
 interface BusinessSignupAppInfo {
   contactInfo: { name: string; phone: string; email: string };
@@ -29,66 +30,11 @@ interface BusinessSignupAppInfo {
 const BusinessSignupApplication = () => {
   const t = useTranslations();
 
-  const [locale, setLocale] = useState("en");
-
-  // useEffect(() => {
-  //   // Get the locale from the cookie
-  //   const cookieLocale = document.cookie
-  //     .split("; ")
-  //     .find((row) => row.startsWith("NEXT_LOCALE="))
-  //     ?.split("=")[1];
-
-  //   // Set the locale from the cookie or default to "en"
-  //   setLocale(cookieLocale || "en");
-  // }, []);
-
-  // const handleSwitch = (newLocale: string) => {
-  //   if (newLocale === locale) return;
-
-  //   // Set the new locale in the cookie
-  //   document.cookie = `NEXT_LOCALE=${newLocale}; path=/`;
-
-  //   // Update the state to trigger a re-render with the new locale
-  //   setLocale(newLocale);
-  // };
-  useEffect(() => {
-    const cookieLocale = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("NEXT_LOCALE="))
-      ?.split("=")[1];
-    setLocale(cookieLocale || "en");
-  }, []);
-
+  const { locale, setLocale } = useContext(LocaleContext);
   const handleSwitch = (newLocale: string) => {
     if (newLocale === locale) return;
-    document.cookie = `NEXT_LOCALE=${newLocale}; path=/`;
-    location.reload();
+    setLocale(newLocale);
   };
-  // const [messages, setMessages] = useState<any>(null);
-
-  // useEffect(() => {
-  //   const cookieLocale = document.cookie
-  //     .split('; ')
-  //     .find((row) => row.startsWith('NEXT_LOCALE='))
-  //     ?.split('=')[1];
-
-  //   const initialLocale = cookieLocale || 'en';
-  //   loadMessages(initialLocale);
-  // }, []);
-
-  // const loadMessages = async (newLocale: string) => {
-  //   const newMessages = await import(`../../../messages/${newLocale}.json`);
-  //   setMessages(newMessages);
-  //   setLocale(newLocale);
-  //   document.cookie = `NEXT_LOCALE=${newLocale}; path=/`;
-  // };
-
-  // const handleSwitch = (newLocale: string) => {
-  //   if (newLocale === locale) return;
-  //   loadMessages(newLocale);
-  //   console.log()
-  // };
-
   const router = useRouter();
 
   const [langOption, setLangOption] = useState(0); // either 0 or 1 for language preference
