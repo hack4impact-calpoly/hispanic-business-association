@@ -2,18 +2,15 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useSignUp } from "@clerk/nextjs";
 import { Card, CardContent } from "../card";
-import { Button } from "../button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../dropdown-menu";
-
 import Step1_BusinessInfo from "./Step1_BusinessInfo";
 import Step2_Address from "./Step2_Address";
 import Step3_SocialLinks from "./Step3_SocialLinks";
 import Step4_ContactInfo from "./Step4_ContactInfo";
-import Step5_Submission from "./Step5_Submission";
+import Step5_Verification from "./Step5_Verification";
+import Step6_Submission from "./Step6_Submission";
 import LanguageSelector from "./LanguageSelector";
 
 import { IUser } from "@/database/userSchema";
@@ -34,8 +31,6 @@ interface BusinessSignupAppInfo {
 }
 
 const BusinessSignupApplication = () => {
-  const router = useRouter();
-
   const [step, setStep] = useState(1);
   const [langOption, setLangOption] = useState(0);
   const [formErrorMessage, setFormErrorMessage] = useState("");
@@ -46,6 +41,25 @@ const BusinessSignupApplication = () => {
   const [password2, setPassword2] = useState("");
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
+  const [clerkCode, setClerkCode] = useState("");
+  const handleClerkVerification = async () => {
+    if (!isLoaded || !signUp || !setActive) return;
+
+    try {
+      const res = await signUp.attemptEmailAddressVerification({ code: clerkCode });
+
+      if (res.status === "complete") {
+        await setActive({ session: res.createdSessionId });
+        await postAllData(res.createdUserId || "");
+        setStep(step + 1);
+      } else {
+        setFormErrorMessage(res.status || "Verification incomplete.");
+      }
+    } catch (err: any) {
+      const msg = err?.errors?.[0]?.message || "Verification failed.";
+      setFormErrorMessage(msg);
+    }
+  };
 
   const {
     register,
@@ -72,8 +86,14 @@ const BusinessSignupApplication = () => {
   const langOptions = ["English (United States)", "Español"];
   const formTitle = ["Membership Application", "Solicitud de Membresía"];
   const pageSubtitles = [
-    ["Business Information", "Business Information", "Social Links", "Contact Information"],
-    ["Información Comercial", "Información Comercial", "Enlaces Sociales", "Información del Contacto"],
+    ["Business Information", "Business Information", "Social Links", "Contact Information", "Email Verification"],
+    [
+      "Información Comercial",
+      "Información Comercial",
+      "Enlaces Sociales",
+      "Información del Contacto",
+      "Verificación de Correo",
+    ],
   ];
 
   const navTitles = [
@@ -192,7 +212,7 @@ const BusinessSignupApplication = () => {
             await postAllData(res.createdUserId || "");
             setStep(step + 1);
           } else {
-            setFormErrorMessage(res.status || "Incomplete signup.");
+            setStep(5);
           }
         } catch (e: any) {
           const err = e?.errors?.[0]?.message || "Unknown signup error";
@@ -314,17 +334,29 @@ const BusinessSignupApplication = () => {
         );
       case 5:
         return (
-          <Step5_Submission
-            langOption={langOption}
-            submissionTitle={submissionTitle}
-            submissionSubtitle={submissionSubtitle}
-            submissionSteps={submissionSteps}
-            langOptions={langOptions}
-            changeLanguage={changeLanguage}
+          <Step5_Verification
+            clerkCode={clerkCode}
+            onCodeChange={(e) => setClerkCode(e.target.value)}
+            onVerify={handleClerkVerification}
+            error={formErrorMessage}
           />
         );
     }
   };
+  if (step === 6) {
+    return (
+      <div className="w-full md:max-w-[70vw] md:h-auto">
+        <Step6_Submission
+          langOption={langOption}
+          submissionTitle={submissionTitle}
+          submissionSubtitle={submissionSubtitle}
+          submissionSteps={submissionSteps}
+          langOptions={langOptions}
+          changeLanguage={changeLanguage}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full md:max-w-[70vw] md:h-auto">
@@ -334,10 +366,12 @@ const BusinessSignupApplication = () => {
             <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
             <div className="mt-[40px]">
               <strong className="text-[24px]">{formTitle[langOption]}</strong>
-              {step <= 4 && <h4 className="pt-2 text-[16px]">{pageSubtitles[langOption][step - 1]}</h4>}
+              {step <= 5 && <h4 className="pt-2 text-[16px]">{pageSubtitles[langOption][step - 1]}</h4>}
             </div>
           </div>
+
           <div className="w-full md:w-[71%] flex mx-auto">{renderStep()}</div>
+
           <div className="md:hidden flex mx-auto mt-[8%]">
             <LanguageSelector langOptions={langOptions} langOption={langOption} changeLanguage={changeLanguage} />
           </div>

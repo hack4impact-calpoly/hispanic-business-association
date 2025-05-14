@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Button } from "../button";
 import LanguageSelector from "./LanguageSelector";
 
-interface Step5Props {
+interface Step6Props {
   langOption: number;
   submissionTitle: string[];
   submissionSubtitle: string[];
@@ -13,7 +13,7 @@ interface Step5Props {
   finalButtonLabel?: string;
 }
 
-const Step5_Submission = ({
+const Step6_Submission = ({
   langOption,
   submissionTitle,
   submissionSubtitle,
@@ -22,10 +22,10 @@ const Step5_Submission = ({
   changeLanguage,
   onFinalAction,
   finalButtonLabel = "Return",
-}: Step5Props) => {
+}: Step6Props) => {
   return (
     <div className="w-full md:max-w-[70vw] md:h-auto">
-      <div className="relative shadow-none md:shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] min-h-screen md:min-h-full rounded-none md:rounded-lg">
+      <div className="relative bg-white shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] min-h-screen md:min-h-full rounded-none md:rounded-lg">
         <div className="md:flex-row h-full md:h-[320px] mt-[15px] items-center p-4">
           <div className="w-full flex justify-center md:justify-start items-center md:items-start p-4">
             <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
@@ -64,4 +64,4 @@ const Step5_Submission = ({
   );
 };
 
-export default Step5_Submission;
+export default Step6_Submission;
