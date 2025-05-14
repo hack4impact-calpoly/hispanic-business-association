@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import InformationCard from "@/components/ui/InformationCard";
-import { useSignUpRequest, useBusiness, updateRequestStatus, useSignUpRequests } from "@/lib/swrHooks";
+import { useSignUpRequest, useBusiness, updateRequestStatus, useSignUpRequests } from "@/hooks/swrHooks";
 import { Button } from "@/components/ui/button";
 import RequestApprovedCard from "@/components/ui/RequestApprovedCard";
 import RequestDeniedCard from "@/components/ui/RequestDeniedCard";
