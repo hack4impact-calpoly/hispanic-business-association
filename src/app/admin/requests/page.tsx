@@ -5,8 +5,9 @@ import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import { RequestCard } from "@/components/ui/RequestCard";
 import StatsCard from "@/components/ui/StatsCard";
 import FilterButton from "@/components/ui/FilterButton";
-import { useRequests, useUser, useBusinesses } from "@/hooks/swrHooks";
+import { useRequests, useUser, useBusinesses, useSignUpRequests } from "@/hooks/swrHooks";
 import { useRouter } from "next/navigation";
+import SignUpRequest from "@/database/signupRequestSchema";
 
 type FilterType = "Most Recent" | "Oldest" | "Business Name A-Z" | "Business Name Z-A";
 
@@ -25,6 +26,7 @@ export default function AdminRequestsPage() {
   const { user, isLoading: isUserLoading } = useUser();
   const { requests, isLoading: isRequestsLoading } = useRequests();
   const { businesses, isLoading: isBusinessesLoading } = useBusinesses();
+  const { signupRequests, isLoading: isSignupRequestsLoading } = useSignUpRequests();
 
   // Create a lookup map of clerkUserID to business name
   const businessNameMap = useMemo(() => {
@@ -78,8 +80,27 @@ export default function AdminRequestsPage() {
   // Apply filter to pending requests
   const filterPendingRequests = () => {
     if (!requests) return [];
-
     const pendingRequests = requests.filter((req) => req.status === "open");
+    const sorted = [...pendingRequests];
+
+    switch (pendingFilter) {
+      case "Most Recent":
+        return sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      case "Oldest":
+        return sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      case "Business Name A-Z":
+        return sorted.sort((a, b) => (getBusinessName(a) || "").localeCompare(getBusinessName(b) || ""));
+      case "Business Name Z-A":
+        return sorted.sort((a, b) => (getBusinessName(b) || "").localeCompare(getBusinessName(a) || ""));
+      default:
+        return sorted;
+    }
+  };
+
+  const filterPendingSignupRequests = () => {
+    if (!signupRequests) return [];
+
+    const pendingRequests = signupRequests.filter((req) => req.status === "open");
     const sorted = [...pendingRequests];
 
     switch (pendingFilter) {
@@ -117,6 +138,26 @@ export default function AdminRequestsPage() {
     }
   };
 
+  const filterHistorySignupRequests = () => {
+    if (!signupRequests) return [];
+
+    const historyRequests = signupRequests.filter((req) => req.status === "closed");
+    const sorted = [...historyRequests];
+
+    switch (historyFilter) {
+      case "Most Recent":
+        return sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      case "Oldest":
+        return sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      case "Business Name A-Z":
+        return sorted.sort((a, b) => (getBusinessName(a) || "").localeCompare(getBusinessName(b) || ""));
+      case "Business Name Z-A":
+        return sorted.sort((a, b) => (getBusinessName(b) || "").localeCompare(getBusinessName(a) || ""));
+      default:
+        return sorted;
+    }
+  };
+
   // Handle filter changes
   const handlePendingFilterChange = (filter: string) => {
     setPendingFilter(filter as FilterType);
@@ -129,6 +170,10 @@ export default function AdminRequestsPage() {
   // Navigate to request detail page when clicked
   const handleRequestClick = (id: string) => {
     router.push(`/admin/requests/${id}`);
+  };
+
+  const handleSignUpRequestClick = (id: string) => {
+    router.push(`/admin/signuprequests/${id}`);
   };
 
   // Format relative time (e.g., "2 days ago")
@@ -161,6 +206,8 @@ export default function AdminRequestsPage() {
 
   const pendingData = filterPendingRequests();
   const historyData = filterHistoryRequests();
+  const pendingSignupData = filterPendingSignupRequests();
+  const historySignupData = filterHistorySignupRequests();
 
   // Determine if data is still loading
   const isLoading = isRequestsLoading || isBusinessesLoading;
@@ -246,9 +293,77 @@ export default function AdminRequestsPage() {
 
             {/* Stats Cards - Now full width on mobile */}
             <div className="w-full lg:w-auto lg:ml-[30px] lg:min-w-[350px] xl:min-w-[416px] mt-8 lg:mt-0 space-y-4 sm:space-y-[18px]">
-              <StatsCard title="Total Pending Request" count={stats.pending} isHighlighted={true} />
-              <StatsCard title="Requests Approved This Month" count={stats.approved} isHighlighted={false} />
-              <StatsCard title="Requests Declined This Month" count={stats.declined} isHighlighted={false} />
+              <div className="w-full md:max-w-[591px] lg:max-w-none lg:flex-1 lg:min-w-0 xl:max-w-[591px]">
+                {/* Pending Requests section */}
+                <div className="flex justify-between items-center mb-4 sm:mb-6 md:mb-8 w-full">
+                  <h2 className="font-futura font-medium text-[18px] sm:text-[22px] md:text-[26px] leading-tight md:leading-[34.53px] text-black truncate pr-2">
+                    Pending Account Requests
+                  </h2>
+                  <div className="flex-shrink-0">
+                    <FilterButton onFilterChange={handlePendingFilterChange} selectedFilter={pendingFilter} />
+                  </div>
+                </div>
+
+                <div className="space-y-[6px] sm:space-y-[10px] w-full">
+                  {isLoading ? (
+                    <p className="text-center py-4 text-gray-500">Loading requests...</p>
+                  ) : pendingSignupData.length > 0 ? (
+                    pendingSignupData.map((request) => (
+                      <div
+                        key={(request as any)._id}
+                        onClick={() => handleSignUpRequestClick((request as any)._id)}
+                        className="w-full"
+                      >
+                        <RequestCard
+                          type="pending"
+                          businessName={getBusinessName(request)}
+                          timeAgo={getTimeAgo(request.date)}
+                          isUrgent={isUrgent(request.date)}
+                          className="w-full"
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-center py-4 text-gray-500">No pending requests</p>
+                  )}
+                </div>
+
+                <div className="w-full h-0 border-t border-[#BEBEBE] my-6 sm:my-8" />
+
+                {/* History Requests section */}
+                <div className="flex justify-between items-center mb-4 sm:mb-6 md:mb-8 w-full">
+                  <h2 className="font-futura font-medium text-[18px] sm:text-[22px] md:text-[26px] leading-tight md:leading-[34.53px] text-black truncate pr-2">
+                    History of Account Recent Requests
+                  </h2>
+                  <div className="flex-shrink-0">
+                    <FilterButton onFilterChange={handleHistoryFilterChange} selectedFilter={historyFilter} />
+                  </div>
+                </div>
+
+                <div className="space-y-[6px] sm:space-y-[10px] w-full">
+                  {isLoading ? (
+                    <p className="text-center py-4 text-gray-500">Loading request history...</p>
+                  ) : historySignupData.length > 0 ? (
+                    historySignupData.map((request) => (
+                      <div
+                        key={(request as any)._id}
+                        onClick={() => handleSignUpRequestClick((request as any)._id)}
+                        className="w-full"
+                      >
+                        <RequestCard
+                          type="history"
+                          businessName={getBusinessName(request)}
+                          status={request.decision as "approved" | "denied"}
+                          date={formatDate(request.date)}
+                          className="w-full"
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-center py-4 text-gray-500">No request history</p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>

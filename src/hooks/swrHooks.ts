@@ -2,6 +2,7 @@ import useSWR, { MutatorCallback, SWRConfiguration } from "swr";
 import { IBusiness } from "@/database/businessSchema";
 import { IUser } from "@/database/userSchema";
 import { IRequest } from "@/database/requestSchema";
+import { ISignupRequest } from "@/database/signupRequestSchema";
 import { fetcher } from "@/lib/fetcher";
 
 /**
@@ -29,6 +30,21 @@ export function useUser(config?: SWRConfiguration) {
 
   return {
     user: data,
+    isLoading,
+    isValidating,
+    isError: error,
+    mutate,
+  };
+}
+
+export function useSignUpRequests(config?: SWRConfiguration) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<ISignupRequest[]>("/api/signup", {
+    revalidateOnFocus: false,
+    ...config,
+  });
+
+  return {
+    signupRequests: data,
     isLoading,
     isValidating,
     isError: error,
@@ -102,6 +118,21 @@ export function useRequests(config?: SWRConfiguration) {
  */
 export function useRequest(id: string, config?: SWRConfiguration) {
   const { data, error, isLoading, isValidating, mutate } = useSWR<IRequest>(id ? `/api/request/${id}` : null, {
+    revalidateOnFocus: false,
+    ...config,
+  });
+
+  return {
+    request: data,
+    isLoading,
+    isValidating,
+    isError: error,
+    mutate,
+  };
+}
+
+export function useSignUpRequest(id: string, config?: SWRConfiguration) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IRequest>(id ? `/api/signup/${id}` : null, {
     revalidateOnFocus: false,
     ...config,
   });

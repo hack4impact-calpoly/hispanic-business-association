@@ -11,7 +11,6 @@ export const metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
-  console.log(locale);
   const messages = await getMessages(); // automatically loads from `messages/${locale}.json`
 
   return (

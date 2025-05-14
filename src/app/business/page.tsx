@@ -112,7 +112,6 @@ export default function BusinessDashboardPage() {
 
   // Handle renewal button click
   const handleRenewClick = () => {
-    console.log("Renewal requested");
     // Future implementation: Navigate to renewal page or open modal
   };
 

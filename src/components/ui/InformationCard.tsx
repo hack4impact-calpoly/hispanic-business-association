@@ -34,7 +34,7 @@ interface BusinessInfo {
 }
 
 interface InformationCardProps {
-  type: "old" | "new";
+  type: "old" | "new" | "signup";
   businessInfo: BusinessInfo;
   className?: string;
   // The other business info - needed to compare changes
@@ -78,7 +78,9 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
       displayClass =
         type === "old"
           ? "font-futura font-bold text-[14px] leading-[19px] bg-red-100 text-red-800"
-          : "font-futura font-bold text-[14px] leading-[19px] bg-green-100 text-green-800";
+          : type === "new"
+            ? "font-futura font-bold text-[14px] leading-[19px] bg-green-100 text-green-800"
+            : "font-futura font-bold text-[14px] leading-[19px]";
     }
 
     return <p className={displayClass}>{fieldValue || defaultText}</p>;
@@ -108,7 +110,9 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
       const displayClass =
         type === "old"
           ? "font-futura font-bold text-[14px] leading-[19px] bg-red-100 text-red-800"
-          : "font-futura font-bold text-[14px] leading-[19px] bg-green-100 text-green-800";
+          : type === "new"
+            ? "font-futura font-bold text-[14px] leading-[19px] bg-green-100 text-green-800"
+            : "font-futura font-bold text-[14px] leading-[19px]";
 
       return (
         <p className={displayClass}>
@@ -151,8 +155,10 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
       // Contact has changed - highlight all parts
       const displayClass =
         type === "old"
-          ? "font-futura font-bold text-[14px] leading-[19px] bg-red-100 text-red-800 break-words"
-          : "font-futura font-bold text-[14px] leading-[19px] bg-green-100 text-green-800 break-words";
+          ? "font-futura font-bold text-[14px] leading-[19px] bg-red-100 text-red-800"
+          : type === "new"
+            ? "font-futura font-bold text-[14px] leading-[19px] bg-green-100 text-green-800"
+            : "font-futura font-bold text-[14px] leading-[19px]";
 
       return (
         <p className={displayClass}>
@@ -198,8 +204,10 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
               "font-futura font-bold text-[14px] leading-[19px]",
               igChanged
                 ? type === "old"
-                  ? "bg-red-100 text-red-800"
-                  : "bg-green-100 text-green-800"
+                  ? "font-futura font-bold text-[14px] leading-[19px] bg-red-100 text-red-800"
+                  : type === "new"
+                    ? "font-futura font-bold text-[14px] leading-[19px] bg-green-100 text-green-800"
+                    : "font-futura font-bold text-[14px] leading-[19px]"
                 : "text-[#405BA9]",
             )}
           >
@@ -213,8 +221,10 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
               "font-futura font-bold text-[14px] leading-[19px]",
               twitterChanged
                 ? type === "old"
-                  ? "bg-red-100 text-red-800"
-                  : "bg-green-100 text-green-800"
+                  ? "font-futura font-bold text-[14px] leading-[19px] bg-red-100 text-red-800"
+                  : type === "new"
+                    ? "font-futura font-bold text-[14px] leading-[19px] bg-green-100 text-green-800"
+                    : "font-futura font-bold text-[14px] leading-[19px]"
                 : "text-[#405BA9]",
             )}
           >
@@ -228,8 +238,10 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
               "font-futura font-bold text-[14px] leading-[19px]",
               fbChanged
                 ? type === "old"
-                  ? "bg-red-100 text-red-800"
-                  : "bg-green-100 text-green-800"
+                  ? "font-futura font-bold text-[14px] leading-[19px] bg-red-100 text-red-800"
+                  : type === "new"
+                    ? "font-futura font-bold text-[14px] leading-[19px] bg-green-100 text-green-800"
+                    : "font-futura font-bold text-[14px] leading-[19px]"
                 : "text-[#405BA9]",
             )}
           >
@@ -282,17 +294,21 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
     const renderedLines = [];
 
     for (let i = 0; i < maxLines; i++) {
-      let lineClass = "text-[14px] leading-[19px] mb-1 font-futura font-bold text-[#405BA9]";
+      let lineClass = "text-[14px] leading-[19px] mb-1 font-futura font-bold";
 
       if (type === "old") {
         // For the old version, highlight removed or changed lines
         if (isLineChanged(i, thisLines, otherLines) || isLineRemoved(i, thisLines, otherLines)) {
           lineClass = "text-[14px] leading-[19px] mb-1 font-futura font-bold bg-red-100 text-red-800";
         }
-      } else {
+      } else if (type === "new") {
         // For the new version, highlight added or changed lines
         if (isLineChanged(i, otherLines, thisLines) || isLineAdded(i, otherLines, thisLines)) {
           lineClass = "text-[14px] leading-[19px] mb-1 font-futura font-bold bg-green-100 text-green-800";
+        } else {
+          if (isLineChanged(i, otherLines, thisLines) || isLineAdded(i, otherLines, thisLines)) {
+            lineClass = "text-[14px] leading-[19px] mb-1 font-futura font-bold";
+          }
         }
       }
 
@@ -395,8 +411,10 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
                   "font-futura font-bold text-[14px] leading-[19px] break-words",
                   isValueChanged(businessInfo.website, otherBusinessInfo?.website)
                     ? type === "old"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-green-100 text-green-800"
+                      ? "font-futura font-bold text-[14px] leading-[19px] bg-red-100 text-red-800"
+                      : type === "new"
+                        ? "font-futura font-bold text-[14px] leading-[19px] bg-green-100 text-green-800"
+                        : "font-futura font-bold text-[14px] leading-[19px]"
                     : "text-[#405BA9]",
                 )}
               >
