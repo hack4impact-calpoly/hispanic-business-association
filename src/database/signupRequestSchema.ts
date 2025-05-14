@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 
 export type ISignupRequest = {
   _id?: string; // MongoDB automatically adds this
-  clerkID: string;
+  clerkUserID: string;
   businessName: string;
   businessType: string;
   businessOwner: string;
@@ -33,7 +33,7 @@ export type ISignupRequest = {
 
 // Create the Mongoose schema for Business details.
 const SignupRequestSchema = new Schema<ISignupRequest>({
-  clerkID: { type: String, required: true },
+  clerkUserID: { type: String, required: true },
   businessName: { type: String, required: false },
   businessType: { type: String, required: false },
   businessOwner: { type: String, required: false },

@@ -232,6 +232,7 @@ const BusinessSignupApplication = () => {
         twitter: values.socialLinks.X,
         FB: values.socialLinks.FB,
       },
+      date: new Date(),
     };
   };
 
