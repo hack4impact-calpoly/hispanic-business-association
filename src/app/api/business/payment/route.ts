@@ -12,13 +12,11 @@ export async function PATCH(req: Request) {
     }
     const oneYearFromNow = new Date();
     oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
-    console.log(oneYearFromNow);
     const business = await Business.updateOne(
       { clerkUserID: clerkUser.id },
       { $set: { membershipExpiryDate: oneYearFromNow, lastPayDate: new Date() } },
       { upsert: true },
     );
-    console.log(business);
     return NextResponse.json(business);
   } catch (error) {
     console.error("Error updating business:", error);

@@ -66,7 +66,6 @@ const MembershipExpirationAlert = ({
           },
         });
       } else {
-        console.log(data);
       }
     } catch (err) {
       console.error("API call failed:", err);

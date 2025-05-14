@@ -23,8 +23,6 @@ interface BusinessInfoCardProps {
 const BusinessInfoCard = ({ info, editable = false, onEditClick }: BusinessInfoCardProps) => {
   const router = useRouter();
   const t = useTranslations();
-  console.log(t("businessInformation"));
-  // console.log({t('businessInformation')})
 
   // Default business info - replaced with prop data when available
   const businessInfo = info ?? {

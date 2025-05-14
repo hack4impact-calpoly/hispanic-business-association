@@ -153,7 +153,6 @@ const BusinessSignupApplication = () => {
   const [formErrorMessage, setFormErrorMessage] = useState("");
   const changeLanguage = (val: number) => {
     setLangOption(val);
-    console.log(`formErrorMessage: ${formErrorMessage}`);
     if (
       formErrorMessage !== "" &&
       (errorMsgs[0].includes(formErrorMessage) || errorMsgs[1].includes(formErrorMessage))
@@ -203,8 +202,6 @@ const BusinessSignupApplication = () => {
         },
       },
     };
-
-    console.log(formValues);
   };
 
   // Step navigation (step # corresponds to which modal displays)
