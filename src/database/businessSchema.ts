@@ -10,17 +10,12 @@ export type IBusiness = {
   membershipExpiryDate: Date;
   businessOwner: string;
   website: string;
-  physicalAddress: {
+  address: {
     street: string;
     city: string;
     state: string;
     zip: number;
-  };
-  mailingAddress: {
-    street: string;
-    city: string;
-    state: string;
-    zip: number;
+    county: string;
   };
   pointOfContact: {
     name: string;
@@ -29,7 +24,7 @@ export type IBusiness = {
   };
   socialMediaHandles?: {
     IG?: string;
-    X?: string;
+    twitter?: string;
     FB?: string;
   };
   description: string;
@@ -47,17 +42,12 @@ const BusinessSchema = new Schema<IBusiness>({
   membershipExpiryDate: { type: Date, required: false },
   businessOwner: { type: String, required: true },
   website: { type: String, required: true },
-  physicalAddress: {
+  address: {
     street: { type: String, required: true },
     city: { type: String, required: true },
     state: { type: String, required: true },
     zip: { type: Number, required: true },
-  },
-  mailingAddress: {
-    street: { type: String, required: true },
-    city: { type: String, required: true },
-    state: { type: String, required: true },
-    zip: { type: Number, required: true },
+    county: { type: String, required: true },
   },
   pointOfContact: {
     name: { type: String, required: true },
@@ -66,7 +56,7 @@ const BusinessSchema = new Schema<IBusiness>({
   },
   socialMediaHandles: {
     IG: { type: String },
-    X: { type: String },
+    twitter: { type: String },
     FB: { type: String },
   },
   description: { type: String, required: true },

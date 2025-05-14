@@ -341,21 +341,26 @@ const BusinessSignupApplication = () => {
     };
     const businessData: IBusiness = {
       clerkUserID: clerkID,
-      ...formValues.businessInfo,
-      physicalAddress: {
+      businessName: formValues.businessInfo.businessName,
+      website: formValues.businessInfo.website,
+      businessOwner: formValues.businessInfo.businessOwner,
+      businessType: formValues.businessInfo.businessType,
+      description: formValues.businessInfo.description,
+      address: {
         ...formValues.businessInfo.physicalAddress,
         zip: Number(formValues.businessInfo.physicalAddress.zip),
-      },
-      mailingAddress: {
-        ...formValues.businessInfo.mailingAddress,
-        zip: Number(formValues.businessInfo.mailingAddress.zip),
+        county: "", // or fill in a default if you’re not collecting this yet
       },
       pointOfContact: {
         name: formValues.contactInfo.name,
         email: formValues.contactInfo.email,
         phoneNumber: Number(formValues.contactInfo.phone),
       },
-      // the following are dummy values
+      socialMediaHandles: {
+        IG: formValues.socialLinks.IG,
+        twitter: formValues.socialLinks.X,
+        FB: formValues.socialLinks.FB,
+      },
       membershipFeeType: "",
       membershipExpiryDate: new Date(),
       lastPayDate: new Date(),

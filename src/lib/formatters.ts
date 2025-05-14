@@ -5,7 +5,7 @@ import { IBusiness } from "@/database/businessSchema";
  * @param address - Business address object
  * @returns Formatted address string
  */
-export function formatAddress(address?: IBusiness["physicalAddress"]) {
+export function formatAddress(address?: IBusiness["address"]) {
   if (!address) return "Address not available";
 
   const { street, city, state, zip } = address;
@@ -50,12 +50,12 @@ export function extractBusinessDisplayData(business?: IBusiness) {
       owner: business.businessOwner,
       website: business.website,
       address: {
-        formatted: formatAddress(business.physicalAddress),
-        street: business.physicalAddress.street,
+        formatted: formatAddress(business.address),
+        street: business.address.street,
         suite: "", // Not in the current schema
-        city: business.physicalAddress.city,
-        state: business.physicalAddress.state,
-        zip: business.physicalAddress.zip.toString(),
+        city: business.address.city,
+        state: business.address.state,
+        zip: business.address.zip.toString(),
       },
     },
 
@@ -67,7 +67,7 @@ export function extractBusinessDisplayData(business?: IBusiness) {
       socialMedia:
         business.socialMediaHandles?.FB ||
         business.socialMediaHandles?.IG ||
-        business.socialMediaHandles?.X ||
+        business.socialMediaHandles?.twitter ||
         "Not available",
     },
 
