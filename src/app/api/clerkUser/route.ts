@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     });
     return Response.json({ message: "User created", user });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return Response.json({ error });
   }
 }

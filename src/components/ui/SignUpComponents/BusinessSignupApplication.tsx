@@ -11,8 +11,7 @@ import Step4_ContactInfo from "./Step4_ContactInfo";
 import Step5_Verification from "./Step5_Verification";
 import Step6_Submission from "./Step6_Submission";
 import LanguageSelector from "./LanguageSelector";
-
-import { IUser } from "@/database/userSchema";
+import { ISignupRequest } from "@/database/signupRequestSchema";
 import { IBusiness } from "@/database/businessSchema";
 import { useClerkSignup } from "@/hooks/useClerkSignup";
 
@@ -27,7 +26,7 @@ interface BusinessSignupAppInfo {
     physicalAddress: { street: string; city: string; state: string; zip: string };
     mailingAddress: { street: string; city: string; state: string; zip: string };
   };
-  socialLinks: { IG?: string; X?: string; FB?: string };
+  socialLinks: { IG?: string; twitter?: string; FB?: string };
 }
 
 const BusinessSignupApplication = () => {
@@ -210,19 +209,20 @@ const BusinessSignupApplication = () => {
 
   const postAllData = async (clerkID: string) => {
     const values = getValues();
-    const userData: IUser = {
-      ...values.contactInfo,
-      phone: Number(values.contactInfo.phone),
-      role: "business",
-      clerkUserID: clerkID,
-    };
-    const businessData: IBusiness = {
+
+    const socialMediaHandles: Partial<typeof values.socialLinks> = {};
+    if (values.socialLinks.IG) socialMediaHandles.IG = values.socialLinks.IG;
+    if (values.socialLinks.twitter) socialMediaHandles.twitter = values.socialLinks.twitter;
+    if (values.socialLinks.FB) socialMediaHandles.FB = values.socialLinks.FB;
+
+    const businessData: ISignupRequest = {
       clerkUserID: clerkID,
       businessName: values.businessInfo.businessName,
       website: values.businessInfo.website,
       businessOwner: values.businessInfo.businessOwner,
       businessType: values.businessInfo.businessType,
       description: values.businessInfo.description,
+      status: "open",
       address: {
         ...values.businessInfo.physicalAddress,
         zip: Number(values.businessInfo.physicalAddress.zip),
@@ -233,18 +233,28 @@ const BusinessSignupApplication = () => {
         email: values.contactInfo.email,
         phoneNumber: Number(values.contactInfo.phone),
       },
-      socialMediaHandles: {
-        IG: values.socialLinks.IG,
-        twitter: values.socialLinks.X,
-        FB: values.socialLinks.FB,
-      },
-      membershipFeeType: "",
-      membershipExpiryDate: new Date(),
-      lastPayDate: new Date(),
+      ...(Object.keys(socialMediaHandles).length > 0 && {
+        socialMediaHandles,
+      }),
+      date: new Date(),
     };
 
-    console.log("User:", userData);
-    console.log("Business:", businessData);
+    // POST to signup requests
+    try {
+      const response = await fetch("api/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(businessData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create request");
+      }
+    } catch (err) {
+      console.error("Error creating request:", err);
+    }
   };
 
   const handleClerkVerification = async () => {

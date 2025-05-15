@@ -228,14 +228,6 @@ const BusinessSignupApplication = () => {
     const email = getValues("contactInfo.email");
 
     try {
-      // const res = await fetch("/api/clerkUser", {
-      //   method: "POST",
-      //   body: JSON.stringify({ email: email, password: password1 }),
-      //   headers: { "Content-Type": "application/json" },
-      // });
-      console.log(`email: ${email}`);
-      console.log(`password: ${password1}`);
-
       const res = await signUp.create({
         emailAddress: email,
         password: password1,
@@ -243,13 +235,6 @@ const BusinessSignupApplication = () => {
 
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
       setPendingVerification(true);
-
-      // } catch (e: any) {
-      //   if (e.errors && e.errors.length > 0) {
-      //     setFormErrorMessage(e.errors[0].message);
-      //   }
-      //   console.error(`Sign up error: ${e}`);
-      // }
 
       if (res.status === "complete") {
         await setActive({ session: res.createdSessionId });
@@ -261,9 +246,6 @@ const BusinessSignupApplication = () => {
         if (res?.status) {
           setFormErrorMessage(res.status);
         }
-        console.log("Missing requirements:", res.requiredFields);
-        console.log("Missing verifications:", res.verifications);
-        console.log(res.status);
         return null;
       }
     } catch (e: any) {
@@ -365,9 +347,6 @@ const BusinessSignupApplication = () => {
       membershipExpiryDate: new Date(),
       lastPayDate: new Date(),
     };
-
-    // await sleep(3000);
-    // console.log("new user: ", userData, "\nnew business: ", businessData);
     setStep(Math.min(numPages, step + 1));
     return true;
   };
