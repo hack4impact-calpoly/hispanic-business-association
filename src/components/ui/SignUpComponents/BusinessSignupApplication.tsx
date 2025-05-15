@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { Card, CardContent } from "../card";
@@ -14,6 +14,7 @@ import LanguageSelector from "./LanguageSelector";
 import { ISignupRequest } from "@/database/signupRequestSchema";
 import { IBusiness } from "@/database/businessSchema";
 import { useClerkSignup } from "@/hooks/useClerkSignup";
+import { useTranslations } from "next-intl";
 
 interface BusinessSignupAppInfo {
   contactInfo: { name: string; phone: string; email: string };
@@ -30,6 +31,8 @@ interface BusinessSignupAppInfo {
 }
 
 const BusinessSignupApplication = () => {
+  const t = useTranslations();
+
   const [step, setStep] = useState(1);
   const [langOption, setLangOption] = useState(0);
   const [formErrorMessage, setFormErrorMessage] = useState("");
@@ -69,99 +72,12 @@ const BusinessSignupApplication = () => {
     },
   });
 
-  const langOptions = ["English (United States)", "Español"];
-  const formTitle = ["Membership Application", "Solicitud de Membresía"];
-  const pageSubtitles = [
-    ["Business Information", "Business Information", "Social Links", "Contact Information", "Email Verification"],
-    [
-      "Información Comercial",
-      "Información Comercial",
-      "Enlaces Sociales",
-      "Información del Contacto",
-      "Verificación de Correo",
-    ],
-  ];
-
-  const navTitles = [
-    ["Back", "Next"],
-    ["Atrás", "Próximo"],
-  ];
-  const navSubmit = ["Submit", "Finalizar"];
-
-  const businessInfoFieldNames = [
-    [
-      "Business Name*",
-      "Website URL*",
-      "Business Type*",
-      "Name of Business Owner*",
-      "Description of the Business*",
-      "Physical Address*",
-      "Mailing Address*",
-      "City*",
-      "State*",
-      "ZIP*",
-      "Mailing address is the same as physical address",
-    ],
-    [
-      "Nombre Comercial*",
-      "URL del Sitio Web*",
-      "Tipo de Negocio*",
-      "Nombre del Propietario del Negocio*",
-      "Descripción del Negocio*",
-      "Dirección Física*",
-      "Dirección de Envio",
-      "Ciudad*",
-      "Estado*",
-      "ZIP*",
-      "La dirección de envio es la misma que la dirección física",
-    ],
-  ];
-
-  const contactInfoFieldNames = [
-    ["Contact Name*", "Phone Number* (XXX) XXX-XXXX", "Email Address*", "Enter Password*", "Re-enter Password*"],
-    [
-      "Nombre de Contacto*",
-      "Número de Teléfono* (XXX) XXX-XXXX",
-      "Dirección de Correo Electrónico*",
-      "Ingrese la Contraseña*",
-      "Escriba la Contraseña Otra Vez*",
-    ],
-  ];
-
-  const submissionTitle = ["Application Submitted", "Solicitud Enviada"];
-  const submissionSubtitle = [
-    "Your membership application is pending review, in the meantime:",
-    "Su solicitud de membresía está pendiente de revisión, mientras tanto:",
-  ];
-  const submissionSteps = [
-    [
-      "Check your email for confirmation details",
-      "Our team will review your application within 2-3 business days",
-      "Once approved, you will receive access to your membership dashboard",
-    ],
-    [
-      "Revise su correo electrónico para obtener detalles de confirmación",
-      "Nuestro equipo revisará su solicitud dentro de 2-3 días hábiles",
-      "Una vez aprobado, recibirá acceso a su panel de membresía",
-    ],
-  ];
-
-  const errorMsgs = [
-    "Missing data or data is improperly formatted.",
-    "Faltan datos o los datos tienen un formato incorrecto.",
-  ];
-
-  const changeLanguage = (val: number) => {
-    setLangOption(val);
-    if (formErrorMessage && (errorMsgs[0] === formErrorMessage || errorMsgs[1] === formErrorMessage)) {
-      setFormErrorMessage(errorMsgs[val]);
-    }
-  };
+  const pageSubtitles = [t("businessInformation"), t("businessInformation"), t("socialLink"), t("contactInfo")];
 
   const validateData = async () => {
     const result = await trigger();
     if (!result) {
-      setFormErrorMessage(errorMsgs[langOption]);
+      setFormErrorMessage(t("errorMsgs"));
       return false;
     } else {
       setFormErrorMessage("");
@@ -186,7 +102,7 @@ const BusinessSignupApplication = () => {
         const email = getValues("contactInfo.email");
         if (!(await validateData())) return;
         if (password1 !== password2) {
-          setFormErrorMessage(langOption === 0 ? "Passwords don't match" : "Las contraseñas no coinciden");
+          setFormErrorMessage(t("pwdNoMatch"));
           return;
         }
         const status = await startSignup(email, password1);
@@ -275,10 +191,6 @@ const BusinessSignupApplication = () => {
           <Step1_BusinessInfo
             register={register}
             formErrorMessage={formErrorMessage}
-            langOption={langOption}
-            businessInfoFieldNames={businessInfoFieldNames}
-            navTitles={navTitles}
-            navSubmit={navSubmit}
             onBack={prevStep}
             onNext={nextStep}
           />
@@ -287,11 +199,7 @@ const BusinessSignupApplication = () => {
         return (
           <Step2_Address
             register={register}
-            getValues={getValues}
-            setValue={setValue}
             formErrorMessage={formErrorMessage}
-            langOption={langOption}
-            businessInfoFieldNames={businessInfoFieldNames}
             isMailingAddressSame={isMailingAddressSame}
             handleSameMailingAddressCheckbox={(e) => {
               const checked = e.target.checked;
@@ -300,29 +208,16 @@ const BusinessSignupApplication = () => {
               }
               setIsMailingAddressSame(checked);
             }}
-            navTitles={navTitles}
-            navSubmit={navSubmit}
             onBack={prevStep}
             onNext={nextStep}
           />
         );
       case 3:
-        return (
-          <Step3_SocialLinks
-            register={register}
-            langOption={langOption}
-            navTitles={navTitles}
-            navSubmit={navSubmit}
-            onBack={prevStep}
-            onNext={nextStep}
-          />
-        );
+        return <Step3_SocialLinks register={register} onBack={prevStep} onNext={nextStep} />;
       case 4:
         return (
           <Step4_ContactInfo
             register={register}
-            langOption={langOption}
-            contactInfoFieldNames={contactInfoFieldNames}
             password1={password1}
             password2={password2}
             setPassword1={setPassword1}
@@ -332,8 +227,6 @@ const BusinessSignupApplication = () => {
             togglePassword1Visibility={() => setShowPassword1((prev) => !prev)}
             togglePassword2Visibility={() => setShowPassword2((prev) => !prev)}
             formErrorMessage={formErrorMessage}
-            navTitles={navTitles}
-            navSubmit={navSubmit}
             onBack={prevStep}
             onNext={nextStep}
           />
@@ -353,14 +246,7 @@ const BusinessSignupApplication = () => {
   if (step === 6) {
     return (
       <div className="w-full md:max-w-[70vw] md:h-auto">
-        <Step6_Submission
-          langOption={langOption}
-          submissionTitle={submissionTitle}
-          submissionSubtitle={submissionSubtitle}
-          submissionSteps={submissionSteps}
-          langOptions={langOptions}
-          changeLanguage={changeLanguage}
-        />
+        <Step6_Submission />
       </div>
     );
   }
@@ -372,21 +258,21 @@ const BusinessSignupApplication = () => {
           <div className="w-auto md:w-[29%] flex flex-col justify-center items-center text-center p-4">
             <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
             <div className="mt-[40px]">
-              <strong className="text-[24px]">{formTitle[langOption]}</strong>
-              {step <= 5 && <h4 className="pt-2 text-[16px]">{pageSubtitles[langOption][step - 1]}</h4>}
+              <strong className="text-[24px]">{t("formTitleSign")}</strong>
+              {step <= 5 && <h4 className="pt-2 text-[16px]">{pageSubtitles[step - 1]}</h4>}
             </div>
           </div>
 
           <div className="w-full md:w-[71%] flex mx-auto">{renderStep()}</div>
 
           <div className="md:hidden flex mx-auto mt-[8%]">
-            <LanguageSelector langOptions={langOptions} langOption={langOption} changeLanguage={changeLanguage} />
+            <LanguageSelector />
           </div>
         </CardContent>
       </Card>
 
       <div className="hidden md:block md:flex md:flex-row md:justify-start mt-2">
-        <LanguageSelector langOptions={langOptions} langOption={langOption} changeLanguage={changeLanguage} />
+        <LanguageSelector />
       </div>
     </div>
   );

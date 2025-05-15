@@ -102,5 +102,7 @@
   "sending": "Enviando...",
   "sendReset": "Enviar código de restablecimiento",
   "resetting": "Reajustando...",
-  "resetPasswordButton": "Cambiar la contraseña"
+  "resetPasswordButton": "Cambiar la contraseña",
+  "pwdNoMatch": "Las contraseñas no coinciden",
+  "verifyEmail": "Verificar correo Electrónico"
 }

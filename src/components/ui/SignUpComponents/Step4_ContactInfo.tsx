@@ -1,11 +1,10 @@
 import { Input } from "../input";
 import StepNavigation from "./StepNavigation";
 import { Eye, EyeOff } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface Step4Props {
   register: any;
-  langOption: number;
-  contactInfoFieldNames: string[][];
   password1: string;
   password2: string;
   setPassword1: (val: string) => void;
@@ -15,16 +14,12 @@ interface Step4Props {
   togglePassword1Visibility: () => void;
   togglePassword2Visibility: () => void;
   formErrorMessage: string;
-  navTitles: string[][];
-  navSubmit: string[];
   onBack: () => void;
   onNext: () => void;
 }
 
 const Step4_ContactInfo = ({
   register,
-  langOption,
-  contactInfoFieldNames,
   password1,
   password2,
   setPassword1,
@@ -34,11 +29,10 @@ const Step4_ContactInfo = ({
   togglePassword1Visibility,
   togglePassword2Visibility,
   formErrorMessage,
-  navTitles,
-  navSubmit,
   onBack,
   onNext,
 }: Step4Props) => {
+  const t = useTranslations();
   return (
     <div className="w-[90%] mr-auto ml-auto">
       <div className="grid gap-2 pt-1">
@@ -47,7 +41,7 @@ const Step4_ContactInfo = ({
           className="w-full border-[#8C8C8C]"
           type="text"
           id="ContactName"
-          placeholder={contactInfoFieldNames[langOption][0]}
+          placeholder={t("contactName") + "*"}
           {...register("contactInfo.name", { required: "Contact Name is required" })}
         />
 
@@ -56,7 +50,7 @@ const Step4_ContactInfo = ({
           className="w-full border-[#8C8C8C]"
           type="text"
           id="Phone"
-          placeholder={contactInfoFieldNames[langOption][1]}
+          placeholder={t("bizPhoneNum") + "*"}
           {...register("contactInfo.phone", {
             required: "Phone Number is required",
             pattern: {
@@ -74,7 +68,7 @@ const Step4_ContactInfo = ({
           className="w-full border-[#8C8C8C]"
           type="text"
           id="ContactEmail"
-          placeholder={contactInfoFieldNames[langOption][2]}
+          placeholder={t("email") + "*"}
           {...register("contactInfo.email", {
             required: "Email is required",
             pattern: { value: /^[^@]+@[^@]+$/, message: "Not in a familiar format." },
@@ -88,7 +82,7 @@ const Step4_ContactInfo = ({
             type={showPassword1 ? "text" : "password"}
             id="Password1"
             value={password1}
-            placeholder={contactInfoFieldNames[langOption][3]}
+            placeholder={t("enterPass") + "*"}
             onChange={(e) => setPassword1(e.target.value)}
           />
           <button
@@ -107,7 +101,7 @@ const Step4_ContactInfo = ({
             type={showPassword2 ? "text" : "password"}
             id="Password2"
             value={password2}
-            placeholder={contactInfoFieldNames[langOption][4]}
+            placeholder={t("reEnterPass") + "*"}
             onChange={(e) => setPassword2(e.target.value)}
           />
           <button
@@ -126,15 +120,7 @@ const Step4_ContactInfo = ({
         </div>
       )}
 
-      <StepNavigation
-        langOption={langOption}
-        navTitles={navTitles}
-        navSubmit={navSubmit}
-        showBack={true}
-        showSubmit={true}
-        onBack={onBack}
-        onNext={onNext}
-      />
+      <StepNavigation showBack={true} showSubmit={true} onBack={onBack} onNext={onNext} />
     </div>
   );
 };

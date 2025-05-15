@@ -9,6 +9,8 @@ import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useContext } from "react";
+import { LocaleContext } from "@/app/Providers";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,21 +21,17 @@ import {
 export default function ForgotPassword() {
   const t = useTranslations();
 
-  const [locale, setLocale] = useState("en");
-
-  useEffect(() => {
-    const cookieLocale = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("NEXT_LOCALE="))
-      ?.split("=")[1];
-    setLocale(cookieLocale || "en");
-  }, []);
-
+  const { locale, setLocale } = useContext(LocaleContext);
   const handleSwitch = (newLocale: string) => {
     if (newLocale === locale) return;
-    document.cookie = `NEXT_LOCALE=${newLocale}; path=/`;
-    location.reload();
+    setLocale(newLocale);
   };
+  function getButtonTitle(locale: string) {
+    if (locale == "es") {
+      return "Español";
+    }
+    return "English (United States)";
+  }
 
   // Step states
   const [codeSent, setCodeSent] = useState(false);
@@ -280,7 +278,7 @@ export default function ForgotPassword() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button className="flex border border-gray-300 overflow-hidden text-sm mr-6 mx-auto" type="button">
-                {locale}
+                {getButtonTitle(locale)}
                 <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
               </Button>
             </DropdownMenuTrigger>

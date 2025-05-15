@@ -3,14 +3,11 @@ import StepNavigation from "./StepNavigation";
 
 interface Step3Props {
   register: any;
-  langOption: number;
-  navTitles: string[][];
-  navSubmit: string[];
   onBack: () => void;
   onNext: () => void;
 }
 
-const Step3_SocialLinks = ({ register, langOption, navTitles, navSubmit, onBack, onNext }: Step3Props) => {
+const Step3_SocialLinks = ({ register, onBack, onNext }: Step3Props) => {
   return (
     <div className="w-[90%] mt-[8%] mr-auto ml-auto">
       <div className="grid gap-4 mt-5">
@@ -43,15 +40,7 @@ const Step3_SocialLinks = ({ register, langOption, navTitles, navSubmit, onBack,
         />
       </div>
 
-      <StepNavigation
-        langOption={langOption}
-        navTitles={navTitles}
-        navSubmit={navSubmit}
-        showBack={true}
-        showSubmit={false}
-        onBack={onBack}
-        onNext={onNext}
-      />
+      <StepNavigation showBack={true} showSubmit={false} onBack={onBack} onNext={onNext} />
     </div>
   );
 };

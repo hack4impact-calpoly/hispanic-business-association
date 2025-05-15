@@ -102,5 +102,7 @@
   "sending": "Sending...",
   "sendReset": "Send Reset Code",
   "resetting": "Resetting...",
-  "resetPasswordButton": "Reset Password"
+  "resetPasswordButton": "Reset Password",
+  "pwdNoMatch": "Passwords don't match",
+  "verifyEmail": "Verify Email"
 }

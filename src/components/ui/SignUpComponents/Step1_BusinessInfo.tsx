@@ -1,27 +1,17 @@
 import { Input } from "../input";
 import StepNavigation from "./StepNavigation";
+import { useTranslations } from "next-intl";
 
 interface Step1Props {
   register: any;
   formErrorMessage: string;
-  langOption: number;
-  businessInfoFieldNames: string[][];
-  navTitles: string[][];
-  navSubmit: string[];
   onBack: () => void;
   onNext: () => void;
 }
 
-const Step1_BusinessInfo = ({
-  register,
-  formErrorMessage,
-  langOption,
-  businessInfoFieldNames,
-  navTitles,
-  navSubmit,
-  onBack,
-  onNext,
-}: Step1Props) => {
+const Step1_BusinessInfo = ({ register, formErrorMessage, onBack, onNext }: Step1Props) => {
+  const t = useTranslations();
+
   return (
     <div className="w-[90%] mr-auto ml-auto">
       <div className="grid gap-4 mt-5">
@@ -30,7 +20,7 @@ const Step1_BusinessInfo = ({
           className="w-full border-[#8C8C8C]"
           type="text"
           id="BusinessName"
-          placeholder={businessInfoFieldNames[langOption][0]}
+          placeholder={t("businessName") + "*"}
           {...register("businessInfo.businessName", { required: "Business name is required" })}
         />
 
@@ -39,7 +29,7 @@ const Step1_BusinessInfo = ({
           className="w-full border-[#8C8C8C]"
           type="text"
           id="WebsiteURL"
-          placeholder={businessInfoFieldNames[langOption][1]}
+          placeholder={t("website") + "*"}
           {...register("businessInfo.website", { required: "Website URL is required" })}
         />
 
@@ -50,7 +40,7 @@ const Step1_BusinessInfo = ({
               className="w-full border-[#8C8C8C]"
               type="text"
               id="businessType"
-              placeholder={businessInfoFieldNames[langOption][2]}
+              placeholder={t("businessType") + "*"}
               {...register("businessInfo.businessType", { required: "Business Type is required" })}
             />
           </div>
@@ -60,7 +50,7 @@ const Step1_BusinessInfo = ({
               className="w-full border-[#8C8C8C]"
               type="text"
               id="businessOwner"
-              placeholder={businessInfoFieldNames[langOption][3]}
+              placeholder={t("nameBizOwner") + "*"}
               {...register("businessInfo.businessOwner", { required: "Business Owner is required" })}
             />
           </div>
@@ -71,7 +61,7 @@ const Step1_BusinessInfo = ({
           className="w-full border-[#8C8C8C]"
           type="text"
           id="description"
-          placeholder={businessInfoFieldNames[langOption][4]}
+          placeholder={t("bizDescrip") + "*"}
           {...register("businessInfo.description", { required: "Description is required" })}
         />
 
@@ -82,15 +72,7 @@ const Step1_BusinessInfo = ({
         )}
       </div>
 
-      <StepNavigation
-        langOption={langOption}
-        navTitles={navTitles}
-        navSubmit={navSubmit}
-        showBack={false}
-        showSubmit={false}
-        onBack={onBack}
-        onNext={onNext}
-      />
+      <StepNavigation showBack={false} showSubmit={false} onBack={onBack} onNext={onNext} />
     </div>
   );
 };
