@@ -17,7 +17,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   try {
     const body = await req.json();
     const { id, amount, title } = body;
-    console.log(amount);
     const response = await client.checkout.paymentLinks.create({
       idempotencyKey: crypto.randomUUID(),
       quickPay: {
@@ -37,8 +36,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         askForShippingAddress: false,
       },
     });
-    console.log(response);
-
     return NextResponse.json({ url: response?.paymentLink?.url }, { status: 200 });
   } catch (error) {
     console.error(error);

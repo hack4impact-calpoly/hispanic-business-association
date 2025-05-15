@@ -7,7 +7,7 @@ import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import AboutCard from "@/components/ui/AboutCard";
 import BusinessInfoCard from "@/components/ui/BusinessInfoCard";
 import ContactInfoCard from "@/components/ui/ContactInfoCard";
-import { useBusinessById, useUser } from "@/lib/swrHooks";
+import { useBusinessById, useUser } from "@/hooks/swrHooks";
 import { extractBusinessDisplayData } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 

@@ -11,7 +11,7 @@ import EditAboutForm from "@/components/ui/EditAboutForm";
 import ChangeRequestConfirmation from "@/components/ui/ChangeRequestConfirmation";
 import ChangeBannerAndLogo from "@/components/ui/ChangeBannerAndLogo";
 import { useRouter } from "next/navigation";
-import { useBusiness } from "@/lib/swrHooks";
+import { useBusiness } from "@/hooks/swrHooks";
 import { extractBusinessDisplayData } from "@/lib/formatters";
 import { useUser } from "@clerk/nextjs";
 import EditBusinessInfo from "@/components/ui/EditBusinessInfo";
@@ -112,7 +112,6 @@ export default function BusinessDashboardPage() {
 
   // Handle renewal button click
   const handleRenewClick = () => {
-    console.log("Renewal requested");
     // Future implementation: Navigate to renewal page or open modal
   };
 

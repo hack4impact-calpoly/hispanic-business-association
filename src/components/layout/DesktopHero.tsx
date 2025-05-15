@@ -3,7 +3,7 @@
 import React, { useContext } from "react";
 import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
-import { useBusiness } from "@/lib/swrHooks";
+import { useBusiness } from "@/hooks/swrHooks";
 import { LocaleContext } from "@/app/Providers"; // adjust path if needed
 
 interface DesktopHeroProps {

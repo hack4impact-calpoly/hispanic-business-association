@@ -4,19 +4,19 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import InformationCard from "@/components/ui/InformationCard";
-import { useRequest, useBusiness, updateRequestStatus } from "@/hooks/swrHooks";
+import { useSignUpRequest, useBusiness, updateRequestStatus, useSignUpRequests } from "@/hooks/swrHooks";
 import { Button } from "@/components/ui/button";
 import RequestApprovedCard from "@/components/ui/RequestApprovedCard";
 import RequestDeniedCard from "@/components/ui/RequestDeniedCard";
 
 // Define props for the page component
-interface RequestDetailPageProps {
+interface SignupRequestDetailPageProps {
   params: {
     id: string;
   };
 }
 
-export default function RequestDetailPage({ params }: RequestDetailPageProps) {
+export default function SignupRequestDetailPage({ params }: SignupRequestDetailPageProps) {
   const [showApprovedCard, setShowApprovedCard] = useState(false);
   const [showDeniedCard, setShowDeniedCard] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,54 +25,42 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
   const { id } = params;
 
   // Fetch the specific request using SWR
-  const { request, isLoading: requestLoading, isError: requestError, mutate: mutateRequest } = useRequest(id);
+  const {
+    request: signupRequest,
+    isLoading: requestLoading,
+    isError: requestError,
+    mutate: mutateRequest,
+  } = useSignUpRequest(id);
 
   // Fetch business data associated with the request
-  const { business, isLoading: businessLoading, isError: businessError } = useBusiness(request?.clerkUserID);
 
-  const isLoading = requestLoading || businessLoading;
-  const isError = requestError || businessError;
+  const isLoading = requestLoading;
+  const isError = requestError;
 
   // Only attempt to organize display data when both data sources are available
-  const oldInfo = business
+  // For new info, use request data where available, falling back to business data
+  const newInfo = signupRequest
     ? {
-        businessName: business.businessName,
-        businessType: business.businessType,
-        businessOwner: business.businessOwner,
-        website: business.website,
-        address: business.address,
-        pointOfContact: business.pointOfContact,
-        socialMediaHandles: business.socialMediaHandles,
-        description: business.description,
-        logoUrl: business.logoUrl,
-        bannerUrl: business.bannerUrl,
+        businessName: signupRequest.businessName || "",
+        businessType: signupRequest.businessType || "",
+        businessOwner: signupRequest.businessOwner || "",
+        website: signupRequest.website || "",
+        address: signupRequest.address || "",
+        pointOfContact: signupRequest.pointOfContact || "",
+        socialMediaHandles: signupRequest.socialMediaHandles,
+        description: signupRequest.description || "",
+        logoUrl: signupRequest.logoUrl,
       }
     : null;
 
-  // For new info, use request data where available, falling back to business data
-  const newInfo =
-    request && business
-      ? {
-          businessName: request.businessName || business.businessName,
-          businessType: request.businessType || business.businessType,
-          businessOwner: request.businessOwner || business.businessOwner,
-          website: request.website || business.website,
-          address: request.address || business.address,
-          pointOfContact: request.pointOfContact || business.pointOfContact,
-          socialMediaHandles: request.socialMediaHandles || business.socialMediaHandles,
-          description: request.description || business.description,
-          logoUrl: request.logoUrl || business.logoUrl,
-          bannerUrl: request.bannerUrl || business.bannerUrl,
-        }
-      : null;
-
   // Handle approving the request
   const handleApprove = async () => {
-    if (!request) return;
+    if (!signupRequest) return;
 
     setIsSubmitting(true);
+    // add sign up logic
     try {
-      const response = await fetch("/api/request/approve", {
+      const response = await fetch("/api/signup/approve", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -99,11 +87,11 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
 
   // Handle declining the request
   const handleDeny = async () => {
-    if (!request) return;
+    if (!signupRequest) return;
 
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/request/deny", {
+      const response = await fetch("/api/signup/deny", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -142,13 +130,13 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
               <span className="text-xl">←</span> Back to Requests
             </Button>
 
-            {request && request.status === "closed" && (
+            {signupRequest && signupRequest.status === "closed" && (
               <div
                 className={`font-futura font-medium text-[24px] leading-[27px] ${
-                  request.decision === "approved" ? "text-[#00A819]" : "text-[#AE0000]"
+                  signupRequest.decision === "approved" ? "text-[#00A819]" : "text-[#AE0000]"
                 }`}
               >
-                {request.decision === "approved" ? "Approved" : "Denied"}
+                {signupRequest.decision === "approved" ? "Approved" : "Denied"}
               </div>
             )}
           </div>
@@ -165,33 +153,27 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
             </div>
           )}
 
-          {!isLoading && !isError && oldInfo && newInfo && (
+          {!isLoading && !isError && newInfo && (
             <>
               {/* Business Name Title - Above the cards */}
               <h2 className="font-futura font-bold text-[22px] sm:text-[26px] leading-[34.55px] text-black mb-6 sm:mb-8">
                 {newInfo.businessName}
               </h2>
-
-              {/* Cards Container - Flex column on mobile, row on desktop */}
               <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 mb-12 lg:mb-16">
-                {/* Old Information Card - Full width on mobile, fixed proportional on desktop */}
-                <div className="w-full lg:flex-1 lg:min-w-0 lg:max-w-[50%]">
-                  <h3 className="font-futura font-medium text-xl text-black mb-4">Old Information</h3>
-                  <InformationCard type="old" businessInfo={oldInfo} otherBusinessInfo={newInfo} />
-                </div>
-
-                {/* New Information Card - Full width on mobile, fixed proportional on desktop */}
-                <div className="w-full lg:flex-1 lg:min-w-0 lg:max-w-[50%]">
-                  <h3 className="font-futura font-medium text-xl text-black mb-4">New Information</h3>
-                  <InformationCard type="new" businessInfo={newInfo} otherBusinessInfo={oldInfo} />
+                {/* Cards Container - Flex column on mobile, row on desktop */}
+                <div className="w-full flex justify-center">
+                  <div className="w-full lg:max-w-[600px]">
+                    <h3 className="font-futura font-medium text-xl text-black mb-4">New Information</h3>
+                    <InformationCard type="signup" businessInfo={newInfo} />
+                  </div>
                 </div>
               </div>
 
               {/* Action Buttons - Centered with proper spacing */}
-              {request && request.status === "open" ? (
+              {signupRequest && signupRequest.status === "open" ? (
                 <div className="flex flex-col items-center gap-4 mb-8 sm:mb-10">
                   <h3 className="font-futura font-medium text-[20px] sm:text-[24px] leading-[31.88px] text-black">
-                    Allow Changes?
+                    Allow Account Creation?
                   </h3>
 
                   <div className="flex gap-4">

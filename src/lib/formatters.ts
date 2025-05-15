@@ -8,8 +8,8 @@ import { IBusiness } from "@/database/businessSchema";
 export function formatAddress(address?: IBusiness["address"]) {
   if (!address) return "Address not available";
 
-  const { street, city, state, zip, county } = address;
-  return `${street}, ${city}, ${state} ${zip}${county ? `, ${county}` : ""}`;
+  const { street, city, state, zip } = address;
+  return `${street}, ${city}, ${state} ${zip}`;
 }
 
 /**

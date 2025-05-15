@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
 import { useUser } from "@clerk/nextjs";
-import { useBusiness } from "@/lib/swrHooks";
+import { useBusiness } from "@/hooks/swrHooks";
 
 type NavigationItem = {
   name: string;

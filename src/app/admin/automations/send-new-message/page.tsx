@@ -85,7 +85,6 @@ export default function BusinessSendNewMessagePage() {
 
   const handleSave = () => {
     // Implement your save logic here, e.g., sending data to an API
-    console.log({ title, directTo, businessType, attachment, message });
     setIsPopUpVisible(true);
   };
 
