@@ -2,14 +2,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import createIntlMiddleware from "next-intl/middleware";
 
-const isPublicRoute = createRouteMatcher([
-  "/",
-  "/unauthorized",
-  "/forgot-password",
-  "/sign-up",
-  "/sign-up/poc",
-  "/api/clerkUser",
-]);
+const isPublicRoute = createRouteMatcher(["/", "/unauthorized", "/forgot-password", "/sign-up"]);
 
 const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
 const isBusinessRoute = createRouteMatcher(["/business(.*)"]);
@@ -17,13 +10,8 @@ const isBusinessRoute = createRouteMatcher(["/business(.*)"]);
 const intlMiddleware = createIntlMiddleware({ locales: ["en", "es"], defaultLocale: "en" });
 
 export default clerkMiddleware(async (auth, req) => {
-  // const { pathname } = req.nextUrl;
   const { userId, sessionClaims } = await auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role;
-
-  // Use `next-intl` middleware for locale handling
-  // const intlResponse = intlMiddleware(req);
-  // if (intlResponse) return intlResponse; // Let `next-intl` handle locale redirects
 
   // Public pages
   if (isPublicRoute(req)) {
