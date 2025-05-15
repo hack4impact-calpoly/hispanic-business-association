@@ -1,6 +1,7 @@
 // hooks/useClerkSignup.ts
 import { useSignUp } from "@clerk/nextjs";
 import { useState } from "react";
+import { clerkClient } from "@clerk/nextjs/server"; // for server-side
 
 export function useClerkSignup() {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -27,13 +28,27 @@ export function useClerkSignup() {
 
   const verifyCode = async (code: string, postSignupCallback?: (userId: string) => void) => {
     if (!isLoaded || !signUp || !setActive) return false;
+
     try {
       const res = await signUp.attemptEmailAddressVerification({ code });
+
       if (res.status === "complete") {
         await setActive({ session: res.createdSessionId });
+
+        // ✅ Call App Router API to set role
+        await fetch("/api/set-role", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: res.createdUserId,
+            role: "business",
+          }),
+        });
+
         postSignupCallback?.(res.createdUserId || "");
         return true;
       }
+
       setError("Verification incomplete");
       return false;
     } catch (err: any) {
