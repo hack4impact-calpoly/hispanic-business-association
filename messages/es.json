@@ -104,5 +104,11 @@
   "resetting": "Reajustando...",
   "resetPasswordButton": "Cambiar la contraseña",
   "pwdNoMatch": "Las contraseñas no coinciden",
-  "verifyEmail": "Verificar correo Electrónico"
+  "verifyEmail": "Verificar correo Electrónico",
+  "login": "Iniciar Sesión",
+  "loggingIn": "Iniciar sesión...",
+  "username": "Nombre de Usuario",
+  "password": "Contraseña",
+  "signUp": "Inscribirse",
+  "forgotPwd": "¿Olvidar la contraseña?"
 }

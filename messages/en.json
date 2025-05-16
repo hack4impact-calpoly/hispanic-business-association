@@ -104,5 +104,11 @@
   "resetting": "Resetting...",
   "resetPasswordButton": "Reset Password",
   "pwdNoMatch": "Passwords don't match",
-  "verifyEmail": "Verify Email"
+  "verifyEmail": "Verify Email",
+  "login": "Login",
+  "loggingIn": "Logging in...",
+  "username": "Username",
+  "password": "Password",
+  "signUp": "Sign Up",
+  "forgotPwd": "Forgot Password?"
 }

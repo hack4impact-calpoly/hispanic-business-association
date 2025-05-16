@@ -179,7 +179,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center bg-gray-900">
+    <div className="flex flex-col h-screen items-center justify-center bg-gray-900">
       <Card className="w-full h-screen md:rounded-lg lg:rounded-lg rounded-none lg:max-w-sm md:max-w-md md:h-auto bg-white">
         <CardContent className="p-8 flex flex-col justify-center h-full md:h-auto">
           <div className="flex justify-center mb-6">
@@ -275,38 +275,36 @@ export default function ForgotPassword() {
             </div>
           )}
           {/* LANGUAGE SWITCH */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="flex border border-gray-300 overflow-hidden text-sm mr-6 mx-auto" type="button">
-                {getButtonTitle(locale)}
-                <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleSwitch("en")}>English (United States)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleSwitch("es")}>Español</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          {/* <div className="flex border border-gray-300 rounded-full overflow-hidden text-sm mr-6 mx-auto">
-            <button
-              onClick={() => handleSwitch("en")}
-              className={`px-3 py-1 ${
-                locale === "en" ? "bg-gray-300 text-black font-semibold" : "bg-white text-gray-500"
-              }`}
-            >
-              EN
-            </button>
-            <button
-              onClick={() => handleSwitch("es")}
-              className={`px-3 py-1 ${
-                locale === "es" ? "bg-gray-300 text-black font-semibold" : "bg-white text-gray-500"
-              }`}
-            >
-              ES
-            </button>
-          </div> */}
+          <div className="md:hidden flex mx-auto mt-[8%]">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="flex border border-gray-300 overflow-hidden text-sm mr-6 mx-auto" type="button">
+                  {getButtonTitle(locale)}
+                  <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => handleSwitch("en")}>English (United States)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSwitch("es")}>Español</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </CardContent>
       </Card>
+      <div className="hidden md:block md:flex md:flex-row md:justify-center mt-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="flex border border-gray-300 overflow-hidden text-sm mr-6 mx-auto" type="button">
+              {getButtonTitle(locale)}
+              <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => handleSwitch("en")}>English (United States)</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleSwitch("es")}>Español</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   );
 }
