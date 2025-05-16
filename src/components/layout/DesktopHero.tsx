@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useContext } from "react";
 import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
 import { useBusiness } from "@/hooks/swrHooks";
+import { LocaleContext } from "@/app/Providers"; // adjust path if needed
 
 interface DesktopHeroProps {
   title: string;
@@ -17,20 +18,12 @@ const DesktopHero = ({ title }: DesktopHeroProps) => {
   const defaultLogo = "/logo/HBA_NoBack_NoWords.png";
   const profileLogo = userRole === "business" && business?.logoUrl ? business.logoUrl : defaultLogo;
 
-  const [locale, setLocale] = useState("en");
-
-  useEffect(() => {
-    const cookieLocale = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("NEXT_LOCALE="))
-      ?.split("=")[1];
-    setLocale(cookieLocale || "en");
-  }, []);
+  const { locale, setLocale } = useContext(LocaleContext);
 
   const handleSwitch = (newLocale: string) => {
-    if (newLocale === locale) return;
-    document.cookie = `NEXT_LOCALE=${newLocale}; path=/`;
-    location.reload();
+    if (newLocale !== locale) {
+      setLocale(newLocale);
+    }
   };
 
   return (

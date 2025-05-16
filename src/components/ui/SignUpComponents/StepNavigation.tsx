@@ -1,24 +1,15 @@
 import { Button } from "../button";
+import { useTranslations } from "next-intl";
 
 interface StepNavigationProps {
-  langOption: number;
-  navTitles: string[][];
-  navSubmit: string[];
   showBack?: boolean;
   showSubmit?: boolean;
   onBack: () => void;
   onNext: () => void;
 }
 
-const StepNavigation = ({
-  langOption,
-  navTitles,
-  navSubmit,
-  showBack = true,
-  showSubmit = false,
-  onBack,
-  onNext,
-}: StepNavigationProps) => {
+const StepNavigation = ({ showBack = true, showSubmit = false, onBack, onNext }: StepNavigationProps) => {
+  const t = useTranslations();
   return (
     <div className="absolute bottom-0 left-0 right-0 p-4 flex flex-row items-end justify-between">
       {showBack && (
@@ -32,12 +23,12 @@ const StepNavigation = ({
           type="button"
           onClick={onBack}
         >
-          {navTitles[langOption][0]}
+          {t("back")}
         </Button>
       )}
 
       <Button className="bg-[#405BA9] rounded-3xl" type="button" onClick={onNext}>
-        {showSubmit ? navSubmit[langOption] : navTitles[langOption][1]}
+        {showSubmit ? t("submit") : t("next")}
       </Button>
     </div>
   );

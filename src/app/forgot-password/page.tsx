@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +8,31 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useContext } from "react";
+import { LocaleContext } from "@/app/Providers";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../../components/ui/dropdown-menu";
 
 export default function ForgotPassword() {
+  const t = useTranslations();
+
+  const { locale, setLocale } = useContext(LocaleContext);
+  const handleSwitch = (newLocale: string) => {
+    if (newLocale === locale) return;
+    setLocale(newLocale);
+  };
+  function getButtonTitle(locale: string) {
+    if (locale == "es") {
+      return "Español";
+    }
+    return "English (United States)";
+  }
+
   // Step states
   const [codeSent, setCodeSent] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
@@ -22,11 +45,11 @@ export default function ForgotPassword() {
 
   // Field-specific error states
   const [emailError, setEmailError] = useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = useState("Email is required");
+  const [emailErrorMessage, setEmailErrorMessage] = useState(t("emailReq"));
   const [codeError, setCodeError] = useState(false);
-  const [codeErrorMessage, setCodeErrorMessage] = useState("Code is required");
+  const [codeErrorMessage, setCodeErrorMessage] = useState(t("codeReq"));
   const [passwordError, setPasswordError] = useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = useState("Password is required");
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState(t("pwdReq"));
 
   // Form state
   const [submitAttempted, setSubmitAttempted] = useState(false);
@@ -48,11 +71,11 @@ export default function ForgotPassword() {
 
     // Clear old errors
     setEmailError(false);
-    setEmailErrorMessage("Email is required");
+    setEmailErrorMessage(t("emailReq"));
 
     if (!isLoaded || !signIn) {
       setEmailError(true);
-      setEmailErrorMessage("Authentication service not ready. Please try again.");
+      setEmailErrorMessage(t("authNotReady"));
       return;
     }
 
@@ -65,10 +88,7 @@ export default function ForgotPassword() {
 
     try {
       // Start reset password flow with email code
-      await signIn.create({
-        strategy: "reset_password_email_code",
-        identifier: email,
-      });
+      await signIn.create({ strategy: "reset_password_email_code", identifier: email });
 
       setCodeSent(true);
       setSubmitAttempted(false); // Reset for the next form
@@ -76,10 +96,10 @@ export default function ForgotPassword() {
       // Handle Clerk errors
       if (err.errors && err.errors[0]) {
         setEmailError(true);
-        setEmailErrorMessage(err.errors[0].message || "Failed to send reset code");
+        setEmailErrorMessage(err.errors[0].message || t("noResetCode"));
       } else {
         setEmailError(true);
-        setEmailErrorMessage("An unexpected error occurred");
+        setEmailErrorMessage(t("unexpected"));
       }
     } finally {
       setResetProgress(false);
@@ -94,12 +114,12 @@ export default function ForgotPassword() {
     // Clear old errors
     setCodeError(false);
     setPasswordError(false);
-    setCodeErrorMessage("Code is required");
-    setPasswordErrorMessage("Password is required");
+    setCodeErrorMessage(t("codeReq"));
+    setPasswordErrorMessage(t("pwdReq"));
 
     if (!isLoaded || !signIn) {
       setCodeError(true);
-      setCodeErrorMessage("Authentication service not ready. Please try again.");
+      setCodeErrorMessage(t("authNotReady"));
       return;
     }
 
@@ -117,11 +137,7 @@ export default function ForgotPassword() {
 
     try {
       // Verify code and set new password
-      const result = await signIn.attemptFirstFactor({
-        strategy: "reset_password_email_code",
-        code,
-        password,
-      });
+      const result = await signIn.attemptFirstFactor({ strategy: "reset_password_email_code", code, password });
 
       if (result.status === "complete") {
         // Show success message instead of logging in
@@ -135,17 +151,17 @@ export default function ForgotPassword() {
         // Determine which field has the error
         if (error.code === "form_code_incorrect") {
           setCodeError(true);
-          setCodeErrorMessage(error.message || "Invalid code");
+          setCodeErrorMessage(error.message || t("invalidCode"));
         } else if (error.code.includes("password")) {
           setPasswordError(true);
-          setPasswordErrorMessage(error.message || "Invalid password");
+          setPasswordErrorMessage(error.message || t("invalidPass"));
         } else {
           setCodeError(true);
-          setCodeErrorMessage(error.message || "Verification failed");
+          setCodeErrorMessage(error.message || t("verifFail"));
         }
       } else {
         setCodeError(true);
-        setCodeErrorMessage("An unexpected error occurred");
+        setCodeErrorMessage(t("unexpected"));
       }
     } finally {
       setResetProgress(false);
@@ -163,7 +179,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center bg-gray-900">
+    <div className="flex flex-col h-screen items-center justify-center bg-gray-900">
       <Card className="w-full h-screen md:rounded-lg lg:rounded-lg rounded-none lg:max-w-sm md:max-w-md md:h-auto bg-white">
         <CardContent className="p-8 flex flex-col justify-center h-full md:h-auto">
           <div className="flex justify-center mb-6">
@@ -172,23 +188,21 @@ export default function ForgotPassword() {
 
           {resetSuccess ? (
             <>
-              <h2 className="text-xl font-semibold text-center mb-6">Your password has been successfully reset</h2>
+              <h2 className="text-xl font-semibold text-center mb-6">{t("passReset")}</h2>
               <Button onClick={handleBackToLogin} className="w-full">
-                Back to Login
+                {t("backtoLogin")}
               </Button>
             </>
           ) : !codeSent ? (
             <>
-              <h2 className="text-xl font-semibold text-center mb-6">Forgot Your Password?</h2>
-              <p className="text-center text-sm text-gray-600 mb-6">
-                Enter your email address and we&apos;ll send you a code to reset your password.
-              </p>
+              <h2 className="text-xl font-semibold text-center mb-6">{t("forgotPass")}</h2>
+              <p className="text-center text-sm text-gray-600 mb-6">{t("forgotPassMsg")}</p>
               <form onSubmit={handleSendResetCode} className="space-y-4">
                 <div>
                   <Input
                     type="email"
                     name="email"
-                    placeholder="Email"
+                    placeholder={t("email")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={resetProgress}
@@ -198,22 +212,20 @@ export default function ForgotPassword() {
                 </div>
 
                 <Button type="submit" className="w-full" disabled={resetProgress}>
-                  {resetProgress ? "Sending..." : "Send Reset Code"}
+                  {resetProgress ? t("sending") : t("sendReset")}
                 </Button>
               </form>
             </>
           ) : (
             <>
-              <h2 className="text-xl font-semibold text-center mb-6">Reset Your Password</h2>
-              <p className="text-center text-sm text-gray-600 mb-6">
-                Enter the verification code sent to your email and create a new password.
-              </p>
+              <h2 className="text-xl font-semibold text-center mb-6">{t("resetPassword")}</h2>
+              <p className="text-center text-sm text-gray-600 mb-6">{t("enterVerif")}</p>
               <form onSubmit={handleVerifyAndReset} className="space-y-4">
                 <div>
                   <Input
                     type="text"
                     name="code"
-                    placeholder="Verification Code"
+                    placeholder={t("verifCode")}
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
                     disabled={resetProgress}
@@ -226,7 +238,7 @@ export default function ForgotPassword() {
                   <Input
                     type={showPassword ? "text" : "password"}
                     name="password"
-                    placeholder="New Password"
+                    placeholder={t("newPassword")}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={resetProgress}
@@ -249,7 +261,7 @@ export default function ForgotPassword() {
                 </div>
 
                 <Button type="submit" className="w-full" disabled={resetProgress}>
-                  {resetProgress ? "Resetting..." : "Reset Password"}
+                  {resetProgress ? t("resetting") : t("resetPasswordButton")}
                 </Button>
               </form>
             </>
@@ -258,12 +270,41 @@ export default function ForgotPassword() {
           {!resetSuccess && (
             <div className="mt-4 text-center text-sm">
               <a href="/" className="text-blue-600 hover:underline">
-                Back to Login
+                {t("backtoLogin")}
               </a>
             </div>
           )}
+          {/* LANGUAGE SWITCH */}
+          <div className="md:hidden flex mx-auto mt-[8%]">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="flex border border-gray-300 overflow-hidden text-sm mr-6 mx-auto" type="button">
+                  {getButtonTitle(locale)}
+                  <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => handleSwitch("en")}>English (United States)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSwitch("es")}>Español</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </CardContent>
       </Card>
+      <div className="hidden md:block md:flex md:flex-row md:justify-center mt-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="flex border border-gray-300 overflow-hidden text-sm mr-6 mx-auto" type="button">
+              {getButtonTitle(locale)}
+              <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => handleSwitch("en")}>English (United States)</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleSwitch("es")}>Español</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   );
 }

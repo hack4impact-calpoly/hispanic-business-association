@@ -10,8 +10,30 @@ import { useRouter, useParams, usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useContext } from "react";
+import { LocaleContext } from "@/app/Providers";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
 
 export default function Login() {
+  const t = useTranslations();
+
+  const { locale, setLocale } = useContext(LocaleContext);
+  const handleSwitch = (newLocale: string) => {
+    if (newLocale === locale) return;
+    setLocale(newLocale);
+  };
+  function getButtonTitle(locale: string) {
+    if (locale == "es") {
+      return "Español";
+    }
+    return "English (United States)";
+  }
   // Existing form state
   const [formData, setFormData] = useState<{ username: string; password: string }>({ username: "", password: "" });
 
@@ -132,7 +154,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center bg-gray-900">
+    <div className="flex flex-col h-screen items-center justify-center bg-gray-900">
       <Card className="w-full h-screen md:rounded-lg lg:rounded-lg rounded-none lg:max-w-sm md:max-w-md md:h-auto bg-white">
         <CardContent className="p-8 flex flex-col justify-center h-full md:h-auto">
           <div className="flex justify-center mb-6">
@@ -144,7 +166,7 @@ export default function Login() {
               <Input
                 type="text"
                 name="username"
-                placeholder="Username"
+                placeholder={t("username")}
                 value={formData.username}
                 onChange={handleChange}
                 className={showError(formData.username, usernameError) ? "border-red-500" : ""}
@@ -158,7 +180,7 @@ export default function Login() {
               <Input
                 type={showPassword ? "text" : "password"}
                 name="password"
-                placeholder="Password"
+                placeholder={t("password")}
                 value={formData.password}
                 onChange={handleChange}
                 className={showError(formData.password, passwordError) ? "border-red-500" : ""}
@@ -180,21 +202,49 @@ export default function Login() {
             </div>
 
             <Button type="submit" className="w-full" disabled={isLoggingIn}>
-              {isLoggingIn ? "Logging in..." : "Login"}
+              {isLoggingIn ? t("loggingIn") : t("login")}
             </Button>
           </form>
 
           <div className="mt-4 text-center text-sm">
             <a href={`/sign-up`} className="text-blue-600 hover:underline">
-              Sign up
+              {t("signUp")}
             </a>{" "}
             |
             <a href={`/forgot-password`} className="text-blue-600 hover:underline ml-1">
-              Forgot password?
+              {t("forgotPwd")}
             </a>
+          </div>
+          <div className="md:hidden flex mx-auto mt-[8%]">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="flex border border-gray-300 overflow-hidden text-sm mr-6 mx-auto" type="button">
+                  {getButtonTitle(locale)}
+                  <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => handleSwitch("en")}>English (United States)</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSwitch("es")}>Español</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </CardContent>
       </Card>
+      <div className="hidden md:block md:flex md:flex-row md:justify-center mt-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="flex border border-gray-300 overflow-hidden text-sm mr-6 mx-auto" type="button">
+              {getButtonTitle(locale)}
+              <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => handleSwitch("en")}>English (United States)</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleSwitch("es")}>Español</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   );
 }

@@ -1,44 +1,27 @@
 "use client";
 
 import { SWRConfig, Cache } from "swr";
-import { ReactNode } from "react";
+import { ReactNode, createContext, useContext, useEffect, useState } from "react";
+import { NextIntlClientProvider } from "next-intl";
 
-/**
- * Creates a localStorage-based cache provider for SWR
- * Persists cache between page refreshes
- */
 function localStorageProvider(cache: Readonly<Cache<any>>): Cache<any> {
-  // Initialize map for cache storage
   let map: Map<any, any> = new Map();
-
-  // Only access localStorage in browser environment
   if (typeof window !== "undefined" && window.localStorage) {
-    // Attempt to restore cache from localStorage
     const storedCache = localStorage.getItem("hba-cache");
     if (storedCache) {
       map = new Map(JSON.parse(storedCache));
     }
-
-    // Save cache to localStorage before page unload
     window.addEventListener("beforeunload", () => {
       const appCache = JSON.stringify(Array.from(map.entries()));
       localStorage.setItem("hba-cache", appCache);
     });
   }
-
   return map;
 }
 
-/**
- * Global fetcher function for SWR
- * Disables HTTP cache to ensure fresh data
- */
 const fetcher = (resource: string | URL | Request) =>
   fetch(resource, { cache: "no-store" }).then((res) => {
-    // Throw error for non-200 responses
-    if (!res.ok) {
-      throw new Error(`API error: ${res.status}`);
-    }
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
     return res.json();
   });
 
@@ -46,11 +29,42 @@ interface ProvidersProps {
   children: ReactNode;
 }
 
-/**
- * Global providers wrapper component
- * Configures SWR with persistent caching and error handling
- */
+// Locale context to share state across components
+export const LocaleContext = createContext<{
+  locale: string;
+  setLocale: (val: string) => void;
+}>({
+  locale: "en",
+  setLocale: () => {},
+});
+
 export default function Providers({ children }: ProvidersProps) {
+  const [locale, setLocale] = useState("en");
+  const [messages, setMessages] = useState<any>(null);
+
+  useEffect(() => {
+    const cookieLocale =
+      document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("NEXT_LOCALE="))
+        ?.split("=")[1] || "en";
+
+    setLocale(cookieLocale);
+
+    import(`../../messages/${cookieLocale}.json`).then((mod) => {
+      setMessages(mod.default);
+    });
+  }, []);
+
+  useEffect(() => {
+    import(`../../messages/${locale}.json`).then((mod) => {
+      setMessages(mod.default);
+      document.cookie = `NEXT_LOCALE=${locale}; path=/`;
+    });
+  }, [locale]);
+
+  if (!messages) return null; // or a loading spinner
+
   return (
     <SWRConfig
       value={{
@@ -60,12 +74,15 @@ export default function Providers({ children }: ProvidersProps) {
         revalidateOnFocus: false,
         shouldRetryOnError: false,
         errorRetryCount: 2,
-        // This helps with hydration for SSR
         fallback: {},
         suspense: false,
       }}
     >
-      {children}
+      <LocaleContext.Provider value={{ locale, setLocale }}>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          {children}
+        </NextIntlClientProvider>
+      </LocaleContext.Provider>
     </SWRConfig>
   );
 }
