@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/nextjs";
 import { useUser } from "@clerk/nextjs";
 import { useBusiness } from "@/hooks/swrHooks";
+import { useTranslations } from "next-intl";
 
 type NavigationItem = {
   name: string;
@@ -17,6 +18,7 @@ type NavigationItem = {
 };
 
 export default function DesktopSidebar() {
+  const t = useTranslations();
   const pathname = usePathname();
   const router = useRouter();
   const { signOut } = useAuth();
@@ -43,7 +45,7 @@ export default function DesktopSidebar() {
   const navigationItems: Record<string, NavigationItem[]> = {
     business: [
       {
-        name: "Dashboard",
+        name: t("dashboard"),
         href: "/business",
         icon: "/icons/Home.png",
         current: pathname === "/business" || pathname.startsWith("/business/"),
@@ -51,25 +53,25 @@ export default function DesktopSidebar() {
     ],
     admin: [
       {
-        name: "Dashboard",
+        name: t("dashboard"),
         href: "/admin",
         icon: "/icons/Home.png",
         current: pathname === "/admin",
       },
       {
-        name: "Analytics",
+        name: t("analytics"),
         href: "/admin/analytics",
         icon: "/icons/Analytics.png",
         current: pathname === "/admin/analytics" || pathname.startsWith("/admin/analytics/"),
       },
       {
-        name: "Requests",
+        name: t("reqs"),
         href: "/admin/requests",
         icon: "/icons/Requests.png",
         current: pathname === "/admin/requests" || pathname.startsWith("/admin/requests/"),
       },
       {
-        name: "Automations",
+        name: t("automations"),
         href: "/admin/automations",
         icon: "/icons/Automation.png",
         current: pathname === "/admin/automations" || pathname.startsWith("/admin/automations/"),
@@ -148,7 +150,7 @@ export default function DesktopSidebar() {
             )}
           >
             <Image src="/icons/Logout.png" alt="Sign Out" width={30} height={30} className="shrink-0" />
-            {isExpanded && <span className="ml-[18px]">Sign Out</span>}
+            {isExpanded && <span className="ml-[18px]">{t("signOut")}</span>}
           </button>
         </div>
 
@@ -174,7 +176,7 @@ export default function DesktopSidebar() {
             />
             {isExpanded && (
               <span className="ml-[18px] text-white font-futura text-base font-medium leading-[21.25px]">
-                {userRole === "admin" ? "Hispanic Business Association" : (business?.businessName ?? "Business Name")}
+                {userRole === "admin" ? "Hispanic Business Association" : (business?.businessName ?? t("businessName"))}
               </span>
             )}
           </div>

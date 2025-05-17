@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface BusinessInfo {
   businessName?: string;
@@ -42,6 +43,7 @@ interface InformationCardProps {
 }
 
 const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: InformationCardProps) => {
+  const t = useTranslations();
   // Default image URLs for fallbacks
   const defaultLogo = "/logo/Default_Logo.jpg";
   const defaultBanner = "/logo/Default_Banner.png";
@@ -88,7 +90,7 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
 
   // Format address with comparing changes
   const formatAddress = () => {
-    if (!businessInfo.address && !otherBusinessInfo?.address) return "Not available";
+    if (!businessInfo.address && !otherBusinessInfo?.address) return t("notAvailable");
 
     const thisAddress = businessInfo.address || {};
     const otherAddress = otherBusinessInfo?.address || {};
@@ -102,7 +104,7 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
         <p className="font-futura font-bold text-[14px] leading-[19px] text-[#405BA9]">
           {businessInfo.address
             ? `${thisAddress.street || ""}, ${thisAddress.city || ""}, ${thisAddress.state || ""} ${thisAddress.zip || ""}, ${thisAddress.county || ""}`
-            : "Not available"}
+            : t("notAvailable")}
         </p>
       );
     } else {
@@ -118,7 +120,7 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
         <p className={displayClass}>
           {businessInfo.address
             ? `${thisAddress.street || ""}, ${thisAddress.city || ""}, ${thisAddress.state || ""} ${thisAddress.zip || ""}, ${thisAddress.county || ""}`
-            : "Not available"}
+            : t("notAvailable")}
         </p>
       );
     }
@@ -126,7 +128,7 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
 
   // Format contact info with comparing changes
   const formatContact = () => {
-    if (!businessInfo.pointOfContact && !otherBusinessInfo?.pointOfContact) return "Not available";
+    if (!businessInfo.pointOfContact && !otherBusinessInfo?.pointOfContact) return t("notAvailable");
 
     const thisContact = businessInfo.pointOfContact || {};
     const otherContact = otherBusinessInfo?.pointOfContact || {};
@@ -147,7 +149,7 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
               {thisContact.email || ""}
             </>
           ) : (
-            "Not available"
+            t("notAvailable")
           )}
         </p>
       );
@@ -171,7 +173,7 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
               {thisContact.email || ""}
             </>
           ) : (
-            "Not available"
+            t("notAvailable")
           )}
         </p>
       );
@@ -181,11 +183,7 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
   // Format social media with comparing changes
   const formatSocialMedia = () => {
     if (!businessInfo.socialMediaHandles && !otherBusinessInfo?.socialMediaHandles) {
-      return (
-        <p className="font-futura font-bold text-[14px] leading-[19px] text-[#405BA9]">
-          No social media handles available
-        </p>
-      );
+      return <p className="font-futura font-bold text-[14px] leading-[19px] text-[#405BA9]">{t("noSocialHandles")}</p>;
     }
 
     const thisSocial = businessInfo.socialMediaHandles || {};
@@ -250,9 +248,7 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
         )}
 
         {!thisSocial.IG && !thisSocial.twitter && !thisSocial.FB && (
-          <p className="font-futura font-bold text-[14px] leading-[19px] text-[#405BA9]">
-            No social media handles available
-          </p>
+          <p className="font-futura font-bold text-[14px] leading-[19px] text-[#405BA9]">{t("noSocialHandles")}</p>
         )}
       </div>
     );
@@ -322,7 +318,7 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
       }
     }
 
-    return <div className="whitespace-pre-line">{renderedLines.length > 0 ? renderedLines : "Not available"}</div>;
+    return <div className="whitespace-pre-line">{renderedLines.length > 0 ? renderedLines : t("notAvailable")}</div>;
   };
 
   return (
@@ -335,7 +331,7 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
       <div className="p-4 sm:p-6">
         {/* Banner Image Section - New at top */}
         <div className="mb-4">
-          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Banner</p>
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">{t("banner")}</p>
           <div
             className={cn(
               "relative w-full h-[80px] rounded-md overflow-hidden p-1",
@@ -360,7 +356,7 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
 
         {/* Logo Image Section - New at top */}
         <div className="mb-4">
-          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Logo</p>
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">{t("logo")}</p>
           <div
             className={cn(
               "relative w-[100px] h-[100px] rounded-full border-4 border-white overflow-hidden shadow-sm p-2",
@@ -387,23 +383,27 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
         {/* Business Information Section */}
         <div className="relative">
           {/* Business Name */}
-          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Business Name</p>
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">
+            {t("businessName")}
+          </p>
           {formatFieldValue(businessInfo.businessName, otherBusinessInfo?.businessName)}
 
           {/* Business Type */}
           <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1 mt-4">
-            Business Type
+            {t("businesstype")}
           </p>
           {formatFieldValue(businessInfo.businessType, otherBusinessInfo?.businessType)}
 
           {/* Business Owner */}
           <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1 mt-4">
-            Business Owner
+            {t("bizowner")}
           </p>
           {formatFieldValue(businessInfo.businessOwner, otherBusinessInfo?.businessOwner)}
 
           {/* Website */}
-          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1 mt-4">Website</p>
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1 mt-4">
+            {t("website")}
+          </p>
           <div className="mb-4">
             {businessInfo.website ? (
               <p
@@ -428,21 +428,23 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
           </div>
 
           {/* Address */}
-          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Address</p>
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">{t("address")}</p>
           <div className="mb-4">{formatAddress()}</div>
 
           {/* Point of Contact */}
           <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">
-            Point of Contact
+            {t("pointOfContact")}
           </p>
           <div className="mb-4">{formatContact()}</div>
 
           {/* Social Media Handles */}
-          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Social Media</p>
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">
+            {t("socialMedia")}
+          </p>
           <div className="mb-4">{formatSocialMedia()}</div>
 
           {/* Description with GitHub-style highlighting */}
-          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Description</p>
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">{t("desc")}</p>
           <div className="w-full mb-4">{formatDescription()}</div>
         </div>
       </div>
