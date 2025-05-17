@@ -114,6 +114,24 @@ export function useRequests(config?: SWRConfiguration) {
 }
 
 /**
+ * Hook for fetching request history
+ */
+export function useRequestHistory(config?: SWRConfiguration) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IRequest[]>("/api/request/history", {
+    revalidateOnFocus: false,
+    ...config,
+  });
+
+  return {
+    historyRequests: data,
+    isLoading: isLoading,
+    isValidating: isValidating,
+    isError: error,
+    mutateHistory: mutate,
+  };
+}
+
+/**
  * Hook for fetching a specific request by ID
  */
 export function useRequest(id: string, config?: SWRConfiguration) {
@@ -124,6 +142,24 @@ export function useRequest(id: string, config?: SWRConfiguration) {
 
   return {
     request: data,
+    isLoading,
+    isValidating,
+    isError: error,
+    mutate,
+  };
+}
+
+/**
+ * Hook for fetching a specific request history by ID
+ */
+export function useRequestHistoryById(id: string, config?: SWRConfiguration) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IRequest>(id ? `/api/request/history/${id}` : null, {
+    revalidateOnFocus: false,
+    ...config,
+  });
+
+  return {
+    historyItem: data,
     isLoading,
     isValidating,
     isError: error,
