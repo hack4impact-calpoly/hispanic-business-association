@@ -4,12 +4,14 @@ import { useState, ChangeEvent, useEffect } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "./card";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useTranslations } from "next-intl";
 
 interface RequestDeniedCardProps {
   onClose?: () => void;
 }
 
 const RequestDeniedCard = ({ onClose }: RequestDeniedCardProps) => {
+  const t = useTranslations();
   const [denialReason, setDenialReason] = useState("");
   const isMobile = useIsMobile();
   const [windowSize, setWindowSize] = useState({
@@ -89,7 +91,7 @@ const RequestDeniedCard = ({ onClose }: RequestDeniedCardProps) => {
                 height={102}
                 className="mb-4"
               />
-              <p className="text-[26px] font-semibold text-center">Changes Denied!</p>
+              <p className="text-[26px] font-semibold text-center">{t("deniedChanges")}</p>
             </div>
 
             {/* Middle section with textarea - takes up remaining space */}
@@ -100,13 +102,15 @@ const RequestDeniedCard = ({ onClose }: RequestDeniedCardProps) => {
                 value={denialReason}
                 onChange={handleInputChange}
               />
-              <p className="mt-1 text-xs text-gray-600 text-right">{countWords(denialReason)}/500 words</p>
+              <p className="mt-1 text-xs text-gray-600 text-right">
+                {countWords(denialReason)}/500 {t("words")}
+              </p>
             </div>
 
             {/* Button with reduced margins for mobile */}
             <div className={`w-full mt-3 ${isMobile ? "mb-4" : "mb-6"}`}>
               <button className="w-full h-12 bg-[#405BA9] text-white rounded-full font-medium" onClick={handleSend}>
-                Send
+                {t("send")}
               </button>
             </div>
           </CardContent>

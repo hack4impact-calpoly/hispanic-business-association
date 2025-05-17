@@ -7,10 +7,13 @@ import BusinessCard from "@/components/ui/BusinessCard";
 import FilterButton from "@/components/ui/FilterButton";
 import { useBusinesses, useUser } from "@/hooks/swrHooks";
 import { SignInButton } from "@clerk/nextjs";
+import { useTranslations } from "next-intl";
 
 type FilterType = "Business Name A-Z" | "Business Name Z-A" | "Most Recent" | "Oldest";
 
 export default function AdminBusinessesPage() {
+  const t = useTranslations();
+
   const router = useRouter();
   const [filter, setFilter] = useState<FilterType>("Business Name A-Z");
   const [isClient, setIsClient] = useState(false);
@@ -81,11 +84,11 @@ export default function AdminBusinessesPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
         <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
-          <h2 className="text-2xl font-bold mb-6 text-center">Authentication Required</h2>
-          <p className="mb-6 text-gray-600 text-center">You need to be signed in as an admin to view this page.</p>
+          <h2 className="text-2xl font-bold mb-6 text-center">{t("authReq")}</h2>
+          <p className="mb-6 text-gray-600 text-center">{t("adminSignMsg")}</p>
           <div className="flex justify-center">
             <SignInButton mode="modal">
-              <button className="bg-[#405BA9] text-white px-6 py-2 rounded-md hover:bg-[#293241]">Sign In</button>
+              <button className="bg-[#405BA9] text-white px-6 py-2 rounded-md hover:bg-[#293241]">{t("signIn")}</button>
             </SignInButton>
           </div>
         </div>
@@ -95,26 +98,28 @@ export default function AdminBusinessesPage() {
 
   // Main content
   return (
-    <ResponsiveLayout title="Dashboard">
+    <ResponsiveLayout title={t("dashboard")}>
       <div className="relative min-h-screen bg-white px-2 sm:px-4 md:px-6 py-4 sm:py-6 pb-[142px] md:pb-12">
         <div className="w-full max-w-7xl mx-auto">
           {/* Header with Filter */}
           <div className="flex justify-between items-center mb-4 sm:mb-6 md:mb-8 w-full px-0">
-            <h2 className="font-futura font-medium text-xl sm:text-[26px] leading-[34.53px] text-black">Businesses</h2>
+            <h2 className="font-futura font-medium text-xl sm:text-[26px] leading-[34.53px] text-black">
+              {t("businesses")}
+            </h2>
             <FilterButton onFilterChange={handleFilterChange} selectedFilter={filter} />
           </div>
 
           {/* Loading State */}
           {isBusinessesLoading && (
             <div className="flex justify-center items-center py-10">
-              <p className="text-gray-500">Loading businesses...</p>
+              <p className="text-gray-500">{t("loadBiz")}</p>
             </div>
           )}
 
           {/* No Businesses State */}
           {!isBusinessesLoading && (!businesses || businesses.length === 0) && (
             <div className="flex justify-center items-center py-10">
-              <p className="text-gray-500">No businesses found.</p>
+              <p className="text-gray-500">{t("noBizFound")}</p>
             </div>
           )}
 

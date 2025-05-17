@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
+import { useTranslations } from "next-intl";
 
 import {
   NavigationMenu,
@@ -11,6 +12,7 @@ import {
 } from "@/components/layout/navigation-menu";
 
 export default function Navbar() {
+  const t = useTranslations();
   const { isLoaded, user } = useUser();
 
   if (!isLoaded) return null;
@@ -20,16 +22,16 @@ export default function Navbar() {
   // DATA: Navigation item definitions - keyed by user role
   const menuItems: Record<string, { href: string; src: string; alt: string; width: number; height: number }[]> = {
     business: [
-      { href: "/business", src: "/icons/Phone - Dashboard.png", alt: "Dashboard", width: 51, height: 43 },
-      { href: "/business", src: "/icons/Phone - Inbox.png", alt: "Inbox", width: 30, height: 43 },
-      { href: "/business", src: "/icons/Phone - Update.png", alt: "Update", width: 34, height: 43 },
-      { href: "/business", src: "/icons/Phone - Application.png", alt: "Application", width: 52, height: 43 },
+      { href: "/business", src: "/icons/Phone - Dashboard.png", alt: t("dashboard"), width: 51, height: 43 },
+      { href: "/business", src: "/icons/Phone - Inbox.png", alt: t("inbox"), width: 30, height: 43 },
+      { href: "/business", src: "/icons/Phone - Update.png", alt: t("update"), width: 34, height: 43 },
+      { href: "/business", src: "/icons/Phone - Application.png", alt: t("app"), width: 52, height: 43 },
     ],
     admin: [
-      { href: "/admin", src: "/icons/Phone - Dashboard.png", alt: "Dashboard", width: 51, height: 43 },
-      { href: "/admin/analytics", src: "/icons/Phone - Analytics.png", alt: "Analytics", width: 41, height: 43 },
-      { href: "/admin/requests", src: "/icons/Phone - Requests.png", alt: "Requests", width: 40, height: 43 },
-      { href: "/admin/automations", src: "/icons/Phone - Automated.png", alt: "Automated", width: 50, height: 43 },
+      { href: "/admin", src: "/icons/Phone - Dashboard.png", alt: t("dashboard"), width: 51, height: 43 },
+      { href: "/admin/analytics", src: "/icons/Phone - Analytics.png", alt: t("analytics"), width: 41, height: 43 },
+      { href: "/admin/requests", src: "/icons/Phone - Requests.png", alt: t("reqs"), width: 40, height: 43 },
+      { href: "/admin/automations", src: "/icons/Phone - Automated.png", alt: t("automations"), width: 50, height: 43 },
     ],
   };
 
