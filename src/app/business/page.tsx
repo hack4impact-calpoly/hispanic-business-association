@@ -15,7 +15,6 @@ import { useBusiness } from "@/hooks/swrHooks";
 import { extractBusinessDisplayData } from "@/lib/formatters";
 import { useUser } from "@clerk/nextjs";
 import EditBusinessInfo from "@/components/ui/EditBusinessInfo";
-import EditBusinessInfoForm from "@/components/ui/EditContactInfo";
 import EditContactInfo from "@/components/ui/EditContactInfo";
 import { useTranslations } from "next-intl";
 
@@ -92,6 +91,21 @@ export default function BusinessDashboardPage() {
     mutate();
   };
 
+  // Handle edit business info submission
+  const handleEditBizSubmit = () => {
+    setShowEditBiz(false);
+    setShowConfirmation(true);
+    mutate();
+  };
+
+  // Handle edit contact info submission
+  const handleEditContactSubmit = () => {
+    setShowEditContact(false);
+    setShowConfirmation(true);
+    mutate();
+  };
+
+  // Handle banner and logo submission
   const handleBannerAndLogoSubmit = () => {
     setShowEditBannerAndLogo(false); // Close the banner modal
     setShowConfirmation(true); // Show confirmation
@@ -226,13 +240,13 @@ export default function BusinessDashboardPage() {
       {/*Edit Business Info Modal */}
       {showEditBiz && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex w-full items-start sm:items-center justify-center z-50 py-0 top-0 sm:p-4">
-          <EditBusinessInfo onClose={handleEditBizClose} onSubmitSuccess={handleEditSubmit} />
+          <EditBusinessInfo onClose={handleEditBizClose} onSubmitSuccess={handleEditBizSubmit} />
         </div>
       )}
 
       {showEditContact && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex w-full h-full items-start sm:items-center justify-center z-50 p-0 top-0 sm:p-4 overflow-y-auto">
-          <EditContactInfo onClose={handleEditContactClose} onSubmitSuccess={handleEditSubmit} />
+          <EditContactInfo onClose={handleEditContactClose} onSubmitSuccess={handleEditContactSubmit} />
         </div>
       )}
 
