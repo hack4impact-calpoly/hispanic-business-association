@@ -1,6 +1,7 @@
 import connectDB from "@/database/db";
 import { NextRequest, NextResponse } from "next/server";
-import requestSchema from "@/database/requestSchema";
+import Request from "@/database/requestSchema";
+import Business from "@/database/businessSchema";
 import { currentUser } from "@clerk/nextjs/server";
 
 // Handles POST requests
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Retrieves current user from Clerk
+    // Retrieve current user from Clerk
     const user = await currentUser();
     if (!user) {
       return NextResponse.json({ message: "User not authenticated" }, { status: 401 });
@@ -31,7 +32,7 @@ export async function POST(req: NextRequest) {
     // Check if we're updating an existing request
     if (requestId) {
       // Find the existing request
-      const existingRequest = await requestSchema.findById(requestId);
+      const existingRequest = await Request.findById(requestId);
 
       if (!existingRequest) {
         return NextResponse.json({ message: "Request not found" }, { status: 404 });
@@ -47,51 +48,52 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ message: "Cannot update a closed request" }, { status: 400 });
       }
 
-      // Update the existing request
-      const updatedRequest = await requestSchema.findByIdAndUpdate(
+      // Start with the existing "new" data instead of current business data
+      let updatedNewData = { ...existingRequest.new };
+
+      // Update specific fields from the request body
+      if (body.businessName !== undefined) updatedNewData.businessName = body.businessName;
+      if (body.businessType !== undefined) updatedNewData.businessType = body.businessType;
+      if (body.businessOwner !== undefined) updatedNewData.businessOwner = body.businessOwner;
+      if (body.website !== undefined) updatedNewData.website = body.website;
+      if (body.description !== undefined) updatedNewData.description = body.description;
+      if (body.logoUrl !== undefined) updatedNewData.logoUrl = body.logoUrl;
+      if (body.bannerUrl !== undefined) updatedNewData.bannerUrl = body.bannerUrl;
+
+      // Handle nested objects if provided
+      if (body.address) {
+        updatedNewData.address = updatedNewData.address || {};
+        if (body.address.street !== undefined) updatedNewData.address.street = body.address.street;
+        if (body.address.city !== undefined) updatedNewData.address.city = body.address.city;
+        if (body.address.state !== undefined) updatedNewData.address.state = body.address.state;
+        if (body.address.zip !== undefined) updatedNewData.address.zip = body.address.zip;
+        if (body.address.county !== undefined) updatedNewData.address.county = body.address.county;
+      }
+
+      if (body.pointOfContact) {
+        updatedNewData.pointOfContact = updatedNewData.pointOfContact || {};
+        if (body.pointOfContact.name !== undefined) updatedNewData.pointOfContact.name = body.pointOfContact.name;
+        if (body.pointOfContact.phoneNumber !== undefined)
+          updatedNewData.pointOfContact.phoneNumber = body.pointOfContact.phoneNumber;
+        if (body.pointOfContact.email !== undefined) updatedNewData.pointOfContact.email = body.pointOfContact.email;
+      }
+
+      if (body.socialMediaHandles) {
+        updatedNewData.socialMediaHandles = updatedNewData.socialMediaHandles || {};
+        if (body.socialMediaHandles.IG !== undefined) updatedNewData.socialMediaHandles.IG = body.socialMediaHandles.IG;
+        if (body.socialMediaHandles.twitter !== undefined)
+          updatedNewData.socialMediaHandles.twitter = body.socialMediaHandles.twitter;
+        if (body.socialMediaHandles.FB !== undefined) updatedNewData.socialMediaHandles.FB = body.socialMediaHandles.FB;
+      }
+
+      // Update the existing request with merged changes
+      const updatedRequest = await Request.findByIdAndUpdate(
         requestId,
         {
-          // Only update fields provided in the request body
-          ...(body.businessName !== undefined && { businessName: body.businessName }),
-          ...(body.businessType !== undefined && { businessType: body.businessType }),
-          ...(body.businessOwner !== undefined && { businessOwner: body.businessOwner }),
-          ...(body.website !== undefined && { website: body.website }),
-          ...(body.description !== undefined && { description: body.description }),
-          ...(body.logoUrl !== undefined && { logoUrl: body.logoUrl }),
-          ...(body.bannerUrl !== undefined && { bannerUrl: body.bannerUrl }),
-
-          // Update nested objects if provided
-          ...(body.address && {
-            address: {
-              ...(existingRequest.address || {}),
-              ...(body.address.street !== undefined && { street: body.address.street }),
-              ...(body.address.city !== undefined && { city: body.address.city }),
-              ...(body.address.state !== undefined && { state: body.address.state }),
-              ...(body.address.zip !== undefined && { zip: body.address.zip }),
-              ...(body.address.county !== undefined && { county: body.address.county }),
-            },
-          }),
-          ...(body.pointOfContact && {
-            pointOfContact: {
-              ...(existingRequest.pointOfContact || {}),
-              ...(body.pointOfContact.name !== undefined && { name: body.pointOfContact.name }),
-              ...(body.pointOfContact.phoneNumber !== undefined && { phoneNumber: body.pointOfContact.phoneNumber }),
-              ...(body.pointOfContact.email !== undefined && { email: body.pointOfContact.email }),
-            },
-          }),
-          ...(body.socialMediaHandles && {
-            socialMediaHandles: {
-              ...(existingRequest.socialMediaHandles || {}),
-              ...(body.socialMediaHandles.IG !== undefined && { IG: body.socialMediaHandles.IG }),
-              ...(body.socialMediaHandles.twitter !== undefined && { twitter: body.socialMediaHandles.twitter }),
-              ...(body.socialMediaHandles.FB !== undefined && { FB: body.socialMediaHandles.FB }),
-            },
-          }),
-
-          // Update date
-          date: body.date || new Date().toISOString(),
+          new: updatedNewData,
+          date: body["date"] || new Date().toISOString(),
         },
-        { new: true }, // Return the updated document
+        { new: true },
       );
 
       return NextResponse.json(
@@ -99,58 +101,121 @@ export async function POST(req: NextRequest) {
         { status: 200 },
       );
     } else {
+      // If no requestId provided, this is a new request or we're handling an existing open request
+
+      // Fetch current business data for 'old' state
+      const business = await Business.findOne({ clerkUserID });
+      if (!business) {
+        return NextResponse.json({ message: "Business not found" }, { status: 404 });
+      }
+
+      // Extract current business data for old state
+      const oldData = {
+        businessName: business.businessName,
+        businessType: business.businessType,
+        businessOwner: business.businessOwner,
+        website: business.website,
+        address: business.address,
+        pointOfContact: business.pointOfContact,
+        socialMediaHandles: business.socialMediaHandles,
+        description: business.description,
+        logoUrl: business.logoUrl,
+        bannerUrl: business.bannerUrl,
+      };
+
+      // Initialize new data with old data (for fields not being updated)
+      const newData = { ...oldData };
+
+      // Update any fields provided in the request body
+      if (body.businessName !== undefined) newData.businessName = body.businessName;
+      if (body.businessType !== undefined) newData.businessType = body.businessType;
+      if (body.businessOwner !== undefined) newData.businessOwner = body.businessOwner;
+      if (body.website !== undefined) newData.website = body.website;
+      if (body.description !== undefined) newData.description = body.description;
+      if (body.logoUrl !== undefined) newData.logoUrl = body.logoUrl;
+      if (body.bannerUrl !== undefined) newData.bannerUrl = body.bannerUrl;
+
+      // Handle nested objects if provided
+      if (body.address) {
+        newData.address = { ...oldData.address };
+        if (body.address.street !== undefined) newData.address.street = body.address.street;
+        if (body.address.city !== undefined) newData.address.city = body.address.city;
+        if (body.address.state !== undefined) newData.address.state = body.address.state;
+        if (body.address.zip !== undefined) newData.address.zip = body.address.zip;
+        if (body.address.county !== undefined) newData.address.county = body.address.county;
+      }
+
+      if (body.pointOfContact) {
+        newData.pointOfContact = { ...oldData.pointOfContact };
+        if (body.pointOfContact.name !== undefined) newData.pointOfContact.name = body.pointOfContact.name;
+        if (body.pointOfContact.phoneNumber !== undefined)
+          newData.pointOfContact.phoneNumber = body.pointOfContact.phoneNumber;
+        if (body.pointOfContact.email !== undefined) newData.pointOfContact.email = body.pointOfContact.email;
+      }
+
+      if (body.socialMediaHandles) {
+        newData.socialMediaHandles = { ...oldData.socialMediaHandles };
+        if (body.socialMediaHandles.IG !== undefined) newData.socialMediaHandles.IG = body.socialMediaHandles.IG;
+        if (body.socialMediaHandles.twitter !== undefined)
+          newData.socialMediaHandles.twitter = body.socialMediaHandles.twitter;
+        if (body.socialMediaHandles.FB !== undefined) newData.socialMediaHandles.FB = body.socialMediaHandles.FB;
+      }
+
       // Check if there's an existing open request from this user
-      const existingOpenRequest = await requestSchema.findOne({
+      const existingOpenRequest = await Request.findOne({
         clerkUserID: clerkUserID,
         status: "open",
       });
 
       // If an open request exists, update it instead of creating a new one
       if (existingOpenRequest) {
-        const updatedRequest = await requestSchema.findByIdAndUpdate(
+        // Start with the existing "new" data
+        let updatedNewData = { ...existingOpenRequest.new };
+
+        // Update specific fields from the request body
+        if (body.businessName !== undefined) updatedNewData.businessName = body.businessName;
+        if (body.businessType !== undefined) updatedNewData.businessType = body.businessType;
+        if (body.businessOwner !== undefined) updatedNewData.businessOwner = body.businessOwner;
+        if (body.website !== undefined) updatedNewData.website = body.website;
+        if (body.description !== undefined) updatedNewData.description = body.description;
+        if (body.logoUrl !== undefined) updatedNewData.logoUrl = body.logoUrl;
+        if (body.bannerUrl !== undefined) updatedNewData.bannerUrl = body.bannerUrl;
+
+        // Handle nested objects if provided
+        if (body.address) {
+          updatedNewData.address = updatedNewData.address || {};
+          if (body.address.street !== undefined) updatedNewData.address.street = body.address.street;
+          if (body.address.city !== undefined) updatedNewData.address.city = body.address.city;
+          if (body.address.state !== undefined) updatedNewData.address.state = body.address.state;
+          if (body.address.zip !== undefined) updatedNewData.address.zip = body.address.zip;
+          if (body.address.county !== undefined) updatedNewData.address.county = body.address.county;
+        }
+
+        if (body.pointOfContact) {
+          updatedNewData.pointOfContact = updatedNewData.pointOfContact || {};
+          if (body.pointOfContact.name !== undefined) updatedNewData.pointOfContact.name = body.pointOfContact.name;
+          if (body.pointOfContact.phoneNumber !== undefined)
+            updatedNewData.pointOfContact.phoneNumber = body.pointOfContact.phoneNumber;
+          if (body.pointOfContact.email !== undefined) updatedNewData.pointOfContact.email = body.pointOfContact.email;
+        }
+
+        if (body.socialMediaHandles) {
+          updatedNewData.socialMediaHandles = updatedNewData.socialMediaHandles || {};
+          if (body.socialMediaHandles.IG !== undefined)
+            updatedNewData.socialMediaHandles.IG = body.socialMediaHandles.IG;
+          if (body.socialMediaHandles.twitter !== undefined)
+            updatedNewData.socialMediaHandles.twitter = body.socialMediaHandles.twitter;
+          if (body.socialMediaHandles.FB !== undefined)
+            updatedNewData.socialMediaHandles.FB = body.socialMediaHandles.FB;
+        }
+
+        const updatedRequest = await Request.findByIdAndUpdate(
           existingOpenRequest._id,
           {
-            // Only update fields provided in the request body
-            ...(body.businessName !== undefined && { businessName: body.businessName }),
-            ...(body.businessType !== undefined && { businessType: body.businessType }),
-            ...(body.businessOwner !== undefined && { businessOwner: body.businessOwner }),
-            ...(body.website !== undefined && { website: body.website }),
-            ...(body.description !== undefined && { description: body.description }),
-            ...(body.logoUrl !== undefined && { logoUrl: body.logoUrl }),
-            ...(body.bannerUrl !== undefined && { bannerUrl: body.bannerUrl }),
-
-            // Update nested objects if provided
-            ...(body.address && {
-              address: {
-                ...(existingOpenRequest.address || {}),
-                ...(body.address.street !== undefined && { street: body.address.street }),
-                ...(body.address.city !== undefined && { city: body.address.city }),
-                ...(body.address.state !== undefined && { state: body.address.state }),
-                ...(body.address.zip !== undefined && { zip: body.address.zip }),
-                ...(body.address.county !== undefined && { county: body.address.county }),
-              },
-            }),
-            ...(body.pointOfContact && {
-              pointOfContact: {
-                ...(existingOpenRequest.pointOfContact || {}),
-                ...(body.pointOfContact.name !== undefined && { name: body.pointOfContact.name }),
-                ...(body.pointOfContact.phoneNumber !== undefined && { phoneNumber: body.pointOfContact.phoneNumber }),
-                ...(body.pointOfContact.email !== undefined && { email: body.pointOfContact.email }),
-              },
-            }),
-            ...(body.socialMediaHandles && {
-              socialMediaHandles: {
-                ...(existingOpenRequest.socialMediaHandles || {}),
-                ...(body.socialMediaHandles.IG !== undefined && { IG: body.socialMediaHandles.IG }),
-                ...(body.socialMediaHandles.twitter !== undefined && { twitter: body.socialMediaHandles.twitter }),
-                ...(body.socialMediaHandles.FB !== undefined && { FB: body.socialMediaHandles.FB }),
-              },
-            }),
-
-            // Update date
-            date: body.date || new Date().toISOString(),
+            new: updatedNewData,
+            date: body["date"] || new Date().toISOString(),
           },
-          { new: true }, // Return the updated document
+          { new: true },
         );
 
         return NextResponse.json(
@@ -159,61 +224,22 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // Builds request object for database
+      // Create new request
       const requestData = {
         clerkUserID,
-        // Original business information
-        originalDescription: body["originalDescription"],
-        // Updated fields
-        businessName: body["businessName"],
-        businessType: body["businessType"],
-        businessOwner: body["businessOwner"],
-        website: body["website"],
-        address: body["address"]
-          ? {
-              street: body["address"]["street"],
-              city: body["address"]["city"],
-              state: body["address"]["state"],
-              zip: body["address"]["zip"],
-              county: body["address"]["county"],
-            }
-          : undefined,
-        pointOfContact: body["pointOfContact"]
-          ? {
-              name: body["pointOfContact"]["name"],
-              phoneNumber: body["pointOfContact"]["phoneNumber"],
-              email: body["pointOfContact"]["email"],
-            }
-          : undefined,
-        socialMediaHandles: body["socialMediaHandles"]
-          ? {
-              IG: body["socialMediaHandles"]["IG"],
-              twitter: body["socialMediaHandles"]["twitter"],
-              FB: body["socialMediaHandles"]["FB"],
-            }
-          : undefined,
-        description: body["description"],
-        // Image URLs if provided
-        logoUrl: body["logoUrl"],
-        bannerUrl: body["bannerUrl"],
-        // Timestamps
+        old: oldData,
+        new: newData,
         date: body["date"] || new Date().toISOString(),
-        requestType: "update",
-        // Status fields
         status: "open",
         decision: null,
       };
 
-      // Create new request
-      const newRequest = await requestSchema.collection.insertOne(requestData);
+      const newRequest = await Request.create(requestData);
 
-      return NextResponse.json(
-        { message: "Request created successfully", requestId: newRequest.insertedId },
-        { status: 201 },
-      );
+      return NextResponse.json({ message: "Request created successfully", requestId: newRequest._id }, { status: 201 });
     }
   } catch (err) {
-    // Logs error, returns 500 status
+    // Log error, return 500 status
     console.error("Error creating request:", err);
     return NextResponse.json({ message: "Error occurred", error: err }, { status: 500 });
   }
@@ -246,7 +272,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Queries requests with filters, sorts by date descending
-  const dbRequests = await requestSchema.find(query).sort({ date: -1 });
+  const dbRequests = await Request.find(query).sort({ date: -1 });
   if (!dbRequests) {
     return NextResponse.json({ message: "Requests not found" }, { status: 404 });
   }
