@@ -49,11 +49,11 @@ export async function POST(req: Request) {
     if (!clerkUser) {
       return NextResponse.json({ message: "User not logged in" }, { status: 401 });
     }
-
-    const clerkUserID = clerkUser.id;
     const {
+      clerkUserID,
       businessName,
       businessType,
+      membershipFeeType,
       businessOwner,
       website,
       address,
@@ -61,7 +61,6 @@ export async function POST(req: Request) {
       socialMediaHandles,
       description,
     } = await req.json();
-
     // Check if business already exists
     const existingBusiness = await Business.findOne({ businessName: businessName });
     if (existingBusiness) {
@@ -73,6 +72,7 @@ export async function POST(req: Request) {
       clerkUserID,
       businessName,
       businessType,
+      membershipFeeType,
       businessOwner,
       website,
       address,
