@@ -5,9 +5,8 @@ import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import { RequestCard } from "@/components/ui/RequestCard";
 import StatsCard from "@/components/ui/StatsCard";
 import FilterButton from "@/components/ui/FilterButton";
-import { useRequests, useUser, useBusinesses, useSignUpRequests } from "@/hooks/swrHooks";
+import { useRequests, useUser, useBusinesses, useSignUpRequests, useRequestHistory } from "@/hooks/swrHooks";
 import { useRouter } from "next/navigation";
-import SignUpRequest from "@/database/signupRequestSchema";
 
 type FilterType = "Most Recent" | "Oldest" | "Business Name A-Z" | "Business Name Z-A";
 
@@ -26,6 +25,7 @@ export default function AdminRequestsPage() {
   const { user, isLoading: isUserLoading } = useUser();
   const { requests, isLoading: isRequestsLoading } = useRequests();
   const { businesses, isLoading: isBusinessesLoading } = useBusinesses();
+  const { historyRequests, isLoading: isHistoryLoading } = useRequestHistory();
   const { signupRequests, isLoading: isSignupRequestsLoading } = useSignUpRequests();
 
   // Create a lookup map of clerkUserID to business name
@@ -119,10 +119,13 @@ export default function AdminRequestsPage() {
 
   // Apply filter to history requests
   const filterHistoryRequests = () => {
-    if (!requests) return [];
+    if (!requests && !historyRequests) return [];
 
-    const historyRequests = requests.filter((req) => req.status === "closed");
-    const sorted = [...historyRequests];
+    const closedCurrentRequests = requests?.filter((req) => req.status === "closed") || [];
+    const historicalRequests = historyRequests || [];
+    const combinedHistory = [...closedCurrentRequests, ...historicalRequests];
+
+    const sorted = [...combinedHistory];
 
     switch (historyFilter) {
       case "Most Recent":
@@ -167,9 +170,18 @@ export default function AdminRequestsPage() {
     setHistoryFilter(filter as FilterType);
   };
 
-  // Navigate to request detail page when clicked
-  const handleRequestClick = (id: string) => {
-    router.push(`/admin/requests/${id}`);
+  // Navigate to pending request detail page
+  const handlePendingRequestClick = (id: string) => {
+    if (id) {
+      router.push(`/admin/requests/${id}`);
+    }
+  };
+
+  // Navigate to history request detail page
+  const handleHistoryRequestClick = (id: string) => {
+    if (id) {
+      router.push(`/admin/requests/history/${id}`);
+    }
   };
 
   const handleSignUpRequestClick = (id: string) => {
@@ -210,7 +222,7 @@ export default function AdminRequestsPage() {
   const historySignupData = filterHistorySignupRequests();
 
   // Determine if data is still loading
-  const isLoading = isRequestsLoading || isBusinessesLoading;
+  const isLoading = isRequestsLoading || isBusinessesLoading || isHistoryLoading || isSignupRequestsLoading;
 
   return (
     <ResponsiveLayout title="Requests">
@@ -237,7 +249,7 @@ export default function AdminRequestsPage() {
                   pendingData.map((request) => (
                     <div
                       key={(request as any)._id}
-                      onClick={() => handleRequestClick((request as any)._id)}
+                      onClick={() => handlePendingRequestClick((request as any)._id)}
                       className="w-full"
                     >
                       <RequestCard
@@ -273,7 +285,7 @@ export default function AdminRequestsPage() {
                   historyData.map((request) => (
                     <div
                       key={(request as any)._id}
-                      onClick={() => handleRequestClick((request as any)._id)}
+                      onClick={() => handleHistoryRequestClick((request as any)._id)}
                       className="w-full"
                     >
                       <RequestCard
@@ -291,10 +303,10 @@ export default function AdminRequestsPage() {
               </div>
             </div>
 
-            {/* Stats Cards - Now full width on mobile */}
+            {/* Account Requests Column */}
             <div className="w-full lg:w-auto lg:ml-[30px] lg:min-w-[350px] xl:min-w-[416px] mt-8 lg:mt-0 space-y-4 sm:space-y-[18px]">
               <div className="w-full md:max-w-[591px] lg:max-w-none lg:flex-1 lg:min-w-0 xl:max-w-[591px]">
-                {/* Pending Requests section */}
+                {/* Pending Account Requests section */}
                 <div className="flex justify-between items-center mb-4 sm:mb-6 md:mb-8 w-full">
                   <h2 className="font-futura font-medium text-[18px] sm:text-[22px] md:text-[26px] leading-tight md:leading-[34.53px] text-black truncate pr-2">
                     Pending Account Requests
@@ -324,16 +336,16 @@ export default function AdminRequestsPage() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-center py-4 text-gray-500">No pending requests</p>
+                    <p className="text-center py-4 text-gray-500">No pending account requests</p>
                   )}
                 </div>
 
                 <div className="w-full h-0 border-t border-[#BEBEBE] my-6 sm:my-8" />
 
-                {/* History Requests section */}
+                {/* Account History Requests section */}
                 <div className="flex justify-between items-center mb-4 sm:mb-6 md:mb-8 w-full">
                   <h2 className="font-futura font-medium text-[18px] sm:text-[22px] md:text-[26px] leading-tight md:leading-[34.53px] text-black truncate pr-2">
-                    History of Account Recent Requests
+                    History of Account Requests
                   </h2>
                   <div className="flex-shrink-0">
                     <FilterButton onFilterChange={handleHistoryFilterChange} selectedFilter={historyFilter} />
@@ -342,7 +354,7 @@ export default function AdminRequestsPage() {
 
                 <div className="space-y-[6px] sm:space-y-[10px] w-full">
                   {isLoading ? (
-                    <p className="text-center py-4 text-gray-500">Loading request history...</p>
+                    <p className="text-center py-4 text-gray-500">Loading account history...</p>
                   ) : historySignupData.length > 0 ? (
                     historySignupData.map((request) => (
                       <div
@@ -360,7 +372,7 @@ export default function AdminRequestsPage() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-center py-4 text-gray-500">No request history</p>
+                    <p className="text-center py-4 text-gray-500">No account history</p>
                   )}
                 </div>
               </div>
