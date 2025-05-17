@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTranslations } from "next-intl";
 
 interface FilterButtonProps {
   onFilterChange?: (filter: string) => void;
@@ -20,12 +21,13 @@ const FilterButton = ({
   filters = ["Most Recent", "Oldest", "Business Name A-Z", "Business Name Z-A"],
   selectedFilter,
 }: FilterButtonProps) => {
+  const t = useTranslations();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-[5px] cursor-pointer w-auto">
           <span className="font-futura font-medium text-[20px] sm:text-[24px] leading-[28px] sm:leading-[32px] text-black">
-            Filter
+            {t("filter")}
           </span>
           <Image src="/icons/Sort Down.png" alt="Filter" width={22} height={22} className="mt-1" />
         </button>
@@ -37,7 +39,7 @@ const FilterButton = ({
             className={`font-futura text-[16px] ${selectedFilter === filter ? "bg-gray-100" : ""}`}
             onClick={() => onFilterChange?.(filter)}
           >
-            {filter}
+            {t(filter)}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

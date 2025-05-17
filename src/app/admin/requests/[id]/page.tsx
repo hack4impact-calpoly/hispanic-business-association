@@ -8,6 +8,7 @@ import { useRequest, useBusiness, updateRequestStatus } from "@/hooks/swrHooks";
 import { Button } from "@/components/ui/button";
 import RequestApprovedCard from "@/components/ui/RequestApprovedCard";
 import RequestDeniedCard from "@/components/ui/RequestDeniedCard";
+import { useTranslations } from "next-intl";
 
 // Define props for the page component
 interface RequestDetailPageProps {
@@ -17,6 +18,7 @@ interface RequestDetailPageProps {
 }
 
 export default function RequestDetailPage({ params }: RequestDetailPageProps) {
+  const t = useTranslations();
   const [showApprovedCard, setShowApprovedCard] = useState(false);
   const [showDeniedCard, setShowDeniedCard] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -91,7 +93,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
       mutateRequest();
     } catch (error) {
       console.error("Error approving request:", error);
-      alert("Error approving request");
+      alert(t("approveReqError"));
     } finally {
       setIsSubmitting(false);
     }
@@ -122,14 +124,14 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
       mutateRequest();
     } catch (error) {
       console.error("Error denying request:", error);
-      alert("Error denying request");
+      alert(t("denyReqError"));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <ResponsiveLayout title="Request">
+    <ResponsiveLayout title={t("req")}>
       {/* Refined responsive container */}
       <div className="relative min-h-screen bg-white px-3 sm:px-4 md:px-6 py-6 pb-[142px] md:pb-12">
         <div className="w-full max-w-7xl mx-auto">
@@ -139,7 +141,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
               onClick={() => router.push("/admin/requests")}
               className="flex items-center gap-2 bg-transparent text-[#405BA9] hover:bg-gray-100"
             >
-              <span className="text-xl">←</span> Back to Requests
+              <span className="text-xl">←</span> {t("backToReq")}
             </Button>
 
             {request && request.status === "closed" && (
@@ -148,20 +150,20 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                   request.decision === "approved" ? "text-[#00A819]" : "text-[#AE0000]"
                 }`}
               >
-                {request.decision === "approved" ? "Approved" : "Denied"}
+                {request.decision === "approved" ? t("approved") : t("denied")}
               </div>
             )}
           </div>
 
           {isLoading && (
             <div className="flex justify-center items-center h-[300px]">
-              <p className="text-lg">Loading request details...</p>
+              <p className="text-lg">{t("loadReq")}</p>
             </div>
           )}
 
           {isError && (
             <div className="flex justify-center items-center h-[300px]">
-              <p className="text-lg text-red-500">Error loading request. Please try again.</p>
+              <p className="text-lg text-red-500">{t("errLoadReq")}</p>
             </div>
           )}
 
@@ -176,13 +178,13 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
               <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 mb-12 lg:mb-16">
                 {/* Old Information Card - Full width on mobile, fixed proportional on desktop */}
                 <div className="w-full lg:flex-1 lg:min-w-0 lg:max-w-[50%]">
-                  <h3 className="font-futura font-medium text-xl text-black mb-4">Old Information</h3>
+                  <h3 className="font-futura font-medium text-xl text-black mb-4">{t("oldInfo")}</h3>
                   <InformationCard type="old" businessInfo={oldInfo} otherBusinessInfo={newInfo} />
                 </div>
 
                 {/* New Information Card - Full width on mobile, fixed proportional on desktop */}
                 <div className="w-full lg:flex-1 lg:min-w-0 lg:max-w-[50%]">
-                  <h3 className="font-futura font-medium text-xl text-black mb-4">New Information</h3>
+                  <h3 className="font-futura font-medium text-xl text-black mb-4">{t("newInfo")}</h3>
                   <InformationCard type="new" businessInfo={newInfo} otherBusinessInfo={oldInfo} />
                 </div>
               </div>
@@ -191,7 +193,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
               {request && request.status === "open" ? (
                 <div className="flex flex-col items-center gap-4 mb-8 sm:mb-10">
                   <h3 className="font-futura font-medium text-[20px] sm:text-[24px] leading-[31.88px] text-black">
-                    Allow Changes?
+                    {t("allowChanges")}
                   </h3>
 
                   <div className="flex gap-4">
@@ -200,7 +202,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                       disabled={isSubmitting}
                       className="w-[130px] sm:w-[154px] h-[41px] bg-[#405BA9] text-white rounded-[23px] font-futura font-medium text-[16px] leading-[21.25px] disabled:opacity-50 hover:bg-[#293241] transition-colors"
                     >
-                      {isSubmitting ? "Processing..." : "Yes"}
+                      {isSubmitting ? t("processing") : t("yes")}
                     </button>
 
                     <button
@@ -208,7 +210,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
                       disabled={isSubmitting}
                       className="w-[130px] sm:w-[154px] h-[41px] bg-[#405BA9] text-white rounded-[23px] font-futura font-medium text-[16px] leading-[21.25px] disabled:opacity-50 hover:bg-[#293241] transition-colors"
                     >
-                      {isSubmitting ? "Processing..." : "No"}
+                      {isSubmitting ? t("processing") : t("no")}
                     </button>
                   </div>
                 </div>

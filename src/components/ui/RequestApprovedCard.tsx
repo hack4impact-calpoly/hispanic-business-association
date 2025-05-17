@@ -4,12 +4,14 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import Image from "next/image";
 import { Card, CardContent } from "./card";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface RequestApprovedCardProps {
   onClose?: () => void;
 }
 
 const RequestApprovedCard = ({ onClose }: RequestApprovedCardProps) => {
+  const t = useTranslations();
   const isMobile = useIsMobile();
   const [windowSize, setWindowSize] = useState({
     width: typeof window !== "undefined" ? window.innerWidth : 0,
@@ -66,7 +68,7 @@ const RequestApprovedCard = ({ onClose }: RequestApprovedCardProps) => {
               height={102}
               className="mb-6"
             />
-            <p className="text-[26px] text-center font-medium">Changes Approved!</p>
+            <p className="text-[26px] text-center font-medium">{t("changesApproved")}</p>
           </CardContent>
         </Card>
       </div>
