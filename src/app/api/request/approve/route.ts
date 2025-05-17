@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/database/db";
 import Request from "@/database/requestSchema";
+import RequestHistory from "@/database/requestHistorySchema";
 import Business from "@/database/businessSchema";
 import { removeImage } from "@/app/actions/s3Actions";
 import { currentUser } from "@clerk/nextjs/server";
@@ -23,13 +24,13 @@ function isFieldChanged(requestValue: any, businessValue: any): boolean {
 
 export async function POST(req: Request) {
   try {
-    // Check authentication (existing code)
+    // Check authentication
     const user = await currentUser();
     if (!user) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // Extract request ID from the request body (existing code)
+    // Extract request ID from the request body
     const body = await req.json();
     const requestId = body.requestId;
 
@@ -39,13 +40,13 @@ export async function POST(req: Request) {
 
     await connectDB();
 
-    // Get the request from the database (existing code)
+    // Get the request from the database
     const requestData = await Request.findById(requestId);
     if (!requestData) {
       return NextResponse.json({ message: "Request not found" }, { status: 404 });
     }
 
-    // Find the business to update (existing code)
+    // Find the business to update
     const business = await Business.findOne({ clerkUserID: requestData.clerkUserID });
     if (!business) {
       return NextResponse.json({ message: "Business not found" }, { status: 404 });
@@ -55,96 +56,58 @@ export async function POST(req: Request) {
     const imagesToDelete = [];
 
     // Check for logo changes and store old URL if needed
-    if (requestData.logoUrl && isFieldChanged(requestData.logoUrl, business.logoUrl)) {
+    if (requestData.new.logoUrl && isFieldChanged(requestData.new.logoUrl, business.logoUrl)) {
       // Store old logo URL for deletion if it's not a default image
       if (business.logoUrl && !business.logoUrl.includes("Default_Logo")) {
         imagesToDelete.push(business.logoUrl);
       }
-      business.logoUrl = requestData.logoUrl;
+      business.logoUrl = requestData.new.logoUrl;
     }
 
     // Check for banner changes and store old URL if needed
-    if (requestData.bannerUrl && isFieldChanged(requestData.bannerUrl, business.bannerUrl)) {
+    if (requestData.new.bannerUrl && isFieldChanged(requestData.new.bannerUrl, business.bannerUrl)) {
       // Store old banner URL for deletion if it's not a default image
       if (business.bannerUrl && !business.bannerUrl.includes("Default_Banner")) {
         imagesToDelete.push(business.bannerUrl);
       }
-      business.bannerUrl = requestData.bannerUrl;
+      business.bannerUrl = requestData.new.bannerUrl;
     }
 
-    // Update only fields that have changed
-    // Top-level fields
-    if (requestData.businessName && isFieldChanged(requestData.businessName, business.businessName)) {
-      business.businessName = requestData.businessName;
-    }
+    // Update business fields from new request data
+    const newData = requestData.new;
 
-    if (requestData.businessType && isFieldChanged(requestData.businessType, business.businessType)) {
-      business.businessType = requestData.businessType;
-    }
+    // Update top-level fields
+    if (newData.businessName) business.businessName = newData.businessName;
+    if (newData.businessType) business.businessType = newData.businessType;
+    if (newData.businessOwner) business.businessOwner = newData.businessOwner;
+    if (newData.website) business.website = newData.website;
+    if (newData.description) business.description = newData.description;
 
-    if (requestData.businessOwner && isFieldChanged(requestData.businessOwner, business.businessOwner)) {
-      business.businessOwner = requestData.businessOwner;
-    }
-
-    if (requestData.website && isFieldChanged(requestData.website, business.website)) {
-      business.website = requestData.website;
-    }
-
-    if (requestData.logoUrl && isFieldChanged(requestData.logoUrl, business.logoUrl)) {
-      business.logoUrl = requestData.logoUrl;
-    }
-
-    if (requestData.bannerUrl && isFieldChanged(requestData.bannerUrl, business.bannerUrl)) {
-      business.bannerUrl = requestData.bannerUrl;
-    }
-
-    if (requestData.description && isFieldChanged(requestData.description, business.description)) {
-      business.description = requestData.description;
-    }
-
-    // Handle nested objects: address
-    if (requestData.address) {
+    // Update nested objects if they exist
+    if (newData.address) {
       if (!business.address) business.address = {};
 
-      const addressFields = ["street", "city", "state", "zip", "county"];
-      addressFields.forEach((field) => {
-        if (
-          requestData.address[field] !== undefined &&
-          isFieldChanged(requestData.address[field], business.address[field])
-        ) {
-          business.address[field] = requestData.address[field];
-        }
-      });
+      if (newData.address.street) business.address.street = newData.address.street;
+      if (newData.address.city) business.address.city = newData.address.city;
+      if (newData.address.state) business.address.state = newData.address.state;
+      if (newData.address.zip) business.address.zip = newData.address.zip;
+      if (newData.address.county) business.address.county = newData.address.county;
     }
 
-    // Handle nested objects: pointOfContact
-    if (requestData.pointOfContact) {
+    if (newData.pointOfContact) {
       if (!business.pointOfContact) business.pointOfContact = {};
 
-      const contactFields = ["name", "phoneNumber", "email"];
-      contactFields.forEach((field) => {
-        if (
-          requestData.pointOfContact[field] !== undefined &&
-          isFieldChanged(requestData.pointOfContact[field], business.pointOfContact[field])
-        ) {
-          business.pointOfContact[field] = requestData.pointOfContact[field];
-        }
-      });
+      if (newData.pointOfContact.name) business.pointOfContact.name = newData.pointOfContact.name;
+      if (newData.pointOfContact.phoneNumber) business.pointOfContact.phoneNumber = newData.pointOfContact.phoneNumber;
+      if (newData.pointOfContact.email) business.pointOfContact.email = newData.pointOfContact.email;
     }
 
-    // Handle nested objects: socialMediaHandles
-    if (requestData.socialMediaHandles) {
+    if (newData.socialMediaHandles) {
       if (!business.socialMediaHandles) business.socialMediaHandles = {};
 
-      const socialFields = ["IG", "twitter", "FB"];
-      socialFields.forEach((field) => {
-        if (
-          requestData.socialMediaHandles[field] !== undefined &&
-          isFieldChanged(requestData.socialMediaHandles[field], business.socialMediaHandles[field])
-        ) {
-          business.socialMediaHandles[field] = requestData.socialMediaHandles[field];
-        }
-      });
+      if (newData.socialMediaHandles.IG) business.socialMediaHandles.IG = newData.socialMediaHandles.IG;
+      if (newData.socialMediaHandles.twitter) business.socialMediaHandles.twitter = newData.socialMediaHandles.twitter;
+      if (newData.socialMediaHandles.FB) business.socialMediaHandles.FB = newData.socialMediaHandles.FB;
     }
 
     // Save the updated business
@@ -160,10 +123,25 @@ export async function POST(req: Request) {
       }
     }
 
+    // Create a history entry
+    const historyData = {
+      clerkUserID: requestData.clerkUserID,
+      old: requestData.old,
+      new: requestData.new,
+      date: requestData.date,
+      status: "closed",
+      decision: "approved",
+    };
+
+    await RequestHistory.create(historyData);
+
     // Mark the request as closed and approved
     requestData.status = "closed";
     requestData.decision = "approved";
     await requestData.save();
+
+    // Delete the request from the requests collection
+    await Request.findByIdAndDelete(requestId);
 
     return NextResponse.json({ message: "Request approved successfully" });
   } catch (error) {
