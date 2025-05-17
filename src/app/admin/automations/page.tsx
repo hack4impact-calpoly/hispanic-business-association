@@ -6,8 +6,10 @@ import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import MessageCard from "@/components/ui/MessageCard";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export default function BusinessAutomationsPage() {
+  const t = useTranslations();
   const [sortOption, setSortOption] = useState<"latest" | "oldest" | "a-z" | "z-a">("latest");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -94,7 +96,7 @@ export default function BusinessAutomationsPage() {
   };
 
   return (
-    <ResponsiveLayout title="Messages">
+    <ResponsiveLayout title={t("messages")}>
       <div className={`container ${isMobile ? "max-w-2xl px-1" : "max-w-2xl p-4"}`}>
         <button
           className={`bg-[#405BA9] w-full text-white rounded-full flex items-center mb-6 cursor-pointer ${
@@ -109,17 +111,17 @@ export default function BusinessAutomationsPage() {
             width={40}
             height={40}
           />
-          <span className={`flex-grow text-center ${isMobile ? "text-[18px]" : ""}`}>Send New Message</span>
+          <span className={`flex-grow text-center ${isMobile ? "text-[18px]" : ""}`}>{t("sendNewMsg")}</span>
         </button>
 
         <div className="flex justify-between items-center mb-3 relative">
-          <h2 className={`font-semibold ${isMobile ? "text-lg" : "text-[26px]"}`}>Recent Messages Sent</h2>
+          <h2 className={`font-semibold ${isMobile ? "text-lg" : "text-[26px]"}`}>{t("recentMsgSent")}</h2>
           <div className="relative">
             <button
               className={`flex items-center gap-1 ${isMobile ? "text-lg" : "text-[24px]"}`}
               onClick={handleFilterClick}
             >
-              Sort By
+              {t("sortBy")}
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={`w-6 h-6`}>
                 <path
                   fillRule="evenodd"
@@ -134,13 +136,13 @@ export default function BusinessAutomationsPage() {
                   onClick={() => handleSortOptionSelect("latest")}
                   className={`block w-full px-4 py-2 text-left hover:bg-gray-100 ${sortOption === "latest" ? "font-semibold" : ""}`}
                 >
-                  Latest
+                  {t("latest")}
                 </button>
                 <button
                   onClick={() => handleSortOptionSelect("oldest")}
                   className={`block w-full px-4 py-2 text-left hover:bg-gray-100 ${sortOption === "oldest" ? "font-semibold" : ""}`}
                 >
-                  Oldest
+                  {t("Oldest")}
                 </button>
                 <button
                   onClick={() => handleSortOptionSelect("a-z")}

@@ -10,8 +10,10 @@ import ContactInfoCard from "@/components/ui/ContactInfoCard";
 import { useBusinessById, useUser } from "@/hooks/swrHooks";
 import { extractBusinessDisplayData } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 export default function BusinessDetailsPage() {
+  const t = useTranslations();
   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const params = useParams();
@@ -53,9 +55,9 @@ export default function BusinessDetailsPage() {
   // Loading state
   if (isBusinessLoading || !isClient) {
     return (
-      <ResponsiveLayout title="Business Details">
+      <ResponsiveLayout title={t("bizDetails")}>
         <div className="flex justify-center items-center min-h-screen">
-          <p className="text-gray-500">Loading business details...</p>
+          <p className="text-gray-500">{t("loadBizDetail")}</p>
         </div>
       </ResponsiveLayout>
     );
@@ -64,9 +66,9 @@ export default function BusinessDetailsPage() {
   // Handle business not found
   if (!business) {
     return (
-      <ResponsiveLayout title="Business Details">
+      <ResponsiveLayout title={t("bizDetails")}>
         <div className="flex justify-center items-center min-h-screen">
-          <p className="text-gray-500">Business not found.</p>
+          <p className="text-gray-500">{t("bizNotFound")}</p>
         </div>
       </ResponsiveLayout>
     );
@@ -78,7 +80,7 @@ export default function BusinessDetailsPage() {
   };
 
   return (
-    <ResponsiveLayout title="Business Details">
+    <ResponsiveLayout title={t("bizDetails")}>
       <main className="w-full bg-white min-h-screen overflow-x-hidden pb-[142px]">
         {/* Header Section with Back Button */}
         <div className="container mx-auto pt-6 px-6 md:px-8 max-w-7xl">
@@ -87,7 +89,7 @@ export default function BusinessDetailsPage() {
               onClick={handleBackClick}
               className="flex items-center gap-2 bg-transparent text-[#405BA9] hover:bg-gray-100"
             >
-              <span className="text-xl">←</span> Back to Businesses
+              <span className="text-xl">←</span> {t("backToBiz")}
             </Button>
           </div>
         </div>
@@ -130,7 +132,7 @@ export default function BusinessDetailsPage() {
         <div className="container mx-auto px-6 md:px-8 max-w-7xl mt-28">
           {/* Business Name Section */}
           <section className="flex flex-col md:flex-row justify-between items-start md:items-center mb-5">
-            <h2 className="text-2xl">{displayData?.businessInfo.name || "Business Name"}</h2>
+            <h2 className="text-2xl">{displayData?.businessInfo.name || t("businessName")}</h2>
           </section>
 
           {/* About Section */}

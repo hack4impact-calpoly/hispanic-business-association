@@ -7,15 +7,17 @@ import MessageSentPopUp from "@/components/ui/MessageSentPopUp";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 export default function BusinessSendNewMessagePage() {
+  const t = useTranslations();
   const router = useRouter();
   const isMobile = useIsMobile();
   const [title, setTitle] = useState("");
   const [directTo, setDirectTo] = useState("");
   const [businessType, setBusinessType] = useState("");
   const [attachment, setAttachment] = useState<File | null>(null);
-  const [attachmentName, setAttachmentName] = useState("Select attachment"); // To display selected file name
+  const [attachmentName, setAttachmentName] = useState(t("selectAttch")); // To display selected file name
   const [message, setMessage] = useState("");
   const [wordCount, setWordCount] = useState(0);
   const maxWords = 500;
@@ -56,13 +58,13 @@ export default function BusinessSendNewMessagePage() {
       setAttachmentName(selectedFile.name); // Update the displayed file name
     } else {
       setAttachment(null);
-      setAttachmentName("Select attachment");
+      setAttachmentName(t("selectAttch"));
     }
   };
 
   const handleRemoveAttachment = () => {
     setAttachment(null);
-    setAttachmentName("Select attachment"); // Reset the displayed name
+    setAttachmentName(t("selectAttch")); // Reset the displayed name
     // Optionally, you might want to clear the file input's value as well:
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -79,7 +81,7 @@ export default function BusinessSendNewMessagePage() {
     } else {
       // If they try to type more, prevent input and show an alert
       event.preventDefault(); // Prevents further typing in some scenarios
-      alert(`You have reached the maximum word limit of ${maxWords} words.`);
+      alert(`${t("maxWordLimit")} ${maxWords} ${t("words")}.`);
     }
   };
 
@@ -89,7 +91,7 @@ export default function BusinessSendNewMessagePage() {
   };
 
   return (
-    <ResponsiveLayout title="Messages">
+    <ResponsiveLayout title={t("messages")}>
       <div className={`container ${isMobile ? "max-w-2xl px-1" : "max-w-4xl p-4"}`}>
         <div className={`pt-2 mb-6}`}>
           <div className="mb-6">
@@ -97,15 +99,15 @@ export default function BusinessSendNewMessagePage() {
               onClick={() => router.push("/admin/automations")}
               className="flex items-center gap-2 bg-transparent text-[#405BA9] hover:bg-gray-100"
             >
-              <span className="text-xl">←</span> Back to Automations
+              <span className="text-xl">←</span> {t("backToAuto")}
             </Button>
           </div>
-          <h2 className="font-[500] text-2xl md:text-[26px] mb-4">Send New Message</h2>
+          <h2 className="font-[500] text-2xl md:text-[26px] mb-4">{t("sendNewMsg")}</h2>
 
           <div className="grid grid-cols-1 gap-4 pt-4">
             <div>
               <label htmlFor="title" className="block text-[20px]">
-                Title
+                {t("title")}
               </label>
               <input
                 type="text"
@@ -117,7 +119,7 @@ export default function BusinessSendNewMessagePage() {
             </div>
             <div>
               <label htmlFor="directTo" className="block text-[20px] py-2">
-                Directly To:
+                {t("directlyTo")}
               </label>
               <input
                 type="text"
@@ -132,7 +134,7 @@ export default function BusinessSendNewMessagePage() {
               {/* Nested grid for Business Type and Attachment on larger screens */}
               <div>
                 <label htmlFor="businessType" className="block text-[20px] py-2">
-                  Business Type
+                  {t("businessType")}
                 </label>
                 <select
                   id="businessType"
@@ -140,7 +142,7 @@ export default function BusinessSendNewMessagePage() {
                   value={businessType}
                   onChange={handleBusinessTypeChange}
                 >
-                  <option>Choose business type</option>
+                  <option>{t("chooseBizType")}</option>
                   <option value="type1">Business Type 1</option>
                   <option value="type2">Business Type 2</option>
                   <option value="type3">Business Type 3</option>
@@ -149,7 +151,7 @@ export default function BusinessSendNewMessagePage() {
               </div>
               <div>
                 <label htmlFor="attachment" className="block text-[20px] py-2">
-                  Include Attachment
+                  {t("inclAttach")}
                 </label>
                 <div className="mt-2 flex flex-row rounded-md shadow-sm">
                   <button
@@ -189,7 +191,7 @@ export default function BusinessSendNewMessagePage() {
               {" "}
               {/* Ensures the textarea takes full width */}
               <label htmlFor="message" className="block text-[20px] py-2">
-                Edit message
+                {t("editMsg")}
               </label>
               <textarea
                 id="message"
@@ -199,7 +201,7 @@ export default function BusinessSendNewMessagePage() {
                 onChange={handleMessageChange}
               />
               <p className="mt-2 text-sm text-gray-500 text-right">
-                {wordCount}/{maxWords} words
+                {wordCount}/{maxWords} {t("words")}
               </p>
             </div>
           </div>
@@ -210,7 +212,7 @@ export default function BusinessSendNewMessagePage() {
               className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
               onClick={handleSave}
             >
-              Save
+              {t("save")}
             </button>
           </div>
           <MessageSentPopUp isOpen={isPopUpVisible} onClose={closePopUp}></MessageSentPopUp>
