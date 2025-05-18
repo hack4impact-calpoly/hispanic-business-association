@@ -161,7 +161,13 @@ export default function BusinessSendNewMessagePage() {
                   >
                     {attachmentName}
                     <div className="flex items-center ml-auto">
-                      <Image src="/icons/Attach.png" className="w-5 h-5" alt="Attach" height={10} width={10}></Image>
+                      <Image
+                        src="/icons/Automations/Attach.png"
+                        className="w-5 h-5"
+                        alt="Attach"
+                        height={10}
+                        width={10}
+                      ></Image>
                     </div>
                   </button>
                   <input

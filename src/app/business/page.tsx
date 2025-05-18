@@ -139,7 +139,7 @@ export default function BusinessDashboardPage() {
             className="absolute top-4 right-4 bg-white bg-opacity-70 p-2 rounded-full hover:bg-opacity-100 transition-all"
             aria-label="Edit banner and logo"
           >
-            <Image src="/icons/Edit.png" alt="Edit" width={16} height={16} />
+            <Image src="/icons/BusinessPreviewAndEdit/Edit.png" alt="Edit" width={16} height={16} />
           </button>
 
           {/* Profile Logo */}

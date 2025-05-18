@@ -163,7 +163,7 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
                 aria-label="Close"
               >
                 <Image
-                  src="/icons/Close.png"
+                  src="/icons/General_Icons/Close.png"
                   alt="Close"
                   width={24}
                   height={24}

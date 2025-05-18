@@ -77,7 +77,7 @@ const RequestDeniedCard = ({ onClose }: RequestDeniedCardProps) => {
           className="absolute top-2 right-2 p-2 text-gray-600 hover:text-gray-800 z-10"
           aria-label="Close"
         >
-          <Image src="/icons/Close.png" alt="Close" width={20} height={20} />
+          <Image src="/icons/General_Icons/Close.png" alt="Close" width={20} height={20} />
         </button>
 
         <Card className="w-full h-full bg-[#D9D9D9] shadow-lg rounded-2xl overflow-auto">
@@ -85,7 +85,7 @@ const RequestDeniedCard = ({ onClose }: RequestDeniedCardProps) => {
             {/* Top content with reduced padding for mobile */}
             <div className={`flex flex-col items-center ${isMobile ? "pt-4" : "pt-10"} mb-4`}>
               <Image
-                src="/icons/Request Denied.png"
+                src="/icons/Requests/Request Denied.png"
                 alt="Request Denied Icon"
                 width={102}
                 height={102}

@@ -136,7 +136,7 @@ export default function ChangeBannerAndLogo({
                 aria-label="Close"
               >
                 <Image
-                  src="/icons/Close.png"
+                  src="/icons/General_Icons/Close.png"
                   alt="Close"
                   width={24}
                   height={24}
@@ -154,7 +154,13 @@ export default function ChangeBannerAndLogo({
             <div className="flex items-start">
               {/* Upload icon in gray circle, aligned with text */}
               <div className="flex-shrink-0 mr-3 w-[44px] h-[44px] bg-[#D9D9D9] rounded-full flex items-center justify-center self-start mt-0">
-                <Image src="/icons/Upload.png" alt="Banner upload" width={24} height={24} className="object-contain" />
+                <Image
+                  src="/icons/BusinessPreviewAndEdit/Upload.png"
+                  alt="Banner upload"
+                  width={24}
+                  height={24}
+                  className="object-contain"
+                />
               </div>
 
               <div className="flex-grow">
@@ -190,7 +196,13 @@ export default function ChangeBannerAndLogo({
             <div className="flex items-start mt-12">
               {/* Upload icon in gray circle, aligned with text */}
               <div className="flex-shrink-0 mr-3 w-[44px] h-[44px] bg-[#D9D9D9] rounded-full flex items-center justify-center self-start mt-0">
-                <Image src="/icons/Upload.png" alt="Logo upload" width={24} height={24} className="object-contain" />
+                <Image
+                  src="/icons/BusinessPreviewAndEdit/Upload.png"
+                  alt="Logo upload"
+                  width={24}
+                  height={24}
+                  className="object-contain"
+                />
               </div>
 
               <div className="flex-grow">

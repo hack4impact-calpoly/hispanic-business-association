@@ -105,7 +105,7 @@ export default function BusinessAutomationsPage() {
           onClick={handleSendMessageClick}
         >
           <Image
-            src="/icons/Plus In Circle.png"
+            src="/icons/Automations/Plus In Circle.png"
             className={`${isMobile ? "w-[40px] h-[40px]" : ""}`}
             alt="Plus Icon"
             width={40}

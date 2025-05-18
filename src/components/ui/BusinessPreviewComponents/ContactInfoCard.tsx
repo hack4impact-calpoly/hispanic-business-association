@@ -55,7 +55,7 @@ const ContactInfoCard = ({ info, editable = false, onEditClick }: ContactInfoCar
                 className="p-2 rounded-full hover:bg-[#f0f0f0] transition-colors absolute top-5 right-6"
                 aria-label="Edit contact information"
               >
-                <Image src="/icons/Edit.png" alt="Edit" width={20} height={20} />
+                <Image src="/icons/BusinessPreviewAndEdit/Edit.png" alt="Edit" width={20} height={20} />
               </button>
             )}
           </div>

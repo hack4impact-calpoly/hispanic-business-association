@@ -82,7 +82,13 @@ const MembershipExpirationAlert = ({
     >
       {/* ICON: Warning/alert indicator displayed at left */}
       <div className="flex-shrink-0 mr-3">
-        <Image src="/icons/Box Important.png" alt="Alert icon" width={25} height={25} className="object-contain" />
+        <Image
+          src="/icons/General_Icons/Box Important.png"
+          alt="Alert icon"
+          width={25}
+          height={25}
+          className="object-contain"
+        />
       </div>
 
       {/* MESSAGE: Expiration notification with renewal call-to-action */}

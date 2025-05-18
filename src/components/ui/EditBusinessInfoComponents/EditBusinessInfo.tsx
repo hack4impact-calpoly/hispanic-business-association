@@ -156,7 +156,13 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
                 className="p-2 rounded-full hover:bg-[#f0f0f0] transition-colors absolute top-2 right-2"
                 aria-label="Close"
               >
-                <Image src="/icons/Close.png" alt="Close" width={24} height={24} className="object-contain" />
+                <Image
+                  src="/icons/General_Icons/Close.png"
+                  alt="Close"
+                  width={24}
+                  height={24}
+                  className="object-contain"
+                />
               </button>
             )}
           </header>

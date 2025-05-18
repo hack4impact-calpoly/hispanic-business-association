@@ -42,7 +42,7 @@ const MessageSentPopUp: React.FC<MessageSentPopUpProps> = ({ isOpen, onClose }) 
           &times;
         </button>
         <CardContent className="flex flex-col justify-center items-center p-6">
-          <Image src="/icons/Check In Circle.png" alt="Success Icon" width={iconSize} height={iconSize} />
+          <Image src="/icons/Automations/Check In Circle.png" alt="Success Icon" width={iconSize} height={iconSize} />
           <p className={`font-futura mt-4 text-center ${messageFontSize}`}>{t("messageSent")}</p>
         </CardContent>
       </Card>

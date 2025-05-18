@@ -30,7 +30,7 @@ const LanguageSelector = () => {
           type="button"
         >
           {getButtonTitle(locale)}
-          <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+          <Image src="/icons/General_Icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
