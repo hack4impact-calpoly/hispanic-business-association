@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { Card } from "@/components/ui/card";
+import { Card } from "@/components/ui/shadcnComponents/card";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 

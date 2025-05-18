@@ -1,5 +1,5 @@
-import { Input } from "../input";
-import { Button } from "../button";
+import { Input } from "../shadcnComponents/input";
+import { Button } from "../shadcnComponents/button";
 import { useTranslations } from "next-intl";
 
 interface Step5VerificationProps {

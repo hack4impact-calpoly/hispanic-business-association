@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
-import { Card, CardContent } from "../card";
+import { Card, CardContent } from "../shadcnComponents/card";
 import Step1_BusinessInfo from "./Step1_BusinessInfo";
 import Step2_Address from "./Step2_Address";
 import Step3_SocialLinks from "./Step3_SocialLinks";

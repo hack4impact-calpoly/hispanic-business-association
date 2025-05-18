@@ -1,4 +1,4 @@
-import { Input } from "../input";
+import { Input } from "../shadcnComponents/input";
 import StepNavigation from "./StepNavigation";
 import { useTranslations } from "next-intl";
 

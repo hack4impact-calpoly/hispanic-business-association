@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Card, CardContent } from "./card";
+import { Card, CardContent } from "./shadcnComponents/card";
 import React from "react";
 import ReactDOM from "react-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
