@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
-import InformationCard from "@/components/ui/InformationCard";
+import InformationCard from "@/components/ui/RequestsCards/RequestInformationCard";
 import { useRequestHistoryById, useBusiness } from "@/hooks/swrHooks";
 import { Button } from "@/components/ui/shadcnComponents/button";
 import { useTranslations } from "next-intl";
