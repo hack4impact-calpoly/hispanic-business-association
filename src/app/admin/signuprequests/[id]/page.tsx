@@ -8,6 +8,7 @@ import { useSignUpRequest, useBusiness, updateRequestStatus, useSignUpRequests }
 import { Button } from "@/components/ui/button";
 import RequestApprovedCard from "@/components/ui/RequestApprovedCard";
 import RequestDeniedCard from "@/components/ui/RequestDeniedCard";
+import { useTranslations } from "next-intl";
 
 // Define props for the page component
 interface SignupRequestDetailPageProps {
@@ -17,6 +18,7 @@ interface SignupRequestDetailPageProps {
 }
 
 export default function SignupRequestDetailPage({ params }: SignupRequestDetailPageProps) {
+  const t = useTranslations();
   const [showApprovedCard, setShowApprovedCard] = useState(false);
   const [showDeniedCard, setShowDeniedCard] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,7 +60,37 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
     if (!signupRequest) return;
 
     setIsSubmitting(true);
-    // add sign up logic
+
+    fetch("/api/business", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        clerkUserID: signupRequest.clerkUserID,
+        businessName: signupRequest.businessName,
+        businessType: signupRequest.businessType,
+        membershipFeeType: signupRequest.membershipFeeType,
+        businessOwner: signupRequest.businessOwner,
+        website: signupRequest.website,
+        address: signupRequest.address,
+        pointOfContact: signupRequest.pointOfContact,
+        socialMediaHandles: signupRequest.socialMediaHandles,
+        description: signupRequest.description,
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((result) => {
+        console.log("Success:", result);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
     try {
       const response = await fetch("/api/signup/approve", {
         method: "POST",
@@ -79,7 +111,7 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
       mutateRequest();
     } catch (error) {
       console.error("Error approving request:", error);
-      alert("Error approving request");
+      alert(t("approveReqError"));
     } finally {
       setIsSubmitting(false);
     }
@@ -110,14 +142,14 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
       mutateRequest();
     } catch (error) {
       console.error("Error denying request:", error);
-      alert("Error denying request");
+      alert(t("denyReqError"));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <ResponsiveLayout title="Request">
+    <ResponsiveLayout title={t("req")}>
       {/* Refined responsive container */}
       <div className="relative min-h-screen bg-white px-3 sm:px-4 md:px-6 py-6 pb-[142px] md:pb-12">
         <div className="w-full max-w-7xl mx-auto">
@@ -127,7 +159,7 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
               onClick={() => router.push("/admin/requests")}
               className="flex items-center gap-2 bg-transparent text-[#405BA9] hover:bg-gray-100"
             >
-              <span className="text-xl">←</span> Back to Requests
+              <span className="text-xl">←</span> {t("backToReq")}
             </Button>
 
             {signupRequest && signupRequest.status === "closed" && (
@@ -143,13 +175,13 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
 
           {isLoading && (
             <div className="flex justify-center items-center h-[300px]">
-              <p className="text-lg">Loading request details...</p>
+              <p className="text-lg">{t("loadReqDetails")}</p>
             </div>
           )}
 
           {isError && (
             <div className="flex justify-center items-center h-[300px]">
-              <p className="text-lg text-red-500">Error loading request. Please try again.</p>
+              <p className="text-lg text-red-500">{t("errLoadReq")}</p>
             </div>
           )}
 
@@ -163,7 +195,7 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
                 {/* Cards Container - Flex column on mobile, row on desktop */}
                 <div className="w-full flex justify-center">
                   <div className="w-full lg:max-w-[600px]">
-                    <h3 className="font-futura font-medium text-xl text-black mb-4">New Information</h3>
+                    <h3 className="font-futura font-medium text-xl text-black mb-4">{t("newInfo")}</h3>
                     <InformationCard type="signup" businessInfo={newInfo} />
                   </div>
                 </div>
@@ -173,7 +205,7 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
               {signupRequest && signupRequest.status === "open" ? (
                 <div className="flex flex-col items-center gap-4 mb-8 sm:mb-10">
                   <h3 className="font-futura font-medium text-[20px] sm:text-[24px] leading-[31.88px] text-black">
-                    Allow Account Creation?
+                    {t("accCreate")}
                   </h3>
 
                   <div className="flex gap-4">
@@ -182,7 +214,7 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
                       disabled={isSubmitting}
                       className="w-[130px] sm:w-[154px] h-[41px] bg-[#405BA9] text-white rounded-[23px] font-futura font-medium text-[16px] leading-[21.25px] disabled:opacity-50 hover:bg-[#293241] transition-colors"
                     >
-                      {isSubmitting ? "Processing..." : "Yes"}
+                      {isSubmitting ? t("processing") : t("yes")}
                     </button>
 
                     <button
@@ -190,7 +222,7 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
                       disabled={isSubmitting}
                       className="w-[130px] sm:w-[154px] h-[41px] bg-[#405BA9] text-white rounded-[23px] font-futura font-medium text-[16px] leading-[21.25px] disabled:opacity-50 hover:bg-[#293241] transition-colors"
                     >
-                      {isSubmitting ? "Processing..." : "No"}
+                      {isSubmitting ? t("processing") : t("no")}
                     </button>
                   </div>
                 </div>

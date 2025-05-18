@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 interface BaseRequestProps {
   businessName: string;
@@ -24,6 +25,7 @@ interface HistoryRequest extends BaseRequestProps {
 type RequestCardProps = PendingRequest | HistoryRequest;
 
 export const RequestCard = (props: RequestCardProps) => {
+  const t = useTranslations();
   const router = useRouter();
 
   const handleClick = () => {
@@ -65,7 +67,7 @@ export const RequestCard = (props: RequestCardProps) => {
             )}
           >
             <span className={props.status === "approved" ? "text-[#00A819]" : "text-[#AE0000]"}>
-              {props.status === "approved" ? "Approved" : "Denied"}
+              {props.status === "approved" ? t("approved") : t("denied")}
             </span>
             <span className="text-black hidden sm:inline">: {props.date}</span>
           </span>

@@ -3,14 +3,15 @@
 import { useState, useEffect, useMemo } from "react";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import { RequestCard } from "@/components/ui/RequestCard";
-import StatsCard from "@/components/ui/StatsCard";
 import FilterButton from "@/components/ui/FilterButton";
 import { useRequests, useUser, useBusinesses, useSignUpRequests, useRequestHistory } from "@/hooks/swrHooks";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 type FilterType = "Most Recent" | "Oldest" | "Business Name A-Z" | "Business Name Z-A";
 
 export default function AdminRequestsPage() {
+  const t = useTranslations();
   const router = useRouter();
   const [pendingFilter, setPendingFilter] = useState<FilterType>("Most Recent");
   const [historyFilter, setHistoryFilter] = useState<FilterType>("Most Recent");
@@ -52,7 +53,7 @@ export default function AdminRequestsPage() {
     }
 
     // Fall back to placeholder if nothing is found
-    return "(Business Name)";
+    return t("businessName");
   };
 
   // Handle authentication checks with a delay to prevent immediate redirects
@@ -195,10 +196,10 @@ export default function AdminRequestsPage() {
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
 
     if (diffInHours < 24) {
-      return `${diffInHours} hours ago`;
+      return `${diffInHours} ${t("hoursAgo")}`;
     } else {
       const diffInDays = Math.floor(diffInHours / 24);
-      return `${diffInDays} days ago`;
+      return `${diffInDays} ${t("daysAgo")}`;
     }
   };
 
@@ -225,7 +226,7 @@ export default function AdminRequestsPage() {
   const isLoading = isRequestsLoading || isBusinessesLoading || isHistoryLoading || isSignupRequestsLoading;
 
   return (
-    <ResponsiveLayout title="Requests">
+    <ResponsiveLayout title={t("reqs")}>
       <div className="relative min-h-screen bg-white px-2 sm:px-4 md:px-6 py-6 pb-[142px] md:pb-12">
         <div className="w-full max-w-7xl mx-auto pt-4">
           {/* Responsive Flex Container */}
@@ -235,7 +236,7 @@ export default function AdminRequestsPage() {
               {/* Pending Requests section */}
               <div className="flex justify-between items-center mb-4 sm:mb-6 md:mb-8 w-full">
                 <h2 className="font-futura font-medium text-[18px] sm:text-[22px] md:text-[26px] leading-tight md:leading-[34.53px] text-black truncate pr-2">
-                  Pending Requests
+                  {t("pendingReqs")}
                 </h2>
                 <div className="flex-shrink-0">
                   <FilterButton onFilterChange={handlePendingFilterChange} selectedFilter={pendingFilter} />
@@ -244,7 +245,7 @@ export default function AdminRequestsPage() {
 
               <div className="space-y-[6px] sm:space-y-[10px] w-full">
                 {isLoading ? (
-                  <p className="text-center py-4 text-gray-500">Loading requests...</p>
+                  <p className="text-center py-4 text-gray-500">{t("loadReq")}</p>
                 ) : pendingData.length > 0 ? (
                   pendingData.map((request) => (
                     <div
@@ -262,7 +263,7 @@ export default function AdminRequestsPage() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-center py-4 text-gray-500">No pending requests</p>
+                  <p className="text-center py-4 text-gray-500">{t("noPending")}</p>
                 )}
               </div>
 
@@ -271,7 +272,7 @@ export default function AdminRequestsPage() {
               {/* History Requests section */}
               <div className="flex justify-between items-center mb-4 sm:mb-6 md:mb-8 w-full">
                 <h2 className="font-futura font-medium text-[18px] sm:text-[22px] md:text-[26px] leading-tight md:leading-[34.53px] text-black truncate pr-2">
-                  History of Recent Requests
+                  {t("reqHistory")}
                 </h2>
                 <div className="flex-shrink-0">
                   <FilterButton onFilterChange={handleHistoryFilterChange} selectedFilter={historyFilter} />
@@ -280,7 +281,7 @@ export default function AdminRequestsPage() {
 
               <div className="space-y-[6px] sm:space-y-[10px] w-full">
                 {isLoading ? (
-                  <p className="text-center py-4 text-gray-500">Loading request history...</p>
+                  <p className="text-center py-4 text-gray-500">{t("loadReqHistory")}</p>
                 ) : historyData.length > 0 ? (
                   historyData.map((request) => (
                     <div
@@ -298,7 +299,7 @@ export default function AdminRequestsPage() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-center py-4 text-gray-500">No request history</p>
+                  <p className="text-center py-4 text-gray-500">{t("noReqHistory")}</p>
                 )}
               </div>
             </div>
@@ -309,7 +310,7 @@ export default function AdminRequestsPage() {
                 {/* Pending Account Requests section */}
                 <div className="flex justify-between items-center mb-4 sm:mb-6 md:mb-8 w-full">
                   <h2 className="font-futura font-medium text-[18px] sm:text-[22px] md:text-[26px] leading-tight md:leading-[34.53px] text-black truncate pr-2">
-                    Pending Account Requests
+                    {t("pendingAccReq")}
                   </h2>
                   <div className="flex-shrink-0">
                     <FilterButton onFilterChange={handlePendingFilterChange} selectedFilter={pendingFilter} />
@@ -318,7 +319,7 @@ export default function AdminRequestsPage() {
 
                 <div className="space-y-[6px] sm:space-y-[10px] w-full">
                   {isLoading ? (
-                    <p className="text-center py-4 text-gray-500">Loading requests...</p>
+                    <p className="text-center py-4 text-gray-500">{t("loadReq")}</p>
                   ) : pendingSignupData.length > 0 ? (
                     pendingSignupData.map((request) => (
                       <div
@@ -336,7 +337,7 @@ export default function AdminRequestsPage() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-center py-4 text-gray-500">No pending account requests</p>
+                    <p className="text-center py-4 text-gray-500">{t("noPending")}</p>
                   )}
                 </div>
 
@@ -345,7 +346,7 @@ export default function AdminRequestsPage() {
                 {/* Account History Requests section */}
                 <div className="flex justify-between items-center mb-4 sm:mb-6 md:mb-8 w-full">
                   <h2 className="font-futura font-medium text-[18px] sm:text-[22px] md:text-[26px] leading-tight md:leading-[34.53px] text-black truncate pr-2">
-                    History of Account Requests
+                    {t("accReqHistory")}
                   </h2>
                   <div className="flex-shrink-0">
                     <FilterButton onFilterChange={handleHistoryFilterChange} selectedFilter={historyFilter} />
@@ -354,7 +355,7 @@ export default function AdminRequestsPage() {
 
                 <div className="space-y-[6px] sm:space-y-[10px] w-full">
                   {isLoading ? (
-                    <p className="text-center py-4 text-gray-500">Loading account history...</p>
+                    <p className="text-center py-4 text-gray-500">{t("loadReqHistory")}</p>
                   ) : historySignupData.length > 0 ? (
                     historySignupData.map((request) => (
                       <div
@@ -372,7 +373,7 @@ export default function AdminRequestsPage() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-center py-4 text-gray-500">No account history</p>
+                    <p className="text-center py-4 text-gray-500">{t("noReqHistory")}</p>
                   )}
                 </div>
               </div>

@@ -268,7 +268,7 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
   }
 
   return (
-    <article className="fixed inset-x-0 top-0 bottom-[92px] z-[60] h-[calc(100vh-92px)] bg-white overflow-hidden sm:rounded-lg w-full max-w-full md:top-12 md:bottom-auto md:h-auto md:max-h-[90vh] md:mx-auto md:left-0 md:right-0 md:w-[805px] border border-gray-200 flex flex-col">
+    <article className="fixed inset-x-0 top-0 bottom-[92px] z-[60] h-[calc(103vh-92px)] bg-white overflow-y-auto sm:rounded-lg w-full max-w-full md:fixed md:inset-0 md:m-auto md:top-auto md:bottom-auto md:h-auto md:max-h-[90vh] md:mx-auto md:left-0 md:right-0 md:w-[805px] border border-gray-200 flex flex-col">
       <div className="sticky top-0 z-10 bg-white px-4 md:px-5 pt-4 md:pt-6 pb-2">
         <header className="flex flex-wrap gap-2 md:gap-5 justify-between items-start">
           <h1 className="text-lg md:text-xl font-medium text-black">{t("editBizInfo")}</h1>
@@ -551,7 +551,7 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
           </div>
         )}
 
-        <div className="flex max-sm:justify-center justify-end gap-4">
+        <div className="flex max-sm:justify-center justify-end gap-4 mb-5">
           <button
             onClick={handleSubmit}
             disabled={isSubmitting || isLoading} // Disable if initial loading is not done

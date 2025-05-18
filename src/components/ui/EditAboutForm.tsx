@@ -127,7 +127,7 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
 
   // Render description edit form
   return (
-    <article className="fixed inset-x-0 top-0 bottom-[92px] z-[60] h-[calc(100vh-92px)] bg-white overflow-y-auto sm:rounded-lg w-full max-w-full md:top-12 md:bottom-auto md:h-auto md:max-h-[90vh] md:mx-auto md:left-0 md:right-0 md:w-[805px] border border-gray-200">
+    <article className="fixed inset-x-0 top-0 bottom-[92px] z-[60] h-[calc(103vh-92px)] bg-white overflow-y-auto sm:rounded-lg w-full max-w-full md:fixed md:inset-0 md:m-auto md:top-auto md:bottom-auto md:h-auto md:max-h-[90vh] md:mx-auto md:left-0 md:right-0 md:w-[805px] border border-gray-200">
       <section className="flex flex-col py-4 md:py-6 w-full bg-white rounded-lg">
         <div className="flex flex-col px-4 md:px-5 w-full">
           <header className="flex flex-wrap gap-2 md:gap-5 justify-between items-start">
@@ -160,7 +160,7 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
             onChange={handleTextChange}
             className={`flex shrink-0 mt-4 md:mt-8 bg-white rounded-lg border border-solid 
               ${isOverLimit ? "border-red-500" : "border-slate-800"} 
-              h-[150px] md:h-[249px] w-full p-3 md:p-4 resize-none 
+              h-[calc(100vh-350px)] min-h-[200px] md:h-[249px] w-full p-3 md:p-4 resize-none 
               focus:outline-none focus:ring-2 focus:ring-blue-500`}
             placeholder={t("bizDesc")}
             aria-label="Business description"
@@ -191,13 +191,13 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
 
         <hr className="shrink-0 self-center mt-4 md:mt-6 max-w-full h-px border border-solid border-stone-300 w-[90%] md:w-[765px]" />
 
-        <div className="flex justify-end mt-4 md:mt-6 mr-3 md:mr-6 gap-4">
+        <div className="flex justify-end mt-4 md:mt-6 mx-3 md:mr-6 gap-4 mb-5">
           <button
             onClick={handleSubmit}
-            disabled={isSubmitting || isOverLimit || isLoading} // Also disable if initial data is loading
+            disabled={isSubmitting || isOverLimit || isLoading}
             className={`gap-2.5 py-2 px-4 md:py-2.5 md:px-5 text-sm md:text-base font-bold text-white 
               ${isOverLimit || isSubmitting || isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-[#405BA9] hover:bg-[#293241]"} 
-              rounded-3xl min-h-[36px] md:min-h-[40px] transition-colors w-auto flex justify-center items-center`}
+              rounded-3xl min-h-[36px] md:min-h-[40px] transition-colors w-full md:w-auto flex justify-center items-center`}
           >
             {isSubmitting ? <span className="animate-pulse">{t("saving")}</span> : t("submitChanges")}
           </button>

@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 // Define business info structure
 interface BusinessInfo {
@@ -41,6 +42,8 @@ interface InformationCardProps {
 }
 
 const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: InformationCardProps) => {
+  const t = useTranslations();
+
   // Define default image URLs
   const defaultLogo = "/logo/Default_Logo.jpg";
   const defaultBanner = "/logo/Default_Banner.png";
@@ -110,7 +113,7 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
     const hasChanged = isChanged(address, otherAddress);
     const displayClass = `font-futura font-bold text-[14px] leading-[19px] ${getHighlighterClass(hasChanged)}`;
 
-    if (!businessInfo.address) return <p className={displayClass}>Not available</p>;
+    if (!businessInfo.address) return <p className={displayClass}>{t("notAvailable")}</p>;
 
     return (
       <p className={displayClass}>
@@ -126,7 +129,7 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
     const hasChanged = isChanged(contact, otherContact);
     const displayClass = `font-futura font-bold text-[14px] leading-[19px] break-words ${getHighlighterClass(hasChanged)}`;
 
-    if (!businessInfo.pointOfContact) return <p className={displayClass}>Not available</p>;
+    if (!businessInfo.pointOfContact) return <p className={displayClass}>{t("notAvailable")}</p>;
 
     return (
       <p className={displayClass}>
@@ -149,7 +152,7 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
       // Check if this "no handles" state is different from other
       const hasAllHandlesChanged = isChanged(businessInfo.socialMediaHandles, otherBusinessInfo?.socialMediaHandles);
       const noHandlesClass = `font-futura font-bold text-[14px] leading-[19px] ${getHighlighterClass(hasAllHandlesChanged)}`;
-      return <p className={noHandlesClass}>No social media handles available</p>;
+      return <p className={noHandlesClass}>{t("noSocialHandles")}</p>;
     }
 
     return (
@@ -193,7 +196,7 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
     if ((!thisDescription || thisDescription === "") && (!otherDescription || otherDescription === "")) {
       const hasChanged = isChanged(thisDescription, otherDescription);
       const emptyClass = `font-futura font-bold text-[14px] leading-[19px] ${getHighlighterClass(hasChanged)}`;
-      return <div className={emptyClass}>Not available</div>;
+      return <div className={emptyClass}>{t("notAvailable")}</div>;
     }
 
     // Handle case where this description is empty but other is not (or vice versa)
@@ -250,7 +253,7 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
       <div className="p-4 sm:p-6">
         {/* Banner Image Section */}
         <div className="mb-4">
-          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Banner</p>
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">{t("banner")}</p>
           <div
             className={cn(
               "relative w-full h-[80px] rounded-md overflow-hidden p-1",
@@ -274,7 +277,7 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
 
         {/* Logo Image Section */}
         <div className="mb-4">
-          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Logo</p>
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">{t("logo")}</p>
           <div
             className={cn(
               "relative w-[100px] h-[100px] rounded-full border-4 border-white overflow-hidden shadow-sm p-2",
@@ -300,23 +303,27 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
         {/* Business Information Section */}
         <div className="relative">
           {/* Business Name */}
-          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Business Name</p>
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">
+            {t("businessName")}
+          </p>
           {formatField(businessInfo.businessName, otherBusinessInfo?.businessName)}
 
           {/* Business Type */}
           <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1 mt-4">
-            Business Type
+            {t("businessType")}
           </p>
           {formatField(businessInfo.businessType, otherBusinessInfo?.businessType)}
 
           {/* Business Owner */}
           <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1 mt-4">
-            Business Owner
+            {t("bizowner")}
           </p>
           <div className="mb-4">{formatField(businessInfo.businessOwner, otherBusinessInfo?.businessOwner)}</div>
 
           {/* Website */}
-          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1 mt-4">Website</p>
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1 mt-4">
+            {t("website")}
+          </p>
           <div className="mb-4">
             {(() => {
               const currentWebsite = businessInfo.website;
@@ -333,27 +340,29 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
                   </p>
                 );
               } else {
-                return <p className={websiteClasses}>N/A</p>;
+                return <p className={websiteClasses}>{t("notAvailable")}</p>;
               }
             })()}
           </div>
 
           {/* Address */}
-          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Address</p>
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">{t("address")}</p>
           <div className="mb-4">{formatAddress()}</div>
 
           {/* Point of Contact */}
           <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">
-            Point of Contact
+            {t("pointOfContact")}
           </p>
           <div className="mb-4">{formatContact()}</div>
 
           {/* Social Media Handles */}
-          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Social Media</p>
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">
+            {t("socialMedia")}
+          </p>
           <div className="mb-4">{formatSocialMedia()}</div>
 
           {/* Description */}
-          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">Description</p>
+          <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">{t("desc")}</p>
           <div className="w-full mb-4">{formatDescription()}</div>
         </div>
       </div>
