@@ -202,7 +202,7 @@ export default function ChangeBannerAndLogo({
                 aria-label="Close"
               >
                 <Image
-                  src="/icons/Close.png"
+                  src="/icons/General_Icons/Close.png"
                   alt="Close"
                   width={24}
                   height={24}
@@ -218,7 +218,13 @@ export default function ChangeBannerAndLogo({
             {/* Banner upload section */}
             <div className="flex items-start">
               <div className="flex-shrink-0 mr-3 w-[40px] h-[40px] sm:w-[44px] sm:h-[44px] bg-[#D9D9D9] rounded-full flex items-center justify-center self-start">
-                <Image src="/icons/Upload.png" alt="Banner upload" width={20} height={20} className="object-contain" />
+                <Image
+                  src="/icons/BusinessPreviewAndEdit/Upload.png"
+                  alt="Banner upload"
+                  width={20}
+                  height={20}
+                  className="object-contain"
+                />
               </div>
               <div className="flex-grow">
                 <h2 className="text-base font-medium text-black">{t("uploadBanner")}</h2>
@@ -248,7 +254,13 @@ export default function ChangeBannerAndLogo({
             {/* Logo upload section */}
             <div className="flex items-start mt-8 sm:mt-10">
               <div className="flex-shrink-0 mr-3 w-[40px] h-[40px] sm:w-[44px] sm:h-[44px] bg-[#D9D9D9] rounded-full flex items-center justify-center self-start">
-                <Image src="/icons/Upload.png" alt="Logo upload" width={20} height={20} className="object-contain" />
+                <Image
+                  src="/icons/BusinessPreviewAndEdit/Upload.png"
+                  alt="Logo upload"
+                  width={20}
+                  height={20}
+                  className="object-contain"
+                />
               </div>
               <div className="flex-grow">
                 <h2 className="text-base font-medium text-black">{t("uploadLogo")}</h2>

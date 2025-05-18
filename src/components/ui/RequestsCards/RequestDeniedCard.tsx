@@ -78,12 +78,12 @@ const RequestDeniedCard = ({ onClose, onDenyWithReason, requestId }: RequestDeni
               className="absolute top-2 right-2 p-2 text-gray-600 hover:text-gray-800 z-10"
               aria-label="Close"
             >
-              <Image src="/icons/Close.png" alt="Close" width={20} height={20} />
+              <Image src="/icons/General_Icons/Close.png" alt="Close" width={20} height={20} />
             </button>
 
             <div className="flex flex-col items-center pt-4 md:pt-10 mb-4">
               <Image
-                src="/icons/Request Denied.png"
+                src="/icons/Requests/Request Denied.png"
                 alt="Request Denied Icon"
                 width={102}
                 height={102}
