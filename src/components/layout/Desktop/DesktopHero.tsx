@@ -52,8 +52,14 @@ const DesktopHero = ({ title }: DesktopHeroProps) => {
         </div>
 
         <div className="flex items-center gap-[18px] mr-[23px]">
-          <Image src="/icons/Search.png" alt="Search" width={25} height={25} className="cursor-pointer" />
-          <Image src="/icons/Notification.png" alt="Notifications" width={25} height={25} className="cursor-pointer" />
+          <Image src="/icons/DesktopHero/Search.png" alt="Search" width={25} height={25} className="cursor-pointer" />
+          <Image
+            src="/icons/DesktopHero/Notification.png"
+            alt="Notifications"
+            width={25}
+            height={25}
+            className="cursor-pointer"
+          />
         </div>
 
         <div className="flex items-center gap-[10px]">
@@ -70,7 +76,13 @@ const DesktopHero = ({ title }: DesktopHeroProps) => {
               }}
             />
           </div>
-          <Image src="/icons/Expand Arrow.png" alt="Expand" width={25} height={25} className="cursor-pointer" />
+          <Image
+            src="/icons/DesktopHero/Expand Arrow.png"
+            alt="Expand"
+            width={25}
+            height={25}
+            className="cursor-pointer"
+          />
         </div>
       </div>
     </div>

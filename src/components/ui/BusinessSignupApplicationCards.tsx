@@ -809,7 +809,7 @@ const BusinessSignupApplication = () => {
                     type="button"
                   >
                     {locale}
-                    <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+                    <Image src="/icons/General_Icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
@@ -824,7 +824,7 @@ const BusinessSignupApplication = () => {
                 type="button"
               >
                 {locale}
-                <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+                <Image src="/icons/General_Icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
@@ -843,7 +843,7 @@ const BusinessSignupApplication = () => {
           type="button"
         >
           {currentLocale === 'en' ? 'English (United States)' : 'Español'}
-          <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+          <Image src="/icons/General_Icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
@@ -858,7 +858,7 @@ const BusinessSignupApplication = () => {
                 type="button"
               >
                 {locale}
-                <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+                <Image src="/icons/General_Icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
@@ -878,7 +878,7 @@ const BusinessSignupApplication = () => {
               <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
             </div>
             <div className="flex flex-col justify-center items-center w-full h-[60%]">
-              <Image src="/icons/Request Approved.png" alt="Checkmark" width={60} height={60} />
+              <Image src="/icons/Requests/Request Approved.png" alt="Checkmark" width={60} height={60} />
               <strong className="text-[18px] text-center">{t("submissionTitle")}</strong>
               <h5>{t("submissionSubtitle")}</h5>
               <div className="bg-[#3F5EBB] text-white p-4 rounded-lg mt-4">
@@ -897,7 +897,7 @@ const BusinessSignupApplication = () => {
           type="button"
         >
           {currentLocale === 'en' ? 'English (United States)' : 'Español'}
-          <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+          <Image src="/icons/General_Icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
@@ -912,7 +912,7 @@ const BusinessSignupApplication = () => {
                     type="button"
                   >
                     {locale}
-                    <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+                    <Image src="/iconsGeneral_Icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
@@ -931,7 +931,7 @@ const BusinessSignupApplication = () => {
           type="button"
         >
           {currentLocale === 'en' ? 'English (United States)' : 'Español'}
-          <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+          <Image src="/icons/General_Icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
@@ -946,7 +946,7 @@ const BusinessSignupApplication = () => {
                 type="button"
               >
                 {locale}
-                <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+                <Image src="/icons/General_Icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>

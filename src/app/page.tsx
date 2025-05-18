@@ -220,7 +220,7 @@ export default function Login() {
               <DropdownMenuTrigger asChild>
                 <Button className="flex border border-gray-300 overflow-hidden text-sm mr-6 mx-auto" type="button">
                   {getButtonTitle(locale)}
-                  <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+                  <Image src="/icons/General_Icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
@@ -236,7 +236,7 @@ export default function Login() {
           <DropdownMenuTrigger asChild>
             <Button className="flex border border-gray-300 overflow-hidden text-sm mr-6 mx-auto" type="button">
               {getButtonTitle(locale)}
-              <Image src="/icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
+              <Image src="/icons/General_Icons/Sort Down.png" alt="DropDownArrow" width={15} height={15} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>

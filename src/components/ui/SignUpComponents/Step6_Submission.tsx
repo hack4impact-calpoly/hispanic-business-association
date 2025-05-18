@@ -19,7 +19,7 @@ const Step6_Submission = ({ onFinalAction, finalButtonLabel = "Return" }: Step6P
           </div>
 
           <div className="flex flex-col justify-center items-center w-full h-[60%]">
-            <Image src="/icons/Request Approved.png" alt="Checkmark" width={60} height={60} />
+            <Image src="/icons/Requests/Request Approved.png" alt="Checkmark" width={60} height={60} />
             <strong className="text-[18px] text-center">{t("submissionTitle")}</strong>
             <h5>{t("submissionSubtitle")}</h5>
 

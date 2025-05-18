@@ -10,7 +10,7 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-} from "@/components/layout/navigation-menu";
+} from "@/components/ui/shadcnComponents/navigation-menu";
 
 export default function Navbar() {
   const t = useTranslations();
@@ -21,17 +21,12 @@ export default function Navbar() {
   const userRole = user?.publicMetadata?.role as string;
 
   const menuItems: Record<string, { href: string; src: string; alt: string }[]> = {
-    business: [
-      { href: "/business", src: "/icons/Phone - Dashboard.png", alt: t("dashboard") },
-      { href: "/business", src: "/icons/Phone - Inbox.png", alt: t("inbox") },
-      { href: "/business", src: "/icons/Phone - Update.png", alt: t("update") },
-      { href: "/business", src: "/icons/Phone - Application.png", alt: t("app") },
-    ],
+    business: [{ href: "/business", src: "/icons/MobileNavbar/Dashboard.png", alt: t("dashboard") }],
     admin: [
-      { href: "/admin", src: "/icons/Phone - Dashboard.png", alt: t("dashboard") },
-      { href: "/admin/analytics", src: "/icons/Phone - Analytics.png", alt: t("analytics") },
-      { href: "/admin/requests", src: "/icons/Phone - Requests.png", alt: t("reqs") },
-      { href: "/admin/automations", src: "/icons/Phone - Automated.png", alt: t("automations") },
+      { href: "/admin", src: "/icons/MobileNavbar/Dashboard.png", alt: t("dashboard") },
+      { href: "/admin/analytics", src: "/icons/MobileNavbar/Analytics.png", alt: t("analytics") },
+      { href: "/admin/requests", src: "/icons/MobileNavbar/Requests.png", alt: t("reqs") },
+      { href: "/admin/automations", src: "/icons/MobileNavbar/Automated.png", alt: t("automations") },
     ],
   };
 

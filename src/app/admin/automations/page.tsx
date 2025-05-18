@@ -3,7 +3,7 @@
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useCallback } from "react";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
-import MessageCard from "@/components/ui/MessageCard";
+import MessageCard from "@/components/ui/AutomationsCards/MessageCard";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -105,7 +105,7 @@ export default function BusinessAutomationsPage() {
           onClick={handleSendMessageClick}
         >
           <Image
-            src="/icons/Plus In Circle.png"
+            src="/icons/Automations/Plus In Circle.png"
             className={`${isMobile ? "w-[40px] h-[40px]" : ""}`}
             alt="Plus Icon"
             width={40}

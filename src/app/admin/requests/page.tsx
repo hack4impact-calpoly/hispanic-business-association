@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useMemo } from "react";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
-import { RequestCard } from "@/components/ui/RequestCard";
-import FilterButton from "@/components/ui/FilterButton";
+import { RequestCard } from "@/components/ui/RequestsCards/RequestCard";
+import FilterButton from "@/components/ui/GeneralAdminComponents/FilterButton";
 import { useRequests, useUser, useBusinesses, useSignUpRequests, useRequestHistory } from "@/hooks/swrHooks";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";

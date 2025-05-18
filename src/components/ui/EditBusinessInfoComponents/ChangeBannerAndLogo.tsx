@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Card, CardContent } from "./shadcnComponents/card";
-import { Button } from "./shadcnComponents/button";
+import { Card, CardContent } from "@/components/ui/shadcnComponents/card";
+import { Button } from "@/components/ui/shadcnComponents/button";
 import { uploadToS3 } from "@/lib/s3Client";
 import { useActiveBusinessRequest } from "@/hooks/swrHooks";
 import { useTranslations } from "next-intl";

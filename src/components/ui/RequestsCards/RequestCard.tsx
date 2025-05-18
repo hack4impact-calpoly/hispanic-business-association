@@ -50,7 +50,9 @@ export const RequestCard = (props: RequestCardProps) => {
 
         {props.type === "pending" ? (
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-            {props.isUrgent && <Image src="/icons/Box Important.png" alt="Important" width={20} height={20} />}
+            {props.isUrgent && (
+              <Image src="/icons/General_Icons/Box Important.png" alt="Important" width={20} height={20} />
+            )}
             <span
               className={cn(
                 "font-futura text-sm sm:text-[20px] leading-tight sm:leading-[27px] whitespace-nowrap",

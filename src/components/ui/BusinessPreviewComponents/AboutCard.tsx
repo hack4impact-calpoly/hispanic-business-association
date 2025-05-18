@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Card, CardHeader, CardContent } from "./shadcnComponents/card";
+import { Card, CardHeader, CardContent } from "../shadcnComponents/card";
 import { useTranslations } from "next-intl";
 
 // Interface for about card content structure
@@ -39,7 +39,13 @@ const AboutCard = ({ info, editable = false, onEditClick }: AboutCardProps) => {
               onClick={onEditClick}
               aria-label="Edit about section"
             >
-              <Image src="/icons/Edit.png" alt="Edit" width={20} height={20} style={{ marginBottom: "5px" }} />
+              <Image
+                src="/icons/BusinessPreviewAndEdit/Edit.png"
+                alt="Edit"
+                width={20}
+                height={20}
+                style={{ marginBottom: "5px" }}
+              />
             </button>
           )}
         </div>

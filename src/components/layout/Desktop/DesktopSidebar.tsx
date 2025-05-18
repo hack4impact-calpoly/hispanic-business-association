@@ -47,7 +47,7 @@ export default function DesktopSidebar() {
       {
         name: t("dashboard"),
         href: "/business",
-        icon: "/icons/Home.png",
+        icon: "/icons/DesktopSidebar/Home.png",
         current: pathname === "/business" || pathname.startsWith("/business/"),
       },
     ],
@@ -55,25 +55,25 @@ export default function DesktopSidebar() {
       {
         name: t("dashboard"),
         href: "/admin",
-        icon: "/icons/Home.png",
+        icon: "/icons/DesktopSidebar/Home.png",
         current: pathname === "/admin",
       },
       {
         name: t("analytics"),
         href: "/admin/analytics",
-        icon: "/icons/Analytics.png",
+        icon: "/icons/DesktopSidebar/Analytics.png",
         current: pathname === "/admin/analytics" || pathname.startsWith("/admin/analytics/"),
       },
       {
         name: t("reqs"),
         href: "/admin/requests",
-        icon: "/icons/Requests.png",
+        icon: "/icons/DesktopSidebar/Requests.png",
         current: pathname === "/admin/requests" || pathname.startsWith("/admin/requests/"),
       },
       {
         name: t("automations"),
         href: "/admin/automations",
-        icon: "/icons/Automation.png",
+        icon: "/icons/DesktopSidebar/Automation.png",
         current: pathname === "/admin/automations" || pathname.startsWith("/admin/automations/"),
       },
     ],
@@ -105,7 +105,7 @@ export default function DesktopSidebar() {
               : "w-[30px] h-[30px] mt-[29px] ml-[35px]",
           )}
         >
-          <Image src="/icons/Menu.png" alt="Menu" width={30} height={30} className="p-1 mx-auto" />
+          <Image src="/icons/DesktopSidebar/Menu.png" alt="Menu" width={30} height={30} className="p-1 mx-auto" />
         </button>
 
         {/* Navigation items + Sign Out */}
@@ -149,7 +149,7 @@ export default function DesktopSidebar() {
                 : "ml-[4px] mt-[40px]",
             )}
           >
-            <Image src="/icons/Logout.png" alt="Sign Out" width={30} height={30} className="shrink-0" />
+            <Image src="/icons/DesktopSidebar/Logout.png" alt="Sign Out" width={30} height={30} className="shrink-0" />
             {isExpanded && <span className="ml-[18px]">{t("signOut")}</span>}
           </button>
         </div>

@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { Card, CardContent } from "./shadcnComponents/card";
+import { Card, CardContent } from "../shadcnComponents/card";
 import { useTranslations } from "next-intl";
 
 interface ChangeRequestConfirmationProps {
@@ -18,7 +18,7 @@ const ChangeRequestConfirmation: React.FC<ChangeRequestConfirmationProps> = ({ o
       <CardContent className="flex flex-col p-5 py-6 w-full">
         <header className="flex justify-end">
           <button onClick={onClose} className="text-gray-600 hover:text-gray-800 focus:outline-none" aria-label="Close">
-            <Image src="/icons/Close.png" alt="Close" width={30} height={30} className="object-contain" />
+            <Image src="/icons/General_Icons/Close.png" alt="Close" width={30} height={30} className="object-contain" />
           </button>
         </header>
 

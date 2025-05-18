@@ -3,19 +3,19 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
-import MembershipExpirationAlert from "@/components/ui/MembershipExpirationAlert";
-import BusinessInfoCard from "@/components/ui/BusinessInfoCard";
-import ContactInfoCard from "@/components/ui/ContactInfoCard";
-import AboutCard from "@/components/ui/AboutCard";
-import EditAboutForm from "@/components/ui/EditAboutForm";
-import ChangeRequestConfirmation from "@/components/ui/ChangeRequestConfirmation";
-import ChangeBannerAndLogo from "@/components/ui/ChangeBannerAndLogo";
+import MembershipExpirationAlert from "@/components/ui/BusinessPreviewComponents/MembershipExpirationAlert";
+import BusinessInfoCard from "@/components/ui/BusinessPreviewComponents/BusinessInfoCard";
+import ContactInfoCard from "@/components/ui/BusinessPreviewComponents/ContactInfoCard";
+import AboutCard from "@/components/ui/BusinessPreviewComponents/AboutCard";
+import EditAboutForm from "@/components/ui/EditBusinessInfoComponents/EditAboutForm";
+import ChangeRequestConfirmation from "@/components/ui/EditBusinessInfoComponents/ChangeRequestConfirmation";
+import ChangeBannerAndLogo from "@/components/ui/EditBusinessInfoComponents/ChangeBannerAndLogo";
 import { useRouter } from "next/navigation";
 import { useBusiness } from "@/hooks/swrHooks";
 import { extractBusinessDisplayData } from "@/lib/formatters";
 import { useUser } from "@clerk/nextjs";
-import EditBusinessInfo from "@/components/ui/EditBusinessInfo";
-import EditContactInfo from "@/components/ui/EditContactInfo";
+import EditBusinessInfo from "@/components/ui/EditBusinessInfoComponents/EditBusinessInfo";
+import EditContactInfo from "@/components/ui/EditBusinessInfoComponents/EditContactInfo";
 import { useTranslations } from "next-intl";
 
 export default function BusinessDashboardPage() {
@@ -153,7 +153,7 @@ export default function BusinessDashboardPage() {
             className="absolute top-4 right-4 bg-white bg-opacity-70 p-2 rounded-full hover:bg-opacity-100 transition-all"
             aria-label="Edit banner and logo"
           >
-            <Image src="/icons/Edit.png" alt="Edit" width={16} height={16} />
+            <Image src="/icons/BusinessPreviewAndEdit/Edit.png" alt="Edit" width={16} height={16} />
           </button>
 
           {/* Profile Logo */}

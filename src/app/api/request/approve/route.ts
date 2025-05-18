@@ -3,7 +3,7 @@ import connectDB from "@/database/db";
 import Request from "@/database/requestSchema";
 import RequestHistory from "@/database/requestHistorySchema";
 import Business from "@/database/businessSchema";
-import { removeImage } from "@/app/actions/s3Actions";
+import { removeImage } from "@/lib/s3Actions";
 import { currentUser } from "@clerk/nextjs/server";
 
 // Helper function to check if a field has changed

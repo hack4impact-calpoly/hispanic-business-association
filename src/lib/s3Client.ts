@@ -1,4 +1,4 @@
-import { createPresignedUrl, getPublicUrl } from "@/app/actions/s3Actions";
+import { createPresignedUrl, getPublicUrl } from "@/lib/s3Actions";
 
 /**
  * Uploads a file to S3 bucket using a pre-signed URL
