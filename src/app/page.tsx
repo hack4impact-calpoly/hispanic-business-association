@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Button } from "@/components/ui/shadcnComponents/button";
-import { Input } from "@/components/ui/shadcnComponents/input";
-import { Card, CardContent } from "@/components/ui/shadcnComponents/card";
+import { Button } from "@/components/ui/ShadcnComponents/button";
+import { Input } from "@/components/ui/ShadcnComponents/input";
+import { Card, CardContent } from "@/components/ui/ShadcnComponents/card";
 import { useSignIn, useAuth } from "@clerk/nextjs";
 import { useRouter, useParams, usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
@@ -18,7 +18,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../components/ui/shadcnComponents/dropdown-menu";
+} from "../components/ui/ShadcnComponents/dropdown-menu";
 
 export default function Login() {
   const t = useTranslations();

@@ -3,8 +3,8 @@
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useRef } from "react";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
-import MessageSentPopUp from "@/components/ui/MessageSentPopUp";
-import { Button } from "@/components/ui/shadcnComponents/button";
+import MessageSentPopUp from "@/components/ui/AutomationsCards/MessageSentPopUp";
+import { Button } from "@/components/ui/ShadcnComponents/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useTranslations } from "next-intl";

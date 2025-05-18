@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
-import InformationCard from "@/components/ui/InformationCard";
+import InformationCard from "@/components/ui/RequestsCards/RequestInformationCard";
 import { useSignUpRequest, useBusiness, updateRequestStatus, useSignUpRequests } from "@/hooks/swrHooks";
-import { Button } from "@/components/ui/shadcnComponents/button";
-import RequestApprovedCard from "@/components/ui/RequestApprovedCard";
-import RequestDeniedCard from "@/components/ui/RequestDeniedCard";
+import { Button } from "@/components/ui/ShadcnComponents/button";
+import RequestApprovedCard from "@/components/ui/RequestsCards/RequestApprovedCard";
+import RequestDeniedCard from "@/components/ui/RequestsCards/RequestDeniedCard";
 import { useTranslations } from "next-intl";
 
 // Define props for the page component

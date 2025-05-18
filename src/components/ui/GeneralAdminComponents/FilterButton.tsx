@@ -7,7 +7,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/shadcnComponents/dropdown-menu";
+} from "@/components/ui/ShadcnComponents/dropdown-menu";
 import { useTranslations } from "next-intl";
 
 interface FilterButtonProps {

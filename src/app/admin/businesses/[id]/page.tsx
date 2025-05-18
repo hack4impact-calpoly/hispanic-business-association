@@ -4,12 +4,12 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
-import AboutCard from "@/components/ui/AboutCard";
-import BusinessInfoCard from "@/components/ui/BusinessInfoCard";
-import ContactInfoCard from "@/components/ui/ContactInfoCard";
+import AboutCard from "@/components/ui/BusinessPreviewComponents/AboutCard";
+import BusinessInfoCard from "@/components/ui/BusinessPreviewComponents/BusinessInfoCard";
+import ContactInfoCard from "@/components/ui/BusinessPreviewComponents/ContactInfoCard";
 import { useBusinessById, useUser } from "@/hooks/swrHooks";
 import { extractBusinessDisplayData } from "@/lib/formatters";
-import { Button } from "@/components/ui/shadcnComponents/button";
+import { Button } from "@/components/ui/ShadcnComponents/button";
 import { useTranslations } from "next-intl";
 
 export default function BusinessDetailsPage() {

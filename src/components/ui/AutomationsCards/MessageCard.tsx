@@ -1,7 +1,7 @@
 "use client";
 
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Card, CardHeader, CardContent } from "./shadcnComponents/card";
+import { Card, CardHeader, CardContent } from "../ShadcnComponents/card";
 import { format } from "date-fns";
 
 // Interface for the message card content structure

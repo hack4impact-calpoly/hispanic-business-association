@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Button } from "../shadcnComponents/button";
+import { Button } from "../ShadcnComponents/button";
 import LanguageSelector from "./LanguageSelector";
 import { useTranslations } from "next-intl";
 

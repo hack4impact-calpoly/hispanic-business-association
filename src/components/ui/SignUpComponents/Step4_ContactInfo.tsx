@@ -1,4 +1,4 @@
-import { Input } from "../shadcnComponents/input";
+import { Input } from "../ShadcnComponents/input";
 import StepNavigation from "./StepNavigation";
 import { Eye, EyeOff } from "lucide-react";
 import { useTranslations } from "next-intl";

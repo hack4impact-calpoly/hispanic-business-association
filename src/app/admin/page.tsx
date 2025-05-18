@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
-import BusinessCard from "@/components/ui/BusinessCard";
-import FilterButton from "@/components/ui/FilterButton";
+import BusinessCard from "@/components/ui/GeneralAdminComponents/BusinessCard";
+import FilterButton from "@/components/ui/GeneralAdminComponents/FilterButton";
 import { useBusinesses, useUser } from "@/hooks/swrHooks";
 import { SignInButton } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";

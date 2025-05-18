@@ -2,7 +2,7 @@
 
 import { useState, ChangeEvent, useEffect } from "react";
 import Image from "next/image";
-import { Card, CardContent } from "./shadcnComponents/card";
+import { Card, CardContent } from "../ShadcnComponents/card";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTranslations } from "next-intl";
 

@@ -2,12 +2,10 @@
 
 import { useState, useEffect, useMemo } from "react";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
-import { RequestCard } from "@/components/ui/RequestCard";
-import StatsCard from "@/components/ui/StatsCard";
-import FilterButton from "@/components/ui/FilterButton";
+import { RequestCard } from "@/components/ui/RequestsCards/RequestCard";
+import FilterButton from "@/components/ui/GeneralAdminComponents/FilterButton";
 import { useRequests, useUser, useBusinesses, useSignUpRequests } from "@/hooks/swrHooks";
 import { useRouter } from "next/navigation";
-import SignUpRequest from "@/database/signupRequestSchema";
 import { useTranslations } from "next-intl";
 
 type FilterType = "Most Recent" | "Oldest" | "Business Name A-Z" | "Business Name Z-A";
