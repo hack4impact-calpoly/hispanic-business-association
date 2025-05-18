@@ -168,7 +168,7 @@ export function useRequestHistoryById(id: string, config?: SWRConfiguration) {
 }
 
 export function useSignUpRequest(id: string, config?: SWRConfiguration) {
-  const { data, error, isLoading, isValidating, mutate } = useSWR<IRequest>(id ? `/api/signup/${id}` : null, {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<ISignupRequest>(id ? `/api/signup/${id}` : null, {
     revalidateOnFocus: false,
     ...config,
   });
