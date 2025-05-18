@@ -28,9 +28,9 @@ const BusinessInfoSchema = {
   bannerUrl: { type: String },
 };
 
-export type IRequest = {
-  _id?: string; // MongoDB automatically adds this
-  clerkUserID: string; // Reference to the User's clerkUserID.
+export type IRequestHistory = {
+  _id?: string;
+  clerkUserID: string;
   old: {
     businessName?: string;
     businessType?: string;
@@ -84,21 +84,35 @@ export type IRequest = {
     bannerUrl?: string;
   };
   date: Date;
-  status: "open" | "closed";
-  decision: null | "approved" | "denied";
+  expireAt: Date; // TTL field
+  status: "closed";
+  decision: "approved" | "denied";
   denialMessage?: string;
 };
 
-// Create the Mongoose schema for Request
-const RequestSchema = new Schema<IRequest>({
+// Create the Mongoose schema for RequestHistory
+const RequestHistorySchema = new Schema<IRequestHistory>({
   clerkUserID: { type: String, required: true },
   old: BusinessInfoSchema,
   new: BusinessInfoSchema,
-  date: { type: Date, required: false, default: Date.now },
-  status: { type: String, enum: ["open", "closed"], default: "open" },
-  decision: { type: String, enum: ["approved", "denied"], default: null },
+  date: { type: Date, required: true },
+  expireAt: {
+    type: Date,
+    required: true,
+    default: () => {
+      const date = new Date();
+      date.setDate(date.getDate() + 30); // Add 30 days to current date
+      return date;
+    },
+  },
+  status: { type: String, enum: ["closed"], default: "closed" },
+  decision: { type: String, enum: ["approved", "denied"], required: true },
   denialMessage: { type: String },
 });
 
+// Create TTL index on expireAt field for automatic document expiration
+RequestHistorySchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });
+
 // Export the model
-export default mongoose.models.Request || mongoose.model("Request", RequestSchema);
+export default mongoose.models.RequestHistory ||
+  mongoose.model("RequestHistory", RequestHistorySchema, "requestHistory");

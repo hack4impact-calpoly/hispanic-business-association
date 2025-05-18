@@ -22,81 +22,125 @@ export default function ChangeBannerAndLogo({
   initialLogoUrl = "/logo/Default_Logo.jpg",
 }: ChangeBannerAndLogoProps) {
   const t = useTranslations();
-  // Track file inputs and previews
+  // Store selected image files
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+
+  // Set image preview URLs
   const [bannerPreview, setBannerPreview] = useState<string>(initialBannerUrl);
   const [logoPreview, setLogoPreview] = useState<string>(initialLogoUrl);
 
-  // Track submission state
+  // Store original URLs for comparison
+  const [originalBannerUrl, setOriginalBannerUrl] = useState<string>(initialBannerUrl);
+  const [originalLogoUrl, setOriginalLogoUrl] = useState<string>(initialLogoUrl);
+
+  // Monitor file selection changes
+  const [bannerChangedByFile, setBannerChangedByFile] = useState(false);
+  const [logoChangedByFile, setLogoChangedByFile] = useState(false);
+
+  // Control submission state
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  // Hold response feedback with info type
+  const [feedback, setFeedback] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
 
   // Fetch active request if exists
   const { activeRequest, isLoading: isRequestLoading } = useActiveBusinessRequest();
+
   // Store request ID if one exists
   const [existingRequestId, setExistingRequestId] = useState<string | undefined>(undefined);
 
-  // Check for existing request and set initial URLs if available
+  // Load image URLs from active request or defaults
   useEffect(() => {
     if (activeRequest) {
-      // Set banner and logo URLs from active request if available
-      if (activeRequest.bannerUrl) {
-        setBannerPreview(activeRequest.bannerUrl);
-      }
+      const currentBanner = activeRequest.bannerUrl || initialBannerUrl;
+      const currentLogo = activeRequest.logoUrl || initialLogoUrl;
 
-      if (activeRequest.logoUrl) {
-        setLogoPreview(activeRequest.logoUrl);
-      }
-
-      // Store request ID for update
+      setBannerPreview(currentBanner);
+      setLogoPreview(currentLogo);
+      setOriginalBannerUrl(currentBanner);
+      setOriginalLogoUrl(currentLogo);
       setExistingRequestId((activeRequest as any)._id);
+    } else {
+      setBannerPreview(initialBannerUrl);
+      setLogoPreview(initialLogoUrl);
+      setOriginalBannerUrl(initialBannerUrl);
+      setOriginalLogoUrl(initialLogoUrl);
     }
-  }, [activeRequest]);
+  }, [activeRequest, initialBannerUrl, initialLogoUrl]);
 
-  // Handle banner file selection
+  // Process banner file selection
   const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setBannerFile(file);
-
-    // Create preview URL for selected file
     if (file) {
       const objectUrl = URL.createObjectURL(file);
       setBannerPreview(objectUrl);
+      setBannerChangedByFile(true);
+      if (feedback) setFeedback(null);
     }
   };
 
-  // Handle logo file selection
+  // Process logo file selection
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setLogoFile(file);
-
-    // Create preview URL for selected file
     if (file) {
       const objectUrl = URL.createObjectURL(file);
       setLogoPreview(objectUrl);
+      setLogoChangedByFile(true);
+      if (feedback) setFeedback(null);
     }
   };
 
-  // Handle form submission
+  // Submit image changes
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setFeedback(null);
 
     try {
-      // Upload files to S3 if selected
-      const bannerUrl = bannerFile ? await uploadToS3(bannerFile) : bannerPreview;
-      const logoUrl = logoFile ? await uploadToS3(logoFile) : logoPreview;
+      let finalBannerUrl = bannerPreview;
+      let finalLogoUrl = logoPreview;
 
-      // Create request data
-      const requestData = { bannerUrl, logoUrl, date: new Date().toLocaleDateString() };
-
-      // If we have an existing request ID, include it for update
-      if (existingRequestId) {
-        Object.assign(requestData, { requestId: existingRequestId });
+      if (bannerFile) {
+        const uploadedUrl = await uploadToS3(bannerFile);
+        if (uploadedUrl) {
+          finalBannerUrl = uploadedUrl;
+        }
       }
 
-      // Submit change request to API
+      if (logoFile) {
+        const uploadedUrl = await uploadToS3(logoFile);
+        if (uploadedUrl) {
+          finalLogoUrl = uploadedUrl;
+        }
+      }
+
+      const requestData: any = {
+        date: new Date().toLocaleDateString(),
+      };
+      let hasChanges = false;
+
+      if (bannerChangedByFile || finalBannerUrl !== originalBannerUrl) {
+        requestData.bannerUrl = finalBannerUrl;
+        hasChanges = true;
+      }
+
+      if (logoChangedByFile || finalLogoUrl !== originalLogoUrl) {
+        requestData.logoUrl = finalLogoUrl;
+        hasChanges = true;
+      }
+
+      if (!hasChanges) {
+        setFeedback({ type: "info", message: t("noChangesDetected") });
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (existingRequestId) {
+        requestData.requestId = existingRequestId;
+      }
+
       const response = await fetch("/api/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -108,7 +152,17 @@ export default function ChangeBannerAndLogo({
         throw new Error(errorData.error || t("failedChanges"));
       }
 
-      // Call success callback if provided
+      if (requestData.bannerUrl !== undefined) setOriginalBannerUrl(requestData.bannerUrl);
+      if (requestData.logoUrl !== undefined) setOriginalLogoUrl(requestData.logoUrl);
+
+      setBannerFile(null);
+      setLogoFile(null);
+      setBannerChangedByFile(false);
+      setLogoChangedByFile(false);
+
+      if (requestData.bannerUrl !== undefined) setBannerPreview(requestData.bannerUrl);
+      if (requestData.logoUrl !== undefined) setLogoPreview(requestData.logoUrl);
+
       if (onSubmitSuccess) {
         onSubmitSuccess();
       } else {
@@ -122,21 +176,33 @@ export default function ChangeBannerAndLogo({
     }
   };
 
+  // Display loading indicator
+  if (isRequestLoading) {
+    return (
+      <article className="rounded-lg shadow-sm w-full max-w-[805px] border border-gray-200 bg-white">
+        <section className="flex flex-col py-4 md:py-6 w-full bg-white rounded-lg">
+          <div className="flex justify-center items-center h-[200px] md:h-[400px]">
+            <p className="text-gray-500 animate-pulse">{t("loadBizInfo")}</p>
+          </div>
+        </section>
+      </article>
+    );
+  }
+
   return (
     <article className="fixed inset-x-0 top-0 bottom-[92px] z-[60] h-[calc(100vh-92px)] bg-white overflow-y-auto sm:rounded-lg w-full max-w-full md:top-12 md:bottom-auto md:h-auto md:max-h-[90vh] md:mx-auto md:left-0 md:right-0 md:w-[805px] border border-gray-200">
-      <Card className="rounded-lg shadow-sm w-full border border-gray-200">
-        <CardContent className="flex flex-col py-4 sm:py-7 px-6 sm:px-8 w-full bg-white rounded-lg">
-          {/* Header */}
+      <Card className="rounded-lg shadow-sm w-full border-none">
+        <CardContent className="flex flex-col py-4 sm:py-7 px-4 sm:px-8 w-full bg-white rounded-lg">
           <header className="flex justify-between items-center">
             <h1 className="text-lg sm:text-xl font-medium text-black">{t("changeBannerAndLogo")}</h1>
             {onClose && (
               <button
                 onClick={onClose}
-                className="p-2 rounded-full hover:bg-[#f0f0f0] transition-colors absolute top-2 right-2"
+                className="p-2 rounded-full hover:bg-[#f0f0f0] transition-colors"
                 aria-label="Close"
               >
                 <Image
-                  src="/icons/General_Icons/Close.png"
+                  src="/icons/Close.png"
                   alt="Close"
                   width={24}
                   height={24}
@@ -146,40 +212,27 @@ export default function ChangeBannerAndLogo({
             )}
           </header>
 
-          {/* Thin line */}
           <hr className="mt-4 sm:mt-7 h-px border-t border-solid border-stone-300" />
 
-          <div className="mt-8 w-full pl-1">
+          <div className="mt-6 sm:mt-8 w-full">
             {/* Banner upload section */}
             <div className="flex items-start">
-              {/* Upload icon in gray circle, aligned with text */}
-              <div className="flex-shrink-0 mr-3 w-[44px] h-[44px] bg-[#D9D9D9] rounded-full flex items-center justify-center self-start mt-0">
-                <Image
-                  src="/icons/BusinessPreviewAndEdit/Upload.png"
-                  alt="Banner upload"
-                  width={24}
-                  height={24}
-                  className="object-contain"
-                />
+              <div className="flex-shrink-0 mr-3 w-[40px] h-[40px] sm:w-[44px] sm:h-[44px] bg-[#D9D9D9] rounded-full flex items-center justify-center self-start">
+                <Image src="/icons/Upload.png" alt="Banner upload" width={20} height={20} className="object-contain" />
               </div>
-
               <div className="flex-grow">
                 <h2 className="text-base font-medium text-black">{t("uploadBanner")}</h2>
-                <p className="mt-8 text-sm text-stone-500">
+                <p className="mt-2 sm:mt-3 text-sm text-stone-500">
                   {t("addHighQualitybanner")}
                   <br className="hidden sm:block" />
                   {t("suggestedImages")}
                 </p>
-
-                {/* Banner preview */}
                 {bannerPreview && (
-                  <div className="relative w-full max-w-[500px] h-[80px] sm:h-[100px] mt-8 rounded-md overflow-hidden">
+                  <div className="relative w-full max-w-[450px] sm:max-w-[500px] h-[70px] sm:h-[100px] mt-3 sm:mt-4 rounded-md overflow-hidden border">
                     <Image src={bannerPreview} alt="Banner preview" fill style={{ objectFit: "cover" }} />
                   </div>
                 )}
-
-                {/* Banner upload button - left-aligned and fixed width */}
-                <label className="inline-block mt-8 py-2 px-3 w-[152px] text-center text-xs sm:text-sm font-bold rounded-3xl border border-solid border-zinc-400 text-zinc-400 cursor-pointer">
+                <label className="inline-block mt-3 sm:mt-4 py-2 px-3 w-[140px] sm:w-[152px] text-center text-xs sm:text-sm font-bold rounded-3xl border border-solid border-zinc-400 text-zinc-400 cursor-pointer hover:bg-gray-50">
                   {t("uploadPhoto")}
                   <input
                     type="file"
@@ -193,31 +246,19 @@ export default function ChangeBannerAndLogo({
             </div>
 
             {/* Logo upload section */}
-            <div className="flex items-start mt-12">
-              {/* Upload icon in gray circle, aligned with text */}
-              <div className="flex-shrink-0 mr-3 w-[44px] h-[44px] bg-[#D9D9D9] rounded-full flex items-center justify-center self-start mt-0">
-                <Image
-                  src="/icons/BusinessPreviewAndEdit/Upload.png"
-                  alt="Logo upload"
-                  width={24}
-                  height={24}
-                  className="object-contain"
-                />
+            <div className="flex items-start mt-8 sm:mt-10">
+              <div className="flex-shrink-0 mr-3 w-[40px] h-[40px] sm:w-[44px] sm:h-[44px] bg-[#D9D9D9] rounded-full flex items-center justify-center self-start">
+                <Image src="/icons/Upload.png" alt="Logo upload" width={20} height={20} className="object-contain" />
               </div>
-
               <div className="flex-grow">
                 <h2 className="text-base font-medium text-black">{t("uploadLogo")}</h2>
-                <p className="mt-8 text-sm text-stone-500">{t("addHighQualityLogo")}</p>
-
-                {/* Logo preview */}
+                <p className="mt-2 sm:mt-3 text-sm text-stone-500">{t("addHighQualityLogo")}</p>
                 {logoPreview && (
-                  <div className="relative w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] mt-8 rounded-full overflow-hidden bg-white border border-gray-200">
+                  <div className="relative w-[70px] h-[70px] sm:w-[100px] sm:h-[100px] mt-3 sm:mt-4 rounded-full overflow-hidden bg-white border border-gray-300">
                     <Image src={logoPreview} alt="Logo preview" fill style={{ objectFit: "contain", padding: "5px" }} />
                   </div>
                 )}
-
-                {/* Logo upload button - left-aligned and fixed width */}
-                <label className="inline-block mt-8 py-2 px-3 w-[152px] text-center text-xs sm:text-sm font-bold rounded-3xl border border-solid border-zinc-400 text-zinc-400 cursor-pointer">
+                <label className="inline-block mt-3 sm:mt-4 py-2 px-3 w-[140px] sm:w-[152px] text-center text-xs sm:text-sm font-bold rounded-3xl border border-solid border-zinc-400 text-zinc-400 cursor-pointer hover:bg-gray-50">
                   {t("uploadPhoto")}
                   <input
                     type="file"
@@ -231,30 +272,27 @@ export default function ChangeBannerAndLogo({
             </div>
           </div>
 
-          {/* Feedback message */}
           {feedback && (
             <div
-              className={`mt-4 p-3 rounded-md text-sm sm:text-base
-                ${feedback.type === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"}`}
+              className={`mt-4 p-2 md:p-3 rounded-md text-sm sm:text-base
+               ${feedback.type === "success" ? "bg-green-50 text-green-800" : feedback.type === "error" ? "bg-red-50 text-red-800" : "bg-blue-50 text-blue-800"}`}
               role="alert"
             >
               {feedback.message}
             </div>
           )}
 
-          {/* Regular bottom line */}
-          <hr className="mt-6 sm:mt-11 h-px border-t border-solid border-stone-300" />
+          <hr className="mt-6 sm:mt-8 h-px border-t border-solid border-stone-300" />
 
-          {/* Footer with submit button */}
-          <footer className="flex justify-end mt-5">
+          <footer className="flex justify-end mt-4 sm:mt-5">
             <Button
               onClick={handleSubmit}
-              disabled={isSubmitting}
-              className={`py-2.5 px-5 text-base font-bold text-white 
-                ${isSubmitting ? "bg-blue-400" : "bg-[#405BA9] hover:bg-[#293241]"}
-                rounded-3xl flex items-center justify-center min-h-10`}
+              disabled={isSubmitting || isRequestLoading}
+              className={`py-2 px-4 sm:py-2.5 sm:px-5 text-sm sm:text-base font-bold text-white 
+               ${isSubmitting || isRequestLoading ? "bg-blue-400 cursor-not-allowed" : "bg-[#405BA9] hover:bg-[#293241]"}
+               rounded-3xl flex items-center justify-center min-h-[36px] sm:min-h-10 transition-colors`}
             >
-              {isSubmitting ? <span className="animate-pulse">{t("saving")}</span> : "Submit Changes"}
+              {isSubmitting ? <span className="animate-pulse">{t("saving")}</span> : t("submitChanges")}
             </Button>
           </footer>
         </CardContent>

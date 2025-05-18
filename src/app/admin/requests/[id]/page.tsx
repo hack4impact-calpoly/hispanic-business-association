@@ -10,7 +10,6 @@ import RequestApprovedCard from "@/components/ui/RequestsCards/RequestApprovedCa
 import RequestDeniedCard from "@/components/ui/RequestsCards/RequestDeniedCard";
 import { useTranslations } from "next-intl";
 
-// Define props for the page component
 interface RequestDetailPageProps {
   params: {
     id: string;
@@ -35,39 +34,6 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
   const isLoading = requestLoading || businessLoading;
   const isError = requestError || businessError;
 
-  // Only attempt to organize display data when both data sources are available
-  const oldInfo = business
-    ? {
-        businessName: business.businessName,
-        businessType: business.businessType,
-        businessOwner: business.businessOwner,
-        website: business.website,
-        address: business.address,
-        pointOfContact: business.pointOfContact,
-        socialMediaHandles: business.socialMediaHandles,
-        description: business.description,
-        logoUrl: business.logoUrl,
-        bannerUrl: business.bannerUrl,
-      }
-    : null;
-
-  // For new info, use request data where available, falling back to business data
-  const newInfo =
-    request && business
-      ? {
-          businessName: request.businessName || business.businessName,
-          businessType: request.businessType || business.businessType,
-          businessOwner: request.businessOwner || business.businessOwner,
-          website: request.website || business.website,
-          address: request.address || business.address,
-          pointOfContact: request.pointOfContact || business.pointOfContact,
-          socialMediaHandles: request.socialMediaHandles || business.socialMediaHandles,
-          description: request.description || business.description,
-          logoUrl: request.logoUrl || business.logoUrl,
-          bannerUrl: request.bannerUrl || business.bannerUrl,
-        }
-      : null;
-
   // Handle approving the request
   const handleApprove = async () => {
     if (!request) return;
@@ -85,12 +51,13 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to approve request");
+        throw new Error(t("failedToApprove"));
       }
 
       // Show approval card after successful API call
       setShowApprovedCard(true);
       mutateRequest();
+      router.push("/admin/requests");
     } catch (error) {
       console.error("Error approving request:", error);
       alert(t("approveReqError"));
@@ -99,11 +66,13 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
     }
   };
 
-  // Handle declining the request
-  const handleDeny = async () => {
-    if (!request) return;
+  // Handle showing the denial card
+  const handleDeny = () => {
+    setShowDeniedCard(true);
+  };
 
-    setIsSubmitting(true);
+  // Handle the actual denial with reason
+  const handleDenyWithReason = async (denialMessage: string) => {
     try {
       const response = await fetch("/api/request/deny", {
         method: "POST",
@@ -112,21 +81,19 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
         },
         body: JSON.stringify({
           requestId: id,
+          denialMessage,
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to deny request");
+        throw new Error(t("denyReqError"));
       }
 
-      // Show denial card after successful API call
-      setShowDeniedCard(true);
-      mutateRequest();
+      await mutateRequest();
+      router.push("/admin/requests");
     } catch (error) {
       console.error("Error denying request:", error);
-      alert(t("denyReqError"));
-    } finally {
-      setIsSubmitting(false);
+      throw error;
     }
   };
 
@@ -167,25 +134,25 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
             </div>
           )}
 
-          {!isLoading && !isError && oldInfo && newInfo && (
+          {!isLoading && !isError && request && (
             <>
-              {/* Business Name Title - Above the cards */}
+              {/* Business Name Title - From old information */}
               <h2 className="font-futura font-bold text-[22px] sm:text-[26px] leading-[34.55px] text-black mb-6 sm:mb-8">
-                {newInfo.businessName}
+                {request.old?.businessName || t("businessName")}
               </h2>
 
               {/* Cards Container - Flex column on mobile, row on desktop */}
               <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 mb-12 lg:mb-16">
-                {/* Old Information Card - Full width on mobile, fixed proportional on desktop */}
+                {/* Old Information Card */}
                 <div className="w-full lg:flex-1 lg:min-w-0 lg:max-w-[50%]">
                   <h3 className="font-futura font-medium text-xl text-black mb-4">{t("oldInfo")}</h3>
-                  <InformationCard type="old" businessInfo={oldInfo} otherBusinessInfo={newInfo} />
+                  <InformationCard type="old" businessInfo={request.old} otherBusinessInfo={request.new} />
                 </div>
 
-                {/* New Information Card - Full width on mobile, fixed proportional on desktop */}
+                {/* New Information Card */}
                 <div className="w-full lg:flex-1 lg:min-w-0 lg:max-w-[50%]">
                   <h3 className="font-futura font-medium text-xl text-black mb-4">{t("newInfo")}</h3>
-                  <InformationCard type="new" businessInfo={newInfo} otherBusinessInfo={oldInfo} />
+                  <InformationCard type="new" businessInfo={request.new} otherBusinessInfo={request.old} />
                 </div>
               </div>
 
@@ -219,7 +186,13 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
           )}
         </div>
         {showApprovedCard && <RequestApprovedCard onClose={() => setShowApprovedCard(false)} />}
-        {showDeniedCard && <RequestDeniedCard onClose={() => setShowDeniedCard(false)} />}
+        {showDeniedCard && (
+          <RequestDeniedCard
+            onClose={() => setShowDeniedCard(false)}
+            onDenyWithReason={handleDenyWithReason}
+            requestId={id}
+          />
+        )}
       </div>
     </ResponsiveLayout>
   );

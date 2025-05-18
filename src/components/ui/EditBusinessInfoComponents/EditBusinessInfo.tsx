@@ -6,13 +6,12 @@ import { useState, useEffect } from "react";
 import { useActiveBusinessRequest } from "@/hooks/swrHooks";
 import { useTranslations } from "next-intl";
 
-// Configures component behavior
 interface EditBusinessInfoProps {
   onClose?: () => void;
   onSubmitSuccess?: () => void;
 }
 
-interface BusinessFormData {
+interface FormDataShape {
   businessName: string;
   businessType: string;
   ownerFirstName: string;
@@ -20,43 +19,112 @@ interface BusinessFormData {
   ownerAdditionalName: string;
   coOwnerFirstName: string;
   coOwnerLastName: string;
+  coOwner2FirstName: string;
+  coOwner2LastName: string;
+  website: string;
+  physicalAddress: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+  };
+  mailingAddress: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+  };
+  sameAddress: boolean;
 }
 
-// Renders edit form
+const initialFormState: FormDataShape = {
+  businessName: "",
+  businessType: "",
+  ownerFirstName: "",
+  ownerLastName: "",
+  ownerAdditionalName: "",
+  coOwnerFirstName: "",
+  coOwnerLastName: "",
+  coOwner2FirstName: "",
+  coOwner2LastName: "",
+  website: "",
+  physicalAddress: {
+    street: "",
+    city: "",
+    state: "",
+    zip: "",
+  },
+  mailingAddress: {
+    street: "",
+    city: "",
+    state: "",
+    zip: "",
+  },
+  sameAddress: false,
+};
+
+// Compare objects/values recursively for equality
+const deepCompareValues = (val1: any, val2: any): boolean => {
+  if (val1 === val2) return true;
+
+  if (typeof val1 !== "object" || val1 === null || typeof val2 !== "object" || val2 === null) {
+    return false;
+  }
+
+  const keys1 = Object.keys(val1);
+  const keys2 = Object.keys(val2);
+
+  if (keys1.length !== keys2.length) return false;
+
+  for (const key of keys1) {
+    if (!keys2.includes(key) || !deepCompareValues(val1[key], val2[key])) {
+      return false;
+    }
+  }
+  return true;
+};
+
 export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusinessInfoProps) {
   const t = useTranslations();
-  // Tracks submit state
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // Tracks loading state
   const [isLoading, setIsLoading] = useState(true);
-  // Tracks feedback from server
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
-  // Fetch active request if exists
+  const [feedback, setFeedback] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
   const { activeRequest, isLoading: isRequestLoading } = useActiveBusinessRequest();
-  // Store request ID if one exists
   const [existingRequestId, setExistingRequestId] = useState<string | undefined>(undefined);
 
-  const [formData, setFormData] = useState<BusinessFormData>({
-    businessName: "",
-    businessType: "",
-    ownerFirstName: "",
-    ownerLastName: "",
-    ownerAdditionalName: "",
-    coOwnerFirstName: "",
-    coOwnerLastName: "",
-  });
+  const [formData, setFormData] = useState<FormDataShape>({ ...initialFormState });
+  const [originalFormData, setOriginalFormData] = useState<FormDataShape>({ ...initialFormState });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name.startsWith("physical") || name.startsWith("mailing")) {
+      const [addressType, field] = name.split(".");
+      setFormData((prev) => ({
+        ...prev,
+        [addressType]: {
+          ...prev[addressType as "physicalAddress" | "mailingAddress"],
+          [field]: value,
+        },
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
-  // Sets initial data and check for existing request
+  const handleSameAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+    setFormData((prev) => ({
+      ...prev,
+      sameAddress: checked,
+      mailingAddress: checked ? { ...prev.physicalAddress } : prev.mailingAddress,
+    }));
+  };
+
+  // Initialize form data
   useEffect(() => {
     const timer = setTimeout(() => {
-      // If active request exists, use that data to populate form
       if (activeRequest) {
-        // Extract first/last name from owner name if available
         let firstName = "";
         let lastName = "";
 
@@ -66,7 +134,11 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
           lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
         }
 
-        setFormData({
+        const physicalAddressData = activeRequest.address || { street: "", city: "", state: "", zip: "" };
+        const initialMailingAddress = { street: "", city: "", state: "", zip: "" };
+        const initialSameAddress = false;
+
+        const formValues: FormDataShape = {
           businessName: activeRequest.businessName || "",
           businessType: activeRequest.businessType || "",
           ownerFirstName: firstName,
@@ -74,39 +146,91 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
           ownerAdditionalName: "",
           coOwnerFirstName: "",
           coOwnerLastName: "",
-        });
+          coOwner2FirstName: "",
+          coOwner2LastName: "",
+          website: activeRequest.website || "",
+          physicalAddress: {
+            street: physicalAddressData.street || "",
+            city: physicalAddressData.city || "",
+            state: physicalAddressData.state || "",
+            zip: physicalAddressData.zip?.toString() || "",
+          },
+          mailingAddress: initialMailingAddress,
+          sameAddress: initialSameAddress,
+        };
 
-        // Store request ID for update
+        setFormData(formValues);
+        setOriginalFormData(JSON.parse(JSON.stringify(formValues)));
         setExistingRequestId((activeRequest as any)._id);
       }
-
       setIsLoading(false);
     }, 300);
 
     return () => clearTimeout(timer);
   }, [activeRequest]);
 
-  // Submits form data
+  // Submit form with only changed field values
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setFeedback(null);
 
+    const changedPayloadFields: any = {};
+    let hasChanges = false;
+
+    // Extract changed fields for API payload
+
+    // Check business name changes
+    if (formData.businessName !== originalFormData.businessName) {
+      changedPayloadFields.businessName = formData.businessName;
+      hasChanges = true;
+    }
+
+    //  Check business type changes
+    if (formData.businessType !== originalFormData.businessType) {
+      changedPayloadFields.businessType = formData.businessType;
+      hasChanges = true;
+    }
+
+    //  Check business wwner changes
+    const currentOwnerFullName = `${formData.ownerFirstName} ${formData.ownerLastName}`.trim();
+    const originalOwnerFullName = `${originalFormData.ownerFirstName} ${originalFormData.ownerLastName}`.trim();
+    if (currentOwnerFullName !== originalOwnerFullName) {
+      changedPayloadFields.businessOwner = currentOwnerFullName;
+      hasChanges = true;
+    }
+
+    //  Check website changes
+    if (formData.website !== originalFormData.website) {
+      changedPayloadFields.website = formData.website;
+      hasChanges = true;
+    }
+
+    //  Check address changes
+    if (!deepCompareValues(formData.physicalAddress, originalFormData.physicalAddress)) {
+      changedPayloadFields.address = { ...formData.physicalAddress };
+      hasChanges = true;
+    }
+
+    // Only submit if changes exist
+    if (!hasChanges) {
+      setFeedback({ type: "info", message: t("No changes detected.") });
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      // Create request data
-      const requestData = {
-        businessName: formData.businessName,
-        businessType: formData.businessType,
-        businessOwner: `${formData.ownerFirstName} ${formData.ownerLastName}`,
+      // Continue with submission including only changed fields
+      const requestData: any = {
+        ...changedPayloadFields,
         date: new Date().toLocaleDateString(),
       };
 
-      // If we have an existing request ID, include it for update
       if (existingRequestId) {
-        Object.assign(requestData, { requestId: existingRequestId });
+        requestData.requestId = existingRequestId;
       }
 
       const response = await fetch("/api/request", {
-        method: "POST",
+        method: "POST", // Consider PUT/PATCH if your API uses them for updates
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),
       });
@@ -116,12 +240,13 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
         throw new Error(errorData.error || t("failedChanges"));
       }
 
-      // Calls optional callback when submit succeeds
       if (onSubmitSuccess) {
         onSubmitSuccess();
       } else {
         setFeedback({ type: "success", message: t("changesSent") });
       }
+      // Reset baseline values after successful submission
+      setOriginalFormData(JSON.parse(JSON.stringify(formData)));
     } catch (error: any) {
       console.error("Error submitting changes:", error);
       setFeedback({ type: "error", message: error.message || t("errorSubmittingChanges") });
@@ -130,10 +255,9 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
     }
   };
 
-  // Shows loading state
   if (isLoading || isRequestLoading) {
     return (
-      <article className="rounded-lg shadow-sm w-full max-w-[805px] md:max-w-[805px] border border-gray-200 bg-white">
+      <article className="rounded-lg shadow-sm w-full max-w-[805px] border border-gray-200 bg-white">
         <section className="flex flex-col py-4 md:py-6 w-full bg-white rounded-lg">
           <div className="flex justify-center items-center h-[200px] md:h-[400px]">
             <p className="text-gray-500 animate-pulse">{t("loadBizInfo")}</p>
@@ -143,157 +267,302 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
     );
   }
 
-  // Renders form for editing description
   return (
-    <article className="fixed inset-x-0 top-0 bottom-[92px] z-[60] h-[calc(100vh-92px)] bg-white overflow-y-auto sm:rounded-lg w-full max-w-full md:top-12 md:bottom-auto md:h-auto md:max-h-[90vh] md:mx-auto md:left-0 md:right-0 md:w-[805px] border border-gray-200">
-      <section className="flex flex-col py-4 md:py-6 w-full bg-white rounded-lg overflow-y-auto">
-        <div className="flex flex-col px-4 md:px-5 w-full">
-          <header className="flex flex-wrap gap-2 md:gap-5 justify-between items-start">
-            <h1 className="mt-2 md:mt-4 text-lg md:text-xl font-medium text-black">{t("editBizInfo")}</h1>
-            {onClose && (
-              <button
-                onClick={onClose}
-                className="p-2 rounded-full hover:bg-[#f0f0f0] transition-colors absolute top-2 right-2"
-                aria-label="Close"
-              >
-                <Image
-                  src="/icons/General_Icons/Close.png"
-                  alt="Close"
-                  width={24}
-                  height={24}
-                  className="object-contain"
-                />
-              </button>
-            )}
-          </header>
+    <article className="fixed inset-x-0 top-0 bottom-[92px] z-[60] h-[calc(103vh-92px)] bg-white overflow-y-auto sm:rounded-lg w-full max-w-full md:fixed md:inset-0 md:m-auto md:top-auto md:bottom-auto md:h-auto md:max-h-[90vh] md:mx-auto md:left-0 md:right-0 md:w-[805px] border border-gray-200 flex flex-col">
+      <div className="sticky top-0 z-10 bg-white px-4 md:px-5 pt-4 md:pt-6 pb-2">
+        <header className="flex flex-wrap gap-2 md:gap-5 justify-between items-start">
+          <h1 className="text-lg md:text-xl font-medium text-black">{t("editBizInfo")}</h1>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-2 rounded-full hover:bg-[#f0f0f0] transition-colors"
+              aria-label="Close"
+            >
+              <Image src="/icons/Close.png" alt="Close" width={24} height={24} className="object-contain" />
+            </button>
+          )}
+        </header>
+        <hr className="mt-4 h-px border border-solid border-stone-300" />
+      </div>
 
-          <hr className="shrink-0 mt-4 md:mt-7 h-px border border-solid border-stone-300" />
+      <div className="flex-1 overflow-y-auto px-4 md:px-5">
+        <form className="space-y-4 pb-20">
+          {/* Business Name Input */}
+          <div>
+            <label htmlFor="businessName" className="block text-sm font-medium mb-1">
+              {t("businessName")}
+            </label>
+            <input
+              id="businessName"
+              name="businessName"
+              type="text"
+              placeholder={t("officialRegisteredName")}
+              value={formData.businessName}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-          <p className="self-start mt-4 text-sm text-stone-500 mb-4">
-            <span className="text-red-500">*</span> {t("required")}
-          </p>
+          {/* Business Type Select */}
+          <div>
+            <label htmlFor="businessType" className="block text-sm font-medium mb-1">
+              {t("businessType")}
+            </label>
+            <select
+              id="businessType"
+              name="businessType"
+              value={formData.businessType}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">{t("selectType")}</option>
+              <option value="Retail">Retail</option>
+              <option value="Service">Service</option>
+              <option value="Manufacturing">Manufacturing</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
 
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            {/* Business Name */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                {t("businessName")} <span className="text-red-500">*</span>
-              </label>
+          {/* Business Owner Inputs */}
+          <div>
+            <label className="block text-sm font-medium mb-1">{t("bizowner")}</label>
+            <div className="flex space-x-2 mb-2">
               <input
-                name="businessName"
+                name="ownerFirstName"
                 type="text"
-                placeholder={t("officialRegisteredName")}
-                value={formData.businessName}
+                placeholder={t("firstName")}
+                value={formData.ownerFirstName}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
+                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label={t("ownerFirstName")}
+              />
+              <input
+                name="ownerLastName"
+                type="text"
+                placeholder={t("lastName")}
+                value={formData.ownerLastName}
+                onChange={handleChange}
+                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label={t("ownerLastName")}
               />
             </div>
+            <input
+              name="ownerAdditionalName"
+              type="text"
+              placeholder={t("additionalName")}
+              value={formData.ownerAdditionalName}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label={t("ownerAdditionalName")}
+            />
+          </div>
 
-            {/* Business Type */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                {t("businessType")} <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="businessType"
-                value={formData.businessType}
-                onChange={handleChange}
-                required
-                className="w-full border border-gray-300 rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">{t("selectType")}</option>
-                <option value="Retail">Retail</option>
-                <option value="Service">Service</option>
-                <option value="Manufacturing">Manufacturing</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-
-            {/* Business Owner */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                {t("bizowner")} <span className="text-red-500">*</span>
-              </label>
-              <div className="flex space-x-2 mb-2">
-                <input
-                  name="ownerFirstName"
-                  type="text"
-                  placeholder={t("firstName")}
-                  value={formData.ownerFirstName}
-                  onChange={handleChange}
-                  className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-                <input
-                  name="ownerLastName"
-                  type="text"
-                  placeholder={t("lastName")}
-                  value={formData.ownerLastName}
-                  onChange={handleChange}
-                  className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
+          {/* Co-Owner 1 Inputs */}
+          <div>
+            <label className="block text-sm font-medium mb-1">{t("bizCoOwner")}</label>
+            <div className="flex space-x-2 mb-2">
               <input
-                name="ownerAdditionalName"
+                name="coOwnerFirstName"
                 type="text"
-                placeholder={t("additionalName")}
-                value={formData.ownerAdditionalName}
+                placeholder={t("firstName")}
+                value={formData.coOwnerFirstName}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label={t("coOwner1FirstName")}
+              />
+              <input
+                name="coOwnerLastName"
+                type="text"
+                placeholder={t("lastName")}
+                value={formData.coOwnerLastName}
+                onChange={handleChange}
+                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label={t("coOwner1LastName")}
               />
             </div>
+          </div>
 
-            {/* Business Co-owner */}
-            <div>
-              <label className="block text-sm font-medium mb-1">{t("bizCoOwner")}</label>
-              <div className="flex space-x-2">
+          {/* Co-Owner 2 Inputs */}
+          <div>
+            <label className="block text-sm font-medium mb-1">{t("bizCoOwner")} 2</label>
+            <div className="flex space-x-2">
+              <input
+                name="coOwner2FirstName"
+                type="text"
+                placeholder={t("firstName")}
+                value={formData.coOwner2FirstName}
+                onChange={handleChange}
+                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label={t("coOwner2FirstName")}
+              />
+              <input
+                name="coOwner2LastName"
+                type="text"
+                placeholder={t("lastName")}
+                value={formData.coOwner2LastName}
+                onChange={handleChange}
+                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label={t("coOwner2LastName")}
+              />
+            </div>
+          </div>
+
+          {/* Website Input */}
+          <div>
+            <label htmlFor="website" className="block text-sm font-medium mb-1">
+              {t("website")}
+            </label>
+            <input
+              id="website"
+              name="website"
+              type="text"
+              placeholder="https://example.com"
+              value={formData.website}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Physical Address Inputs */}
+          <div>
+            <label className="block text-sm font-medium mb-1">{t("physAdd")}</label>
+            <input
+              name="physicalAddress.street"
+              type="text"
+              placeholder={t("street")}
+              value={formData.physicalAddress.street}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md p-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label={t("physicalStreet")}
+            />
+            <div className="grid grid-cols-12 gap-2">
+              <div className="col-span-5">
                 <input
-                  name="coOwnerFirstName"
+                  name="physicalAddress.city"
                   type="text"
-                  placeholder={t("firstName")}
-                  value={formData.coOwnerFirstName}
+                  placeholder={t("city")}
+                  value={formData.physicalAddress.city}
                   onChange={handleChange}
-                  className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  aria-label={t("physicalCity")}
                 />
+              </div>
+              <div className="col-span-4">
                 <input
-                  name="coOwnerLastName"
+                  name="physicalAddress.state"
                   type="text"
-                  placeholder={t("lastName")}
-                  value={formData.coOwnerLastName}
+                  placeholder={t("state")}
+                  value={formData.physicalAddress.state}
                   onChange={handleChange}
-                  className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  aria-label={t("physicalState")}
+                />
+              </div>
+              <div className="col-span-3">
+                <input
+                  name="physicalAddress.zip"
+                  type="text"
+                  placeholder={t("zip")}
+                  value={formData.physicalAddress.zip}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  aria-label={t("physicalZip")}
                 />
               </div>
             </div>
+          </div>
 
-            <hr className="shrink-0 self-center mt-4 md:mt-6 max-w-full h-px border border-solid border-stone-300 w-[90%] md:w-[765px]" />
+          {/* Same Address Checkbox */}
+          <div className="flex items-center mt-2">
+            <input
+              type="checkbox"
+              id="sameAddress"
+              name="sameAddress"
+              checked={formData.sameAddress}
+              onChange={handleSameAddressChange}
+              className="mr-2 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <label htmlFor="sameAddress" className="text-sm">
+              {t("mailsame")}
+            </label>
+          </div>
 
-            <div className="flex max-sm:justify-center justify-end mt-4 md:mt-6 mr-3 md:mr-6 gap-4 ">
-              <button
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className={`w-full sm:w-3/12 gap-2.5 py-2 px-4 md:py-2.5 md:px-5 text-sm md:text-base font-bold text-white 
-              ${isSubmitting ? "bg-blue-400 cursor-not-allowed" : "bg-[#405BA9] hover:bg-[#293241]"} 
-              rounded-3xl min-h-[36px] md:min-h-[40px] transition-colors w-auto flex justify-center items-center`}
-              >
-                {isSubmitting ? <span className="animate-pulse">{t("saving")}</span> : t("submitChanges")}
-              </button>
+          {/* Mailing Address Inputs (Conditional) */}
+          {!formData.sameAddress && (
+            <div>
+              <label className="block text-sm font-medium mb-1">{t("mailAdd")}</label>
+              <input
+                name="mailingAddress.street"
+                type="text"
+                placeholder={t("street")}
+                value={formData.mailingAddress.street}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-md p-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label={t("mailingStreet")}
+              />
+              <div className="grid grid-cols-12 gap-2">
+                <div className="col-span-5">
+                  <input
+                    name="mailingAddress.city"
+                    type="text"
+                    placeholder={t("city")}
+                    value={formData.mailingAddress.city}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    aria-label={t("mailingCity")}
+                  />
+                </div>
+                <div className="col-span-4">
+                  <input
+                    name="mailingAddress.state"
+                    type="text"
+                    placeholder={t("state")}
+                    value={formData.mailingAddress.state}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    aria-label={t("mailingState")}
+                  />
+                </div>
+                <div className="col-span-3">
+                  <input
+                    name="mailingAddress.zip"
+                    type="text"
+                    placeholder={t("zip")}
+                    value={formData.mailingAddress.zip}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    aria-label={t("mailingZip")}
+                  />
+                </div>
+              </div>
             </div>
-          </form>
-        </div>
+          )}
+        </form>
+      </div>
 
+      <div className="sticky bottom-0 bg-white p-4 border-t border-gray-200">
         {feedback && (
           <div
-            className={`mx-3 md:mx-5 mt-2 md:mt-4 p-2 md:p-3 rounded-md text-sm md:text-base
-              ${feedback.type === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"}`}
+            className={`mb-4 p-2 md:p-3 rounded-md text-sm md:text-base
+              ${feedback.type === "success" ? "bg-green-50 text-green-800" : feedback.type === "error" ? "bg-red-50 text-red-800" : "bg-blue-50 text-blue-800"}`}
             role="alert"
           >
             {feedback.message}
           </div>
         )}
-      </section>
+
+        <div className="flex max-sm:justify-center justify-end gap-4 mb-5">
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitting || isLoading} // Disable if initial loading is not done
+            className={`w-full sm:w-auto gap-2.5 py-2 px-4 md:py-2.5 md:px-5 text-sm md:text-base font-bold text-white 
+              ${isSubmitting || isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-[#405BA9] hover:bg-[#293241]"} 
+              rounded-3xl min-h-[36px] md:min-h-[40px] transition-colors flex justify-center items-center`}
+          >
+            {isSubmitting ? <span className="animate-pulse">{t("saving")}</span> : t("submitChanges")}
+          </button>
+        </div>
+      </div>
     </article>
   );
 }

@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/shadcnComponents/card";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
+// Define business info structure
 interface BusinessInfo {
   businessName?: string;
   businessType?: string;
@@ -29,7 +30,6 @@ interface BusinessInfo {
     FB?: string;
   };
   description?: string;
-  logo?: string;
   logoUrl?: string;
   bannerUrl?: string;
 }
@@ -38,288 +38,210 @@ interface InformationCardProps {
   type: "old" | "new" | "signup";
   businessInfo: BusinessInfo;
   className?: string;
-  // The other business info - needed to compare changes
   otherBusinessInfo?: BusinessInfo;
 }
 
 const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: InformationCardProps) => {
   const t = useTranslations();
-  // Default image URLs for fallbacks
+
+  // Define default image URLs
   const defaultLogo = "/logo/Default_Logo.jpg";
   const defaultBanner = "/logo/Default_Banner.png";
 
-  // Helper function to check if a value has changed
-  const isValueChanged = (current: any, other: any): boolean => {
-    // If either value is undefined, we only care if they're different
-    if (current === undefined || other === undefined) {
+  // Determine if a field has changed
+  const isChanged = (current: any, other: any): boolean => {
+    // Handle undefined or null values
+    if (current === undefined || current === null || other === undefined || other === null) {
       return current !== other;
     }
 
-    // For objects, compare as strings
+    // Handle objects (address and contact info)
     if (typeof current === "object" && typeof other === "object") {
-      return JSON.stringify(current) !== JSON.stringify(other);
+      const currentKeys = Object.keys(current);
+      const otherKeys = Object.keys(other);
+
+      // Different number of keys means objects are different
+      if (currentKeys.length !== otherKeys.length) return true;
+
+      // Check if any key exists in only one object or has different values
+      for (const key of currentKeys) {
+        if (!(key in other) || isChanged(current[key], other[key])) {
+          return true;
+        }
+      }
+
+      // Check for keys in other that aren't in current
+      for (const key of otherKeys) {
+        if (!(key in current)) return true;
+      }
+
+      return false;
     }
 
-    // For primitive values, direct comparison
-    return current !== other;
+    // Convert to strings for comparison to handle various types consistently
+    return String(current) !== String(other);
   };
 
-  // Check if logo or banner has changed
-  const hasLogoChanged = isValueChanged(businessInfo.logoUrl, otherBusinessInfo?.logoUrl);
-  const hasBannerChanged = isValueChanged(businessInfo.bannerUrl, otherBusinessInfo?.bannerUrl);
+  // Get highlighter class based on type and change status
+  const getHighlighterClass = (hasChanged: boolean): string => {
+    if (!hasChanged) return "text-[#405BA9]";
+    return type === "old" ? "bg-red-100 text-red-800" : type === "new" ? "!bg-green-100 !text-green-800" : "";
+  };
 
-  // Format and style text based on if it has changed
-  const formatFieldValue = (fieldValue: any, otherFieldValue: any, defaultText: string = "N/A") => {
-    const hasChanged = isValueChanged(fieldValue, otherFieldValue);
+  // Format text field with highlighting
+  const formatField = (value: any, otherValue: any, defaultText: string = "N/A") => {
+    const hasChanged = isChanged(value, otherValue);
+    const displayClass = `font-futura font-bold text-[14px] leading-[19px] ${getHighlighterClass(hasChanged)}`;
 
-    // Default class for normal text
-    let displayClass = "font-futura font-bold text-[14px] leading-[19px] text-[#405BA9]";
-
-    // Add highlighting for changed values
-    if (hasChanged) {
-      displayClass =
-        type === "old"
-          ? "font-futura font-bold text-[14px] leading-[19px] bg-red-100 text-red-800"
-          : type === "new"
-            ? "font-futura font-bold text-[14px] leading-[19px] bg-green-100 text-green-800"
-            : "font-futura font-bold text-[14px] leading-[19px]";
+    let finalDisplayValue;
+    if (value === undefined || value === null || value === "") {
+      finalDisplayValue = defaultText;
+    } else if (typeof value === "string" && value.trim() === "") {
+      // If value is a string that's all whitespace (but not empty string already caught), render &nbsp;
+      finalDisplayValue = "\u00A0";
+    } else {
+      finalDisplayValue = value;
     }
 
-    return <p className={displayClass}>{fieldValue || defaultText}</p>;
+    return <p className={displayClass}>{finalDisplayValue}</p>;
   };
 
-  // Format address with comparing changes
+  // Format address field with highlighting
   const formatAddress = () => {
-    if (!businessInfo.address && !otherBusinessInfo?.address) return t("notAvailable");
-
-    const thisAddress = businessInfo.address || {};
+    const address = businessInfo.address || {};
     const otherAddress = otherBusinessInfo?.address || {};
+    const hasChanged = isChanged(address, otherAddress);
+    const displayClass = `font-futura font-bold text-[14px] leading-[19px] ${getHighlighterClass(hasChanged)}`;
 
-    // Check if address as a whole has changed
-    const hasAddressChanged = isValueChanged(thisAddress, otherAddress);
+    if (!businessInfo.address) return <p className={displayClass}>{t("notAvailable")}</p>;
 
-    if (!hasAddressChanged) {
-      // No changes, regular styling
-      return (
-        <p className="font-futura font-bold text-[14px] leading-[19px] text-[#405BA9]">
-          {businessInfo.address
-            ? `${thisAddress.street || ""}, ${thisAddress.city || ""}, ${thisAddress.state || ""} ${thisAddress.zip || ""}, ${thisAddress.county || ""}`
-            : t("notAvailable")}
-        </p>
-      );
-    } else {
-      // Address has changed - highlight all parts
-      const displayClass =
-        type === "old"
-          ? "font-futura font-bold text-[14px] leading-[19px] bg-red-100 text-red-800"
-          : type === "new"
-            ? "font-futura font-bold text-[14px] leading-[19px] bg-green-100 text-green-800"
-            : "font-futura font-bold text-[14px] leading-[19px]";
-
-      return (
-        <p className={displayClass}>
-          {businessInfo.address
-            ? `${thisAddress.street || ""}, ${thisAddress.city || ""}, ${thisAddress.state || ""} ${thisAddress.zip || ""}, ${thisAddress.county || ""}`
-            : t("notAvailable")}
-        </p>
-      );
-    }
+    return (
+      <p className={displayClass}>
+        {`${address.street || ""}, ${address.city || ""}, ${address.state || ""} ${address.zip || ""}, ${address.county || ""}`}
+      </p>
+    );
   };
 
-  // Format contact info with comparing changes
+  // Format contact information with highlighting
   const formatContact = () => {
-    if (!businessInfo.pointOfContact && !otherBusinessInfo?.pointOfContact) return t("notAvailable");
-
-    const thisContact = businessInfo.pointOfContact || {};
+    const contact = businessInfo.pointOfContact || {};
     const otherContact = otherBusinessInfo?.pointOfContact || {};
+    const hasChanged = isChanged(contact, otherContact);
+    const displayClass = `font-futura font-bold text-[14px] leading-[19px] break-words ${getHighlighterClass(hasChanged)}`;
 
-    // Check if contact as a whole has changed
-    const hasContactChanged = isValueChanged(thisContact, otherContact);
+    if (!businessInfo.pointOfContact) return <p className={displayClass}>{t("notAvailable")}</p>;
 
-    if (!hasContactChanged) {
-      // No changes, regular styling
-      return (
-        <p className="font-futura font-bold text-[14px] leading-[19px] text-[#405BA9] break-words">
-          {businessInfo.pointOfContact ? (
-            <>
-              {thisContact.name || ""}
-              <br />
-              {thisContact.phoneNumber ? thisContact.phoneNumber.toString() : ""}
-              <br />
-              {thisContact.email || ""}
-            </>
-          ) : (
-            t("notAvailable")
-          )}
-        </p>
-      );
-    } else {
-      // Contact has changed - highlight all parts
-      const displayClass =
-        type === "old"
-          ? "font-futura font-bold text-[14px] leading-[19px] bg-red-100 text-red-800"
-          : type === "new"
-            ? "font-futura font-bold text-[14px] leading-[19px] bg-green-100 text-green-800"
-            : "font-futura font-bold text-[14px] leading-[19px]";
-
-      return (
-        <p className={displayClass}>
-          {businessInfo.pointOfContact ? (
-            <>
-              {thisContact.name || ""}
-              <br />
-              {thisContact.phoneNumber ? thisContact.phoneNumber.toString() : ""}
-              <br />
-              {thisContact.email || ""}
-            </>
-          ) : (
-            t("notAvailable")
-          )}
-        </p>
-      );
-    }
+    return (
+      <p className={displayClass}>
+        {contact.name || ""}
+        <br />
+        {contact.phoneNumber ? contact.phoneNumber.toString() : ""}
+        <br />
+        {contact.email || ""}
+      </p>
+    );
   };
 
-  // Format social media with comparing changes
+  // Format social media with highlighting
   const formatSocialMedia = () => {
-    if (!businessInfo.socialMediaHandles && !otherBusinessInfo?.socialMediaHandles) {
-      return <p className="font-futura font-bold text-[14px] leading-[19px] text-[#405BA9]">{t("noSocialHandles")}</p>;
-    }
-
-    const thisSocial = businessInfo.socialMediaHandles || {};
+    const social = businessInfo.socialMediaHandles || {};
     const otherSocial = otherBusinessInfo?.socialMediaHandles || {};
 
-    // Check which social media handles have changed
-    const igChanged = isValueChanged(thisSocial.IG, otherSocial.IG);
-    const twitterChanged = isValueChanged(thisSocial.twitter, otherSocial.twitter);
-    const fbChanged = isValueChanged(thisSocial.FB, otherSocial.FB);
+    // Check if no social media handles are available
+    if (!social.IG && !social.twitter && !social.FB) {
+      // Check if this "no handles" state is different from other
+      const hasAllHandlesChanged = isChanged(businessInfo.socialMediaHandles, otherBusinessInfo?.socialMediaHandles);
+      const noHandlesClass = `font-futura font-bold text-[14px] leading-[19px] ${getHighlighterClass(hasAllHandlesChanged)}`;
+      return <p className={noHandlesClass}>{t("noSocialHandles")}</p>;
+    }
 
     return (
       <div>
-        {thisSocial.IG && (
+        {social.IG !== undefined && (
           <p
-            className={cn(
-              "font-futura font-bold text-[14px] leading-[19px]",
-              igChanged
-                ? type === "old"
-                  ? "font-futura font-bold text-[14px] leading-[19px] bg-red-100 text-red-800"
-                  : type === "new"
-                    ? "font-futura font-bold text-[14px] leading-[19px] bg-green-100 text-green-800"
-                    : "font-futura font-bold text-[14px] leading-[19px]"
-                : "text-[#405BA9]",
-            )}
+            className={`font-futura font-bold text-[14px] leading-[19px] ${getHighlighterClass(isChanged(social.IG, otherSocial.IG))}`}
           >
-            Instagram: {thisSocial.IG}
+            Instagram:{" "}
+            {social.IG === "" || (typeof social.IG === "string" && social.IG.trim() === "") ? "\u00A0" : social.IG}
           </p>
         )}
-
-        {thisSocial.twitter && (
+        {social.twitter !== undefined && (
           <p
-            className={cn(
-              "font-futura font-bold text-[14px] leading-[19px]",
-              twitterChanged
-                ? type === "old"
-                  ? "font-futura font-bold text-[14px] leading-[19px] bg-red-100 text-red-800"
-                  : type === "new"
-                    ? "font-futura font-bold text-[14px] leading-[19px] bg-green-100 text-green-800"
-                    : "font-futura font-bold text-[14px] leading-[19px]"
-                : "text-[#405BA9]",
-            )}
+            className={`font-futura font-bold text-[14px] leading-[19px] ${getHighlighterClass(isChanged(social.twitter, otherSocial.twitter))}`}
           >
-            Twitter: {thisSocial.twitter}
+            Twitter:{" "}
+            {social.twitter === "" || (typeof social.twitter === "string" && social.twitter.trim() === "")
+              ? "\u00A0"
+              : social.twitter}
           </p>
         )}
-
-        {thisSocial.FB && (
+        {social.FB !== undefined && (
           <p
-            className={cn(
-              "font-futura font-bold text-[14px] leading-[19px]",
-              fbChanged
-                ? type === "old"
-                  ? "font-futura font-bold text-[14px] leading-[19px] bg-red-100 text-red-800"
-                  : type === "new"
-                    ? "font-futura font-bold text-[14px] leading-[19px] bg-green-100 text-green-800"
-                    : "font-futura font-bold text-[14px] leading-[19px]"
-                : "text-[#405BA9]",
-            )}
+            className={`font-futura font-bold text-[14px] leading-[19px] ${getHighlighterClass(isChanged(social.FB, otherSocial.FB))}`}
           >
-            Facebook: {thisSocial.FB}
+            Facebook:{" "}
+            {social.FB === "" || (typeof social.FB === "string" && social.FB.trim() === "") ? "\u00A0" : social.FB}
           </p>
-        )}
-
-        {!thisSocial.IG && !thisSocial.twitter && !thisSocial.FB && (
-          <p className="font-futura font-bold text-[14px] leading-[19px] text-[#405BA9]">{t("noSocialHandles")}</p>
         )}
       </div>
     );
   };
 
-  // Function to determine if line has been modified
-  const isLineChanged = (lineIndex: number, oldLines: string[], newLines: string[]) => {
-    // Check if the line exists in both versions and is different
-    return lineIndex < oldLines.length && lineIndex < newLines.length && oldLines[lineIndex] !== newLines[lineIndex];
-  };
-
-  // Function to determine if line has been added
-  const isLineAdded = (lineIndex: number, oldLines: string[], newLines: string[]) => {
-    // Check if the line exists only in the new version
-    return lineIndex >= oldLines.length && lineIndex < newLines.length;
-  };
-
-  // Function to determine if a line has been removed
-  const isLineRemoved = (lineIndex: number, oldLines: string[], newLines: string[]) => {
-    // Check if the line exists only in the old version
-    return lineIndex < oldLines.length && lineIndex >= newLines.length;
-  };
-
-  // Format description with GitHub-style diff highlighting
+  // Format description with highlighting each line
   const formatDescription = () => {
-    if (!businessInfo.description && !otherBusinessInfo?.description) return "Not available";
+    const thisDescription = businessInfo.description;
+    const otherDescription = otherBusinessInfo?.description;
 
-    const thisDescription = businessInfo.description || "";
-    const otherDescription = otherBusinessInfo?.description || "";
-
-    // Split descriptions into lines
-    const thisLines = thisDescription.split("\n");
-    const otherLines = otherDescription.split("\n");
-
-    // Determine the maximum number of lines across both descriptions
-    const maxLines = Math.max(thisLines.length, otherLines.length);
-
-    // Create an array of rendered lines
-    const renderedLines = [];
-
-    for (let i = 0; i < maxLines; i++) {
-      let lineClass = "text-[14px] leading-[19px] mb-1 font-futura font-bold";
-
-      if (type === "old") {
-        // For the old version, highlight removed or changed lines
-        if (isLineChanged(i, thisLines, otherLines) || isLineRemoved(i, thisLines, otherLines)) {
-          lineClass = "text-[14px] leading-[19px] mb-1 font-futura font-bold bg-red-100 text-red-800";
-        }
-      } else if (type === "new") {
-        // For the new version, highlight added or changed lines
-        if (isLineChanged(i, otherLines, thisLines) || isLineAdded(i, otherLines, thisLines)) {
-          lineClass = "text-[14px] leading-[19px] mb-1 font-futura font-bold bg-green-100 text-green-800";
-        } else {
-          if (isLineChanged(i, otherLines, thisLines) || isLineAdded(i, otherLines, thisLines)) {
-            lineClass = "text-[14px] leading-[19px] mb-1 font-futura font-bold";
-          }
-        }
-      }
-
-      // Only add the line if it exists in this version
-      if (i < thisLines.length) {
-        renderedLines.push(
-          <div key={i} className={lineClass}>
-            {thisLines[i] || "\u00A0"}
-          </div>,
-        );
-      }
+    // Handle empty description case (both fields null/undefined/empty)
+    if ((!thisDescription || thisDescription === "") && (!otherDescription || otherDescription === "")) {
+      const hasChanged = isChanged(thisDescription, otherDescription);
+      const emptyClass = `font-futura font-bold text-[14px] leading-[19px] ${getHighlighterClass(hasChanged)}`;
+      return <div className={emptyClass}>{t("notAvailable")}</div>;
     }
 
-    return <div className="whitespace-pre-line">{renderedLines.length > 0 ? renderedLines : t("notAvailable")}</div>;
+    // Handle case where this description is empty but other is not (or vice versa)
+    if (!thisDescription || thisDescription === "") {
+      const hasChanged = isChanged(thisDescription, otherDescription);
+      const emptyClass = `font-futura font-bold text-[14px] leading-[19px] ${getHighlighterClass(hasChanged)}`;
+      return <div className={emptyClass}>N/A</div>;
+    }
+
+    // Normal line-by-line comparison
+    const thisLines = thisDescription.split("\n");
+    const otherLines = otherDescription ? otherDescription.split("\n") : [];
+
+    const renderedLines = [];
+
+    for (let i = 0; i < thisLines.length; i++) {
+      const currentLine = thisLines[i];
+      const otherLine = i < otherLines.length ? otherLines[i] : undefined;
+
+      const hasChanged = isChanged(currentLine, otherLine);
+      const lineClass = `text-[14px] leading-[19px] mb-1 font-futura font-bold ${getHighlighterClass(hasChanged)}`;
+
+      // Handle empty/whitespace-only lines
+      let displayValue;
+      if (currentLine === "") {
+        displayValue = "\u00A0"; // Non-breaking space for empty lines
+      } else if (typeof currentLine === "string" && currentLine.trim() === "") {
+        displayValue = "\u00A0"; // Non-breaking space for whitespace-only lines
+      } else {
+        displayValue = currentLine;
+      }
+
+      renderedLines.push(
+        <div key={i} className={lineClass}>
+          {displayValue}
+        </div>,
+      );
+    }
+
+    return <div className="whitespace-pre-line">{renderedLines}</div>;
   };
+
+  // Check if logo or banner has changed
+  const logoChanged = isChanged(businessInfo.logoUrl, otherBusinessInfo?.logoUrl);
+  const bannerChanged = isChanged(businessInfo.bannerUrl, otherBusinessInfo?.bannerUrl);
 
   return (
     <Card
@@ -329,13 +251,13 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
       )}
     >
       <div className="p-4 sm:p-6">
-        {/* Banner Image Section - New at top */}
+        {/* Banner Image Section */}
         <div className="mb-4">
           <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">{t("banner")}</p>
           <div
             className={cn(
               "relative w-full h-[80px] rounded-md overflow-hidden p-1",
-              hasBannerChanged ? (type === "old" ? "bg-red-100" : "bg-green-100") : "bg-white",
+              bannerChanged ? (type === "old" ? "bg-red-100" : "bg-green-100") : "bg-white",
             )}
           >
             <div className="relative w-full h-full rounded-md overflow-hidden">
@@ -345,7 +267,6 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
                 fill
                 style={{ objectFit: "cover" }}
                 onError={(e) => {
-                  // Fallback to default on error
                   const target = e.target as HTMLImageElement;
                   target.src = defaultBanner;
                 }}
@@ -354,13 +275,13 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
           </div>
         </div>
 
-        {/* Logo Image Section - New at top */}
+        {/* Logo Image Section */}
         <div className="mb-4">
           <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">{t("logo")}</p>
           <div
             className={cn(
               "relative w-[100px] h-[100px] rounded-full border-4 border-white overflow-hidden shadow-sm p-2",
-              hasLogoChanged ? (type === "old" ? "bg-red-100" : "bg-green-100") : "bg-white",
+              logoChanged ? (type === "old" ? "bg-red-100" : "bg-green-100") : "bg-white",
             )}
           >
             <div className="relative w-full h-full rounded-full overflow-hidden">
@@ -371,7 +292,6 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
                 style={{ objectFit: "contain" }}
                 className="p-2"
                 onError={(e) => {
-                  // Fallback to default on error
                   const target = e.target as HTMLImageElement;
                   target.src = defaultLogo;
                 }}
@@ -386,45 +306,43 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
           <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">
             {t("businessName")}
           </p>
-          {formatFieldValue(businessInfo.businessName, otherBusinessInfo?.businessName)}
+          {formatField(businessInfo.businessName, otherBusinessInfo?.businessName)}
 
           {/* Business Type */}
           <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1 mt-4">
-            {t("businesstype")}
+            {t("businessType")}
           </p>
-          {formatFieldValue(businessInfo.businessType, otherBusinessInfo?.businessType)}
+          {formatField(businessInfo.businessType, otherBusinessInfo?.businessType)}
 
           {/* Business Owner */}
           <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1 mt-4">
             {t("bizowner")}
           </p>
-          {formatFieldValue(businessInfo.businessOwner, otherBusinessInfo?.businessOwner)}
+          <div className="mb-4">{formatField(businessInfo.businessOwner, otherBusinessInfo?.businessOwner)}</div>
 
           {/* Website */}
           <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1 mt-4">
             {t("website")}
           </p>
           <div className="mb-4">
-            {businessInfo.website ? (
-              <p
-                className={cn(
-                  "font-futura font-bold text-[14px] leading-[19px] break-words",
-                  isValueChanged(businessInfo.website, otherBusinessInfo?.website)
-                    ? type === "old"
-                      ? "font-futura font-bold text-[14px] leading-[19px] bg-red-100 text-red-800"
-                      : type === "new"
-                        ? "font-futura font-bold text-[14px] leading-[19px] bg-green-100 text-green-800"
-                        : "font-futura font-bold text-[14px] leading-[19px]"
-                    : "text-[#405BA9]",
-                )}
-              >
-                <a href={businessInfo.website} target="_blank" rel="noopener noreferrer">
-                  {businessInfo.website}
-                </a>
-              </p>
-            ) : (
-              <p className="font-futura font-bold text-[14px] leading-[19px] text-[#405BA9]">N/A</p>
-            )}
+            {(() => {
+              const currentWebsite = businessInfo.website;
+              const otherWebsite = otherBusinessInfo?.website;
+              const websiteHasChanged = isChanged(currentWebsite, otherWebsite);
+              const websiteClasses = `font-futura font-bold text-[14px] leading-[19px] break-words ${getHighlighterClass(websiteHasChanged)}`;
+
+              if (currentWebsite) {
+                return (
+                  <p className={websiteClasses}>
+                    <a href={currentWebsite} target="_blank" rel="noopener noreferrer">
+                      {currentWebsite}
+                    </a>
+                  </p>
+                );
+              } else {
+                return <p className={websiteClasses}>{t("notAvailable")}</p>;
+              }
+            })()}
           </div>
 
           {/* Address */}
@@ -443,7 +361,7 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
           </p>
           <div className="mb-4">{formatSocialMedia()}</div>
 
-          {/* Description with GitHub-style highlighting */}
+          {/* Description */}
           <p className="font-futura font-bold text-[12px] leading-[16px] text-[#8C8C8C] w-full mb-1">{t("desc")}</p>
           <div className="w-full mb-4">{formatDescription()}</div>
         </div>

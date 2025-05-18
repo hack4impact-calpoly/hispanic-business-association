@@ -70,7 +70,7 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
         clerkUserID: signupRequest.clerkUserID,
         businessName: signupRequest.businessName,
         businessType: signupRequest.businessType,
-        membershipFeeType: signupRequest.membershipFeeType,
+        membershipFeeType: "", // Provide a default value
         businessOwner: signupRequest.businessOwner,
         website: signupRequest.website,
         address: signupRequest.address,

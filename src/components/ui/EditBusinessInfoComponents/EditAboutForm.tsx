@@ -6,25 +6,26 @@ import { useState, useEffect } from "react";
 import { useActiveBusinessRequest } from "@/hooks/swrHooks";
 import { useTranslations } from "next-intl";
 
-// Configures component behavior
+// Define form props for About section editing
 interface EditAboutFormProps {
   onClose?: () => void;
   onSubmitSuccess?: () => void;
   initialDescription?: string;
 }
 
-// Renders edit form
 export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescription = "" }: EditAboutFormProps) {
   const t = useTranslations();
-  // Tracks text content
+  // Store current text content
   const [text, setText] = useState("");
-  // Tracks submit state
+  // Track original text for change detection
+  const [originalText, setOriginalText] = useState("");
+  // Manage submission state
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // Tracks loading state
+  // Control loading state
   const [isLoading, setIsLoading] = useState(true);
-  // Tracks feedback from server
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
-  // Word limit constant
+  // Hold server response feedback
+  const [feedback, setFeedback] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
+  // Set maximum word count
   const WORD_LIMIT = 150;
 
   // Fetch active request if exists
@@ -32,17 +33,16 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
   // Store request ID if one exists
   const [existingRequestId, setExistingRequestId] = useState<string | undefined>(undefined);
 
-  // Sets text after delay and check for existing request
+  // Initialize text and originalText from active request or props
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Use description from active request if available, otherwise use initial description
-      if (activeRequest && activeRequest.description) {
-        setText(activeRequest.description);
-        // Store the request ID to update instead of create new
+      let currentDescription = initialDescription;
+      if (activeRequest && activeRequest.description !== undefined && activeRequest.description !== null) {
+        currentDescription = activeRequest.description;
         setExistingRequestId((activeRequest as any)._id);
-      } else {
-        setText(initialDescription);
       }
+      setText(currentDescription);
+      setOriginalText(currentDescription); // Initialize original text
       setIsLoading(false);
     }, 300);
     return () => clearTimeout(timer);
@@ -50,31 +50,40 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
 
   // Calculates current word count
   const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
-  // Checks if word limit is exceeded
+  // Check for word limit excess
   const isOverLimit = wordCount > WORD_LIMIT;
 
-  // Handles text input changes
+  // Process text input changes
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
-    if (feedback) setFeedback(null);
+    if (feedback) setFeedback(null); // Clear feedback on new input
   };
 
-  // Submits form data
+  // Submit form when text has changed
   const handleSubmit = async () => {
     if (isOverLimit) {
-      setFeedback({ type: "error", message: `${t("reduceDescription")}${WORD_LIMIT} ${"wordsLess"}` });
+      setFeedback({ type: "error", message: `${t("reduceDescription")}${WORD_LIMIT} ${t("wordsLess")}` });
       return;
     }
 
     setIsSubmitting(true);
     setFeedback(null);
 
-    try {
-      const requestData = { description: text, date: new Date().toLocaleDateString() };
+    // Check if text has actually changed
+    if (text === originalText) {
+      setFeedback({ type: "info", message: t("No change detected.") });
+      setIsSubmitting(false);
+      return;
+    }
 
-      // If we have an existing request ID, include it for update
+    try {
+      const requestData: { description: string; date: string; requestId?: string } = {
+        description: text,
+        date: new Date().toLocaleDateString(),
+      };
+
       if (existingRequestId) {
-        Object.assign(requestData, { requestId: existingRequestId });
+        requestData.requestId = existingRequestId;
       }
 
       const response = await fetch("/api/request", {
@@ -88,12 +97,13 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
         throw new Error(errorData.error || t("failedChanges"));
       }
 
-      // Calls optional callback when submit succeeds
       if (onSubmitSuccess) {
         onSubmitSuccess();
       } else {
         setFeedback({ type: "success", message: t("changesSent") });
       }
+      // Update original text to current text after successful submission
+      setOriginalText(text);
     } catch (error: any) {
       console.error("Error submitting changes:", error);
       setFeedback({ type: "error", message: error.message || t("errorSubmittingChanges") });
@@ -102,7 +112,7 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
     }
   };
 
-  // Shows loading state
+  // Display loading indicator
   if (isLoading || isRequestLoading) {
     return (
       <article className="rounded-lg shadow-sm w-full max-w-[805px] md:max-w-[805px] border border-gray-200 bg-white">
@@ -115,10 +125,9 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
     );
   }
 
-  // Renders form for editing description
+  // Render description edit form
   return (
-    <article className="fixed inset-x-0 top-0 bottom-[92px] z-[60] h-[calc(100vh-92px)] bg-white overflow-y-auto sm:rounded-lg w-full max-w-full md:top-12 md:bottom-auto md:h-auto md:max-h-[90vh] md:mx-auto md:left-0 md:right-0 md:w-[805px] border border-gray-200">
-      {/* <article className="rounded-lg shadow-sm w-full max-w-full md:max-w-[805px] border border-gray-200"> */}
+    <article className="fixed inset-x-0 top-0 bottom-[92px] z-[60] h-[calc(103vh-92px)] bg-white overflow-y-auto sm:rounded-lg w-full max-w-full md:fixed md:inset-0 md:m-auto md:top-auto md:bottom-auto md:h-auto md:max-h-[90vh] md:mx-auto md:left-0 md:right-0 md:w-[805px] border border-gray-200">
       <section className="flex flex-col py-4 md:py-6 w-full bg-white rounded-lg">
         <div className="flex flex-col px-4 md:px-5 w-full">
           <header className="flex flex-wrap gap-2 md:gap-5 justify-between items-start">
@@ -151,7 +160,7 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
             onChange={handleTextChange}
             className={`flex shrink-0 mt-4 md:mt-8 bg-white rounded-lg border border-solid 
               ${isOverLimit ? "border-red-500" : "border-slate-800"} 
-              h-[150px] md:h-[249px] w-full p-3 md:p-4 resize-none 
+              h-[calc(100vh-350px)] min-h-[200px] md:h-[249px] w-full p-3 md:p-4 resize-none 
               focus:outline-none focus:ring-2 focus:ring-blue-500`}
             placeholder={t("bizDesc")}
             aria-label="Business description"
@@ -173,7 +182,7 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
         {feedback && (
           <div
             className={`mx-3 md:mx-5 mt-2 md:mt-4 p-2 md:p-3 rounded-md text-sm md:text-base
-              ${feedback.type === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"}`}
+              ${feedback.type === "success" ? "bg-green-50 text-green-800" : feedback.type === "error" ? "bg-red-50 text-red-800" : "bg-blue-50 text-blue-800"}`}
             role="alert"
           >
             {feedback.message}
@@ -182,13 +191,13 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
 
         <hr className="shrink-0 self-center mt-4 md:mt-6 max-w-full h-px border border-solid border-stone-300 w-[90%] md:w-[765px]" />
 
-        <div className="flex justify-end mt-4 md:mt-6 mr-3 md:mr-6 gap-4">
+        <div className="flex justify-end mt-4 md:mt-6 mx-3 md:mr-6 gap-4 mb-5">
           <button
             onClick={handleSubmit}
-            disabled={isSubmitting || isOverLimit}
+            disabled={isSubmitting || isOverLimit || isLoading}
             className={`gap-2.5 py-2 px-4 md:py-2.5 md:px-5 text-sm md:text-base font-bold text-white 
-              ${isOverLimit || isSubmitting ? "bg-blue-400 cursor-not-allowed" : "bg-[#405BA9] hover:bg-[#293241]"} 
-              rounded-3xl min-h-[36px] md:min-h-[40px] transition-colors w-auto flex justify-center items-center`}
+              ${isOverLimit || isSubmitting || isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-[#405BA9] hover:bg-[#293241]"} 
+              rounded-3xl min-h-[36px] md:min-h-[40px] transition-colors w-full md:w-auto flex justify-center items-center`}
           >
             {isSubmitting ? <span className="animate-pulse">{t("saving")}</span> : t("submitChanges")}
           </button>

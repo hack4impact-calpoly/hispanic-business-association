@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import { RequestCard } from "@/components/ui/RequestsCards/RequestCard";
 import FilterButton from "@/components/ui/GeneralAdminComponents/FilterButton";
-import { useRequests, useUser, useBusinesses, useSignUpRequests } from "@/hooks/swrHooks";
+import { useRequests, useUser, useBusinesses, useSignUpRequests, useRequestHistory } from "@/hooks/swrHooks";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
@@ -26,6 +26,7 @@ export default function AdminRequestsPage() {
   const { user, isLoading: isUserLoading } = useUser();
   const { requests, isLoading: isRequestsLoading } = useRequests();
   const { businesses, isLoading: isBusinessesLoading } = useBusinesses();
+  const { historyRequests, isLoading: isHistoryLoading } = useRequestHistory();
   const { signupRequests, isLoading: isSignupRequestsLoading } = useSignUpRequests();
 
   // Create a lookup map of clerkUserID to business name
@@ -119,10 +120,13 @@ export default function AdminRequestsPage() {
 
   // Apply filter to history requests
   const filterHistoryRequests = () => {
-    if (!requests) return [];
+    if (!requests && !historyRequests) return [];
 
-    const historyRequests = requests.filter((req) => req.status === "closed");
-    const sorted = [...historyRequests];
+    const closedCurrentRequests = requests?.filter((req) => req.status === "closed") || [];
+    const historicalRequests = historyRequests || [];
+    const combinedHistory = [...closedCurrentRequests, ...historicalRequests];
+
+    const sorted = [...combinedHistory];
 
     switch (historyFilter) {
       case "Most Recent":
@@ -167,9 +171,18 @@ export default function AdminRequestsPage() {
     setHistoryFilter(filter as FilterType);
   };
 
-  // Navigate to request detail page when clicked
-  const handleRequestClick = (id: string) => {
-    router.push(`/admin/requests/${id}`);
+  // Navigate to pending request detail page
+  const handlePendingRequestClick = (id: string) => {
+    if (id) {
+      router.push(`/admin/requests/${id}`);
+    }
+  };
+
+  // Navigate to history request detail page
+  const handleHistoryRequestClick = (id: string) => {
+    if (id) {
+      router.push(`/admin/requests/history/${id}`);
+    }
   };
 
   const handleSignUpRequestClick = (id: string) => {
@@ -210,7 +223,7 @@ export default function AdminRequestsPage() {
   const historySignupData = filterHistorySignupRequests();
 
   // Determine if data is still loading
-  const isLoading = isRequestsLoading || isBusinessesLoading;
+  const isLoading = isRequestsLoading || isBusinessesLoading || isHistoryLoading || isSignupRequestsLoading;
 
   return (
     <ResponsiveLayout title={t("reqs")}>
@@ -237,7 +250,7 @@ export default function AdminRequestsPage() {
                   pendingData.map((request) => (
                     <div
                       key={(request as any)._id}
-                      onClick={() => handleRequestClick((request as any)._id)}
+                      onClick={() => handlePendingRequestClick((request as any)._id)}
                       className="w-full"
                     >
                       <RequestCard
@@ -273,7 +286,7 @@ export default function AdminRequestsPage() {
                   historyData.map((request) => (
                     <div
                       key={(request as any)._id}
-                      onClick={() => handleRequestClick((request as any)._id)}
+                      onClick={() => handleHistoryRequestClick((request as any)._id)}
                       className="w-full"
                     >
                       <RequestCard
@@ -291,10 +304,10 @@ export default function AdminRequestsPage() {
               </div>
             </div>
 
-            {/* Stats Cards - Now full width on mobile */}
+            {/* Account Requests Column */}
             <div className="w-full lg:w-auto lg:ml-[30px] lg:min-w-[350px] xl:min-w-[416px] mt-8 lg:mt-0 space-y-4 sm:space-y-[18px]">
               <div className="w-full md:max-w-[591px] lg:max-w-none lg:flex-1 lg:min-w-0 xl:max-w-[591px]">
-                {/* Pending Requests section */}
+                {/* Pending Account Requests section */}
                 <div className="flex justify-between items-center mb-4 sm:mb-6 md:mb-8 w-full">
                   <h2 className="font-futura font-medium text-[18px] sm:text-[22px] md:text-[26px] leading-tight md:leading-[34.53px] text-black truncate pr-2">
                     {t("pendingAccReq")}
@@ -330,7 +343,7 @@ export default function AdminRequestsPage() {
 
                 <div className="w-full h-0 border-t border-[#BEBEBE] my-6 sm:my-8" />
 
-                {/* History Requests section */}
+                {/* Account History Requests section */}
                 <div className="flex justify-between items-center mb-4 sm:mb-6 md:mb-8 w-full">
                   <h2 className="font-futura font-medium text-[18px] sm:text-[22px] md:text-[26px] leading-tight md:leading-[34.53px] text-black truncate pr-2">
                     {t("accReqHistory")}

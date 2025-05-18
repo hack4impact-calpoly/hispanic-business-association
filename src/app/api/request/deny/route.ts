@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/database/db";
 import Request from "@/database/requestSchema";
+import RequestHistory from "@/database/requestHistorySchema";
 import { currentUser } from "@clerk/nextjs/server";
 
 export async function POST(req: Request) {
@@ -11,9 +12,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // Extract request ID from the request body
+    // Extract request ID and denial message from the request body
     const body = await req.json();
     const requestId = body.requestId;
+    const denialMessage = body.denialMessage || "";
 
     if (!requestId) {
       return NextResponse.json({ message: "Request ID is required" }, { status: 400 });
@@ -27,10 +29,27 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Request not found" }, { status: 404 });
     }
 
+    // Create a history entry
+    const historyData = {
+      clerkUserID: requestData.clerkUserID,
+      old: requestData.old,
+      new: requestData.new,
+      date: requestData.date,
+      status: "closed",
+      decision: "denied",
+      denialMessage,
+    };
+
+    await RequestHistory.create(historyData);
+
     // Mark the request as closed and denied
     requestData.status = "closed";
     requestData.decision = "denied";
+    requestData.denialMessage = denialMessage;
     await requestData.save();
+
+    // Delete the request from the requests collection
+    await Request.findByIdAndDelete(requestId);
 
     return NextResponse.json({ message: "Request denied successfully" });
   } catch (error) {
