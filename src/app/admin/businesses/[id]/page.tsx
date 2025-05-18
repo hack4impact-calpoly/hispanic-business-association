@@ -9,7 +9,7 @@ import BusinessInfoCard from "@/components/ui/BusinessPreviewComponents/Business
 import ContactInfoCard from "@/components/ui/BusinessPreviewComponents/ContactInfoCard";
 import { useBusinessById, useUser } from "@/hooks/swrHooks";
 import { extractBusinessDisplayData } from "@/lib/formatters";
-import { Button } from "@/components/ui/ShadcnComponents/button";
+import { Button } from "@/components/ui/shadcnComponents/button";
 import { useTranslations } from "next-intl";
 
 export default function BusinessDetailsPage() {

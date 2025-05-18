@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Button } from "@/components/ui/ShadcnComponents/button";
-import { Input } from "@/components/ui/ShadcnComponents/input";
-import { Card, CardContent } from "@/components/ui/ShadcnComponents/card";
+import { Button } from "@/components/ui/shadcnComponents/button";
+import { Input } from "@/components/ui/shadcnComponents/input";
+import { Card, CardContent } from "@/components/ui/shadcnComponents/card";
 import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
@@ -16,7 +16,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../../components/ui/ShadcnComponents/dropdown-menu";
+} from "../../components/ui/shadcnComponents/dropdown-menu";
 
 export default function ForgotPassword() {
   const t = useTranslations();

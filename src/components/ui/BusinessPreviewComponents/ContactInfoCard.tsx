@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Card, CardHeader, CardContent } from "../ShadcnComponents/card";
+import { Card, CardHeader, CardContent } from "../shadcnComponents/card";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 

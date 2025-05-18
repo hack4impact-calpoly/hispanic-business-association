@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { Card, CardContent } from "../ShadcnComponents/card";
+import { Card, CardContent } from "../shadcnComponents/card";
 import { useTranslations } from "next-intl";
 
 interface ChangeRequestConfirmationProps {

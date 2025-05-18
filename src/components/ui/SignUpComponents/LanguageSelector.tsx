@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Button } from "../ShadcnComponents/button";
+import { Button } from "../shadcnComponents/button";
 import { useContext } from "react";
 import { LocaleContext } from "@/app/Providers";
 import {
@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "../ShadcnComponents/dropdown-menu"; // adjust path if needed
+} from "../shadcnComponents/dropdown-menu"; // adjust path if needed
 
 const LanguageSelector = () => {
   const { locale, setLocale } = useContext(LocaleContext);

@@ -1,4 +1,4 @@
-import { Button } from "../ShadcnComponents/button";
+import { Button } from "../shadcnComponents/button";
 import { useTranslations } from "next-intl";
 
 interface StepNavigationProps {

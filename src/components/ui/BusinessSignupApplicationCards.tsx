@@ -2,18 +2,18 @@
 
 import React from "react";
 import Image from "next/image";
-import { Card, CardHeader, CardContent } from "./ShadcnComponents/card";
+import { Card, CardHeader, CardContent } from "./shadcnComponents/card";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Input } from "./ShadcnComponents/input";
-import { Button } from "./ShadcnComponents/button";
+import { Input } from "./shadcnComponents/input";
+import { Button } from "./shadcnComponents/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "./ShadcnComponents/dropdown-menu";
+} from "./shadcnComponents/dropdown-menu";
 import { IUser } from "@/database/userSchema";
 import { IBusiness } from "@/database/businessSchema";
 import { Eye, EyeOff } from "lucide-react";
