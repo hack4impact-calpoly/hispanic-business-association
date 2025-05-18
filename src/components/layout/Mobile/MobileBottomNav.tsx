@@ -10,7 +10,7 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-} from "@/components/layout/navigation-menu";
+} from "@/components/ui/ShadcnComponents/navigation-menu";
 
 export default function Navbar() {
   const t = useTranslations();

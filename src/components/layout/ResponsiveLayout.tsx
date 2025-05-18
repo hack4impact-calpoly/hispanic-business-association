@@ -1,8 +1,8 @@
 "use client";
 
 import { useIsMobile } from "@/hooks/use-mobile";
-import DesktopLayout from "./DesktopLayout";
-import MobileLayout from "./MobileLayout";
+import DesktopLayout from "./Desktop/DesktopLayout";
+import MobileLayout from "./Mobile/MobileLayout";
 import React, { useState, useEffect } from "react";
 
 interface ResponsiveLayoutProps {
