@@ -1,68 +1,21 @@
 import mongoose, { Schema } from "mongoose";
+import { BusinessCoreSchema } from "./subSchemas";
+import { IBusinessCore } from "./types";
 
-export type IBusiness = {
-  _id?: string; // MongoDB document ID
-  clerkUserID: string; // Reference to the User's clerkUserID.
-  businessName: string;
-  businessType: string;
-  membershipFeeType: String;
-  lastPayDate: Date;
-  membershipExpiryDate: Date;
-  businessOwner: string;
-  website: string;
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    zip: number;
-    county: string;
-  };
-  pointOfContact: {
-    name: string;
-    phoneNumber: number;
-    email: string;
-  };
-  socialMediaHandles?: {
-    IG?: string;
-    twitter?: string;
-    FB?: string;
-  };
-  description: string;
-  logoUrl?: string;
-  bannerUrl?: string;
+export type IBusiness = IBusinessCore & {
+  _id?: string;
+  clerkUserID: string;
+  membershipFeeType?: string;
+  lastPayDate?: Date;
+  membershipExpiryDate?: Date;
 };
 
-// Create the Mongoose schema for Business details.
 const BusinessSchema = new Schema<IBusiness>({
   clerkUserID: { type: String, required: true, unique: true },
-  businessName: { type: String, required: true, unique: true },
-  businessType: { type: String, required: true },
-  membershipFeeType: { type: String, required: false },
-  lastPayDate: { type: Date, required: false },
-  membershipExpiryDate: { type: Date, required: false },
-  businessOwner: { type: String, required: true },
-  website: { type: String, required: true },
-  address: {
-    street: { type: String, required: true },
-    city: { type: String, required: true },
-    state: { type: String, required: true },
-    zip: { type: Number, required: true },
-    county: { type: String, required: false },
-  },
-  pointOfContact: {
-    name: { type: String, required: true },
-    phoneNumber: { type: Number, required: true },
-    email: { type: String, required: true },
-  },
-  socialMediaHandles: {
-    IG: { type: String },
-    twitter: { type: String },
-    FB: { type: String },
-  },
-  description: { type: String, required: true },
-  logoUrl: { type: String },
-  bannerUrl: { type: String },
+  ...BusinessCoreSchema,
+  membershipFeeType: { type: String },
+  lastPayDate: { type: Date },
+  membershipExpiryDate: { type: Date },
 });
 
-// Export the model.
 export default mongoose.models.Business || mongoose.model("Business", BusinessSchema);
