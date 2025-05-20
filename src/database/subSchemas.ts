@@ -30,6 +30,7 @@ const BUSINESS_TYPES = [
   "Education",
   "Technology",
   "Marketing",
+  "Other",
 ];
 const GENDER_OPTIONS = ["Female", "Male", "Non-binary", "Prefer not to say", "Other"];
 

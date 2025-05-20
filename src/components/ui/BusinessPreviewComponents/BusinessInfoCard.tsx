@@ -8,7 +8,7 @@ import { useTranslations } from "next-intl";
 // Extended business info structure
 interface BusinessInfo {
   name: string;
-  type: string;
+  type?: string; // ← make optional
   owner: string;
   website?: string;
   organizationType?: string;

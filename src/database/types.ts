@@ -10,6 +10,7 @@ export const BUSINESS_TYPES = [
   "Education",
   "Technology",
   "Marketing",
+  "Other",
 ] as const;
 export const BUSINESS_SCALES = ["Corporate", "Small Business"] as const;
 export const EMPLOYEE_RANGES = ["1-10", "11-20", "21-50", "51-99", "100+"] as const;
