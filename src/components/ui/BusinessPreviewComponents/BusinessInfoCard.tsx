@@ -97,11 +97,11 @@ const BusinessInfoCard = ({ info, editable = false, onEditClick }: BusinessInfoC
           <div className="space-y-[26px]">
             <InfoBlock label={t("website")} value={businessInfo.website} />
             <div>
-              <Label text={t("physicalAddress")} />
+              <Label text={t("physAdd")} />
               <AddressBlock address={businessInfo.physicalAddress} />
             </div>
             <div>
-              <Label text={t("mailingAddress")} />
+              <Label text={t("mailAdd")} />
               <AddressBlock address={businessInfo.mailingAddress} />
             </div>
           </div>
