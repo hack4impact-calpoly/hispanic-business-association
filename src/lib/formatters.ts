@@ -1,11 +1,11 @@
 import { IBusiness } from "@/database/businessSchema";
 
 /**
- * Formats a business address for display
- * @param address - Business address object
+ * Formats any address for display
+ * @param address - Address object
  * @returns Formatted address string
  */
-export function formatAddress(address?: IBusiness["address"]) {
+export function formatAddress(address?: { street: string; city: string; state: string; zip: string | number }) {
   if (!address) return "Address not available";
 
   const { street, city, state, zip } = address;
@@ -20,17 +20,14 @@ export function formatAddress(address?: IBusiness["address"]) {
 export function formatPhoneNumber(phoneNumber?: number | string) {
   if (!phoneNumber) return "Not available";
 
-  // Convert to string if it's a number
   const phoneStr = phoneNumber.toString();
 
-  // Handle different formats
   if (phoneStr.length === 10) {
     return `(${phoneStr.slice(0, 3)}) ${phoneStr.slice(3, 6)}-${phoneStr.slice(6)}`;
   } else if (phoneStr.length === 11 && phoneStr[0] === "1") {
     return `(${phoneStr.slice(1, 4)}) ${phoneStr.slice(4, 7)}-${phoneStr.slice(7)}`;
   }
 
-  // Return as is if we can't format it
   return phoneStr;
 }
 
@@ -43,43 +40,71 @@ export function extractBusinessDisplayData(business?: IBusiness) {
   if (!business) return null;
 
   return {
-    // Basic info
     businessInfo: {
       name: business.businessName,
       type: business.businessType,
       owner: business.businessOwner,
       website: business.website,
-      address: {
-        formatted: formatAddress(business.address),
-        street: business.address.street,
-        suite: "", // Not in the current schema
-        city: business.address.city,
-        state: business.address.state,
-        zip: business.address.zip.toString(),
+      physicalAddress: business.physicalAddress
+        ? {
+            formatted: formatAddress(business.physicalAddress),
+            street: business.physicalAddress.street,
+            city: business.physicalAddress.city,
+            state: business.physicalAddress.state,
+            zip: business.physicalAddress.zip.toString(),
+          }
+        : {
+            formatted: "Address not available",
+            street: "",
+            city: "",
+            state: "",
+            zip: "",
+          },
+
+      mailingAddress: business.physicalAddress
+        ? {
+            formatted: formatAddress(business.physicalAddress),
+            street: business.physicalAddress.street,
+            city: business.physicalAddress.city,
+            state: business.physicalAddress.state,
+            zip: business.physicalAddress.zip.toString(),
+          }
+        : {
+            formatted: "Address not available",
+            street: "",
+            city: "",
+            state: "",
+            zip: "",
+          },
+    },
+
+    contactInfo: {
+      name: business.pointOfContact.name,
+      phoneNumber: formatPhoneNumber(business.pointOfContact.phoneNumber),
+      email: business.pointOfContact.email,
+      socialMediaHandles: {
+        FB: business.socialMediaHandles?.FB,
+        IG: business.socialMediaHandles?.IG,
+        twitter: business.socialMediaHandles?.twitter,
       },
     },
 
-    // Contact info
-    contactInfo: {
-      pointOfContact: business.pointOfContact.name,
-      phone: formatPhoneNumber(business.pointOfContact.phoneNumber),
-      email: business.pointOfContact.email,
-      socialMedia:
-        business.socialMediaHandles?.FB ||
-        business.socialMediaHandles?.IG ||
-        business.socialMediaHandles?.twitter ||
-        "Not available",
-    },
-
-    // About section
     about: {
       description: business.description,
     },
 
-    // Membership info - Not in current schema, could be added later
     membership: {
-      memberSince: "November 2023", // Placeholder
-      expiresInMonths: 1, // Placeholder
+      memberSince: business.membershipStartDate
+        ? new Date(business.membershipStartDate).toLocaleDateString()
+        : "Unknown",
+      expiresInMonths: business.membershipExpiryDate
+        ? Math.max(
+            0,
+            Math.floor(
+              (new Date(business.membershipExpiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24 * 30),
+            ),
+          )
+        : 0,
     },
   };
 }

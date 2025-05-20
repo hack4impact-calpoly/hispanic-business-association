@@ -5,38 +5,34 @@ import { currentUser } from "@clerk/nextjs/server";
 
 export async function POST(req: Request) {
   try {
-    // Check authentication
     const user = await currentUser();
     if (!user) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // Extract request ID from the request body
-    const body = await req.json();
-    const requestId = body.requestId;
-
+    const { requestId } = await req.json();
     if (!requestId) {
       return NextResponse.json({ message: "Request ID is required" }, { status: 400 });
     }
 
     await connectDB();
 
-    // Get the request from the database
     const requestData = await SignupRequest.findById(requestId);
     if (!requestData) {
       return NextResponse.json({ message: "Request not found" }, { status: 404 });
     }
 
-    // Mark the request as closed and denied
+    if (requestData.status === "closed") {
+      return NextResponse.json({ message: "Request already closed" }, { status: 400 });
+    }
+
     requestData.status = "closed";
     requestData.decision = "approved";
     await requestData.save();
 
-    // SIGN UP FLOW
-
-    return NextResponse.json({ message: "Request denied successfully" });
+    return NextResponse.json({ message: "Request approved successfully", request: requestData });
   } catch (error) {
-    console.error("Error denying request:", error);
-    return NextResponse.json({ message: "Error denying request" }, { status: 500 });
+    console.error("Error approving request:", error);
+    return NextResponse.json({ message: "Error approving request" }, { status: 500 });
   }
 }

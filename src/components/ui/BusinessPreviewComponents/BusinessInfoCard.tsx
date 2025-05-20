@@ -5,13 +5,30 @@ import { Card, CardHeader, CardContent } from "../shadcnComponents/card";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-// Business details data structure
+// Extended business info structure
 interface BusinessInfo {
   name: string;
   type: string;
   owner: string;
-  website: string;
-  address: { formatted?: string; street: string; suite?: string; city: string; state: string; zip: string };
+  website?: string;
+  organizationType?: string;
+  businessScale?: string;
+  numberOfEmployees?: string;
+  gender?: string;
+  physicalAddress: {
+    formatted?: string;
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+  };
+  mailingAddress: {
+    formatted?: string;
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+  };
 }
 
 interface BusinessInfoCardProps {
@@ -24,16 +41,19 @@ const BusinessInfoCard = ({ info, editable = false, onEditClick }: BusinessInfoC
   const router = useRouter();
   const t = useTranslations();
 
-  // Default business info - replaced with prop data when available
   const businessInfo = info ?? {
     name: "HALO Hair Studio",
     type: "Beauty & Personal Care",
     owner: "Selena Lilies",
     website: "https://halohairpasorobles.com/",
-    address: { street: "1413 Riverside Ave.", suite: "Suite G", city: "Paso Robles", state: "CA", zip: "93446" },
+    organizationType: "Business",
+    businessScale: "Small Business",
+    numberOfEmployees: "1-10",
+    gender: "Female",
+    physicalAddress: { street: "1413 Riverside Ave.", city: "Paso Robles", state: "CA", zip: "93446" },
+    mailingAddress: { street: "1413 Riverside Ave.", city: "Paso Robles", state: "CA", zip: "93446" },
   };
 
-  // Handle edit button click
   const handleEditClick = () => {
     if (onEditClick) {
       onEditClick();
@@ -50,7 +70,6 @@ const BusinessInfoCard = ({ info, editable = false, onEditClick }: BusinessInfoC
             <h2 className="text-[16px] font-bold text-[#293241] font-['Futura'] leading-[21.26px] truncate">
               {t("businessInformation")}
             </h2>
-            {/* Edit button - conditionally rendered based on editable prop */}
             {editable && (
               <button
                 onClick={handleEditClick}
@@ -65,53 +84,25 @@ const BusinessInfoCard = ({ info, editable = false, onEditClick }: BusinessInfoC
         </div>
       </CardHeader>
       <CardContent className="px-[21px] pt-0">
-        {/* Grid structure ensures equal column widths on all screen sizes */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-[26px]">
-            <div>
-              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">
-                {t("businessName")}
-              </p>
-              <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
-                {businessInfo.name}
-              </p>
-            </div>
-            <div>
-              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">
-                {t("businessType")}
-              </p>
-              <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
-                {businessInfo.type}
-              </p>
-            </div>
-            <div>
-              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">{t("owner")}</p>
-              <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
-                {businessInfo.owner}
-              </p>
-            </div>
+            <InfoBlock label={t("businessName")} value={businessInfo.name} />
+            <InfoBlock label={t("businessType")} value={businessInfo.type} />
+            <InfoBlock label={t("owner")} value={businessInfo.owner} />
+            <InfoBlock label={t("organizationType")} value={businessInfo.organizationType} />
+            <InfoBlock label={t("businessScale")} value={businessInfo.businessScale} />
+            <InfoBlock label={t("numberOfEmployees")} value={businessInfo.numberOfEmployees} />
+            <InfoBlock label={t("gender")} value={businessInfo.gender} />
           </div>
           <div className="space-y-[26px]">
+            <InfoBlock label={t("website")} value={businessInfo.website} />
             <div>
-              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">{t("website")}</p>
-              <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
-                {businessInfo.website}
-              </p>
+              <Label text={t("physicalAddress")} />
+              <AddressBlock address={businessInfo.physicalAddress} />
             </div>
             <div>
-              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">{t("address")}</p>
-              {/* Address with natural line breaks */}
-              <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
-                {businessInfo.address.street}
-                <br />
-                {businessInfo.address.suite && (
-                  <>
-                    {businessInfo.address.suite}
-                    <br />
-                  </>
-                )}
-                {businessInfo.address.city}, {businessInfo.address.state} {businessInfo.address.zip}
-              </p>
+              <Label text={t("mailingAddress")} />
+              <AddressBlock address={businessInfo.mailingAddress} />
             </div>
           </div>
         </div>
@@ -119,5 +110,24 @@ const BusinessInfoCard = ({ info, editable = false, onEditClick }: BusinessInfoC
     </Card>
   );
 };
+
+const Label = ({ text }: { text: string }) => (
+  <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">{text}</p>
+);
+
+const InfoBlock = ({ label, value }: { label: string; value?: string }) => (
+  <div>
+    <Label text={label} />
+    <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">{value || "—"}</p>
+  </div>
+);
+
+const AddressBlock = ({ address }: { address: { street: string; city: string; state: string; zip: string } }) => (
+  <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
+    {address.street}
+    <br />
+    {address.city}, {address.state} {address.zip}
+  </p>
+);
 
 export default BusinessInfoCard;

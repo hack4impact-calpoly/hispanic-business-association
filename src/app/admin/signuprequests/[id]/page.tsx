@@ -10,7 +10,6 @@ import RequestApprovedCard from "@/components/ui/RequestsCards/RequestApprovedCa
 import RequestDeniedCard from "@/components/ui/RequestsCards/RequestDeniedCard";
 import { useTranslations } from "next-intl";
 
-// Define props for the page component
 interface SignupRequestDetailPageProps {
   params: {
     id: string;
@@ -26,7 +25,6 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
   const router = useRouter();
   const { id } = params;
 
-  // Fetch the specific request using SWR
   const {
     request: signupRequest,
     isLoading: requestLoading,
@@ -34,28 +32,29 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
     mutate: mutateRequest,
   } = useSignUpRequest(id);
 
-  // Fetch business data associated with the request
-
   const isLoading = requestLoading;
   const isError = requestError;
 
-  // Only attempt to organize display data when both data sources are available
-  // For new info, use request data where available, falling back to business data
   const newInfo = signupRequest
     ? {
-        businessName: signupRequest.businessName || "",
-        businessType: signupRequest.businessType || "",
-        businessOwner: signupRequest.businessOwner || "",
+        name: signupRequest.businessName || "",
+        type: signupRequest.businessType || "",
+        owner: signupRequest.businessOwner || "",
         website: signupRequest.website || "",
-        address: signupRequest.address || "",
-        pointOfContact: signupRequest.pointOfContact || "",
+        physicalAddress: signupRequest.physicalAddress,
+        mailingAddress: signupRequest.mailingAddress,
+        pointOfContact: signupRequest.pointOfContact,
         socialMediaHandles: signupRequest.socialMediaHandles,
         description: signupRequest.description || "",
         logoUrl: signupRequest.logoUrl,
+        bannerUrl: signupRequest.bannerUrl,
+        organizationType: signupRequest.organizationType,
+        businessScale: signupRequest.businessScale,
+        numberOfEmployees: signupRequest.numberOfEmployees,
+        gender: signupRequest.gender,
       }
     : null;
 
-  // Handle approving the request
   const handleApprove = async () => {
     if (!signupRequest) return;
 
@@ -68,15 +67,21 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
       },
       body: JSON.stringify({
         clerkUserID: signupRequest.clerkUserID,
-        businessName: signupRequest.businessName,
-        businessType: signupRequest.businessType,
-        membershipFeeType: "", // Provide a default value
-        businessOwner: signupRequest.businessOwner,
+        name: signupRequest.businessName,
+        type: signupRequest.businessType,
+        owner: signupRequest.businessOwner,
         website: signupRequest.website,
-        address: signupRequest.address,
+        physicalAddress: signupRequest.physicalAddress,
+        mailingAddress: signupRequest.mailingAddress,
         pointOfContact: signupRequest.pointOfContact,
         socialMediaHandles: signupRequest.socialMediaHandles,
         description: signupRequest.description,
+        logoUrl: signupRequest.logoUrl,
+        bannerUrl: signupRequest.bannerUrl,
+        organizationType: signupRequest.organizationType,
+        businessScale: signupRequest.businessScale,
+        numberOfEmployees: signupRequest.numberOfEmployees,
+        gender: signupRequest.gender,
       }),
     })
       .then((response) => {
@@ -91,6 +96,7 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
       .catch((error) => {
         console.error("Error:", error);
       });
+
     try {
       const response = await fetch("/api/signup/approve", {
         method: "POST",
@@ -106,7 +112,6 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
         throw new Error("Failed to approve request");
       }
 
-      // Show approval card after successful API call
       setShowApprovedCard(true);
       mutateRequest();
     } catch (error) {
@@ -117,7 +122,6 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
     }
   };
 
-  // Handle declining the request
   const handleDeny = async () => {
     if (!signupRequest) return;
 
@@ -137,7 +141,6 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
         throw new Error("Failed to deny request");
       }
 
-      // Show denial card after successful API call
       setShowDeniedCard(true);
       mutateRequest();
     } catch (error) {
@@ -150,10 +153,8 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
 
   return (
     <ResponsiveLayout title={t("req")}>
-      {/* Refined responsive container */}
       <div className="relative min-h-screen bg-white px-3 sm:px-4 md:px-6 py-6 pb-[142px] md:pb-12">
         <div className="w-full max-w-7xl mx-auto">
-          {/* Back to Requests button with status indicator - modified */}
           <div className="flex justify-between items-center mb-6">
             <Button
               onClick={() => router.push("/admin/requests")}
@@ -187,12 +188,10 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
 
           {!isLoading && !isError && newInfo && (
             <>
-              {/* Business Name Title - Above the cards */}
               <h2 className="font-futura font-bold text-[22px] sm:text-[26px] leading-[34.55px] text-black mb-6 sm:mb-8">
-                {newInfo.businessName}
+                {newInfo.name}
               </h2>
               <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 mb-12 lg:mb-16">
-                {/* Cards Container - Flex column on mobile, row on desktop */}
                 <div className="w-full flex justify-center">
                   <div className="w-full lg:max-w-[600px]">
                     <h3 className="font-futura font-medium text-xl text-black mb-4">{t("newInfo")}</h3>
@@ -201,7 +200,6 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
                 </div>
               </div>
 
-              {/* Action Buttons - Centered with proper spacing */}
               {signupRequest && signupRequest.status === "open" ? (
                 <div className="flex flex-col items-center gap-4 mb-8 sm:mb-10">
                   <h3 className="font-futura font-medium text-[20px] sm:text-[24px] leading-[31.88px] text-black">

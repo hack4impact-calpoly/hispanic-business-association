@@ -5,12 +5,15 @@ import { Card, CardHeader, CardContent } from "../shadcnComponents/card";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-// Contact info data structure
 interface ContactInfo {
-  pointOfContact: string;
-  phone: string;
+  name: string;
+  phoneNumber: string;
   email: string;
-  socialMedia: string;
+  socialMediaHandles?: {
+    IG?: string;
+    twitter?: string;
+    FB?: string;
+  };
 }
 
 interface ContactInfoCardProps {
@@ -23,15 +26,15 @@ const ContactInfoCard = ({ info, editable = false, onEditClick }: ContactInfoCar
   const router = useRouter();
   const t = useTranslations();
 
-  // Default contact info - replaced with prop data when available
   const contactInfo = info ?? {
-    pointOfContact: "Selena Lilies",
-    phone: "(408) 772-8521",
+    name: "Selena Lilies",
+    phoneNumber: "(408) 772-8521",
     email: "lilieschair@hotmail.com",
-    socialMedia: "https://www.facebook.com/halohairandnailstudio",
+    socialMediaHandles: {
+      FB: "https://www.facebook.com/halohairandnailstudio",
+    },
   };
 
-  // Handle edit button click
   const handleEditClick = () => {
     if (onEditClick) {
       onEditClick();
@@ -48,7 +51,6 @@ const ContactInfoCard = ({ info, editable = false, onEditClick }: ContactInfoCar
             <h2 className="text-[16px] font-bold text-[#293241] font-['Futura'] leading-[21.26px] truncate">
               {t("contactInfo")}
             </h2>
-            {/* Edit button - conditionally rendered based on editable prop */}
             {editable && (
               <button
                 onClick={handleEditClick}
@@ -63,46 +65,34 @@ const ContactInfoCard = ({ info, editable = false, onEditClick }: ContactInfoCar
         </div>
       </CardHeader>
       <CardContent className="px-[32px] pt-0">
-        {/* Grid ensures consistent column widths across screen sizes */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-[21px]">
-            <div>
-              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">
-                {t("pointOfContact")}
-              </p>
-              <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
-                {contactInfo.pointOfContact}
-              </p>
-            </div>
-            <div>
-              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">
-                {t("phoneNumber")}
-              </p>
-              <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
-                {contactInfo.phone}
-              </p>
-            </div>
+            <InfoBlock label={t("pointOfContact")} value={contactInfo.name} />
+            <InfoBlock label={t("phoneNumber")} value={contactInfo.phoneNumber} />
           </div>
           <div className="space-y-[23px]">
-            <div>
-              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">{t("email")}</p>
-              <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
-                {contactInfo.email}
-              </p>
-            </div>
-            <div>
-              <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">
-                {t("socialMedia")}
-              </p>
-              <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
-                {contactInfo.socialMedia}
-              </p>
-            </div>
+            <InfoBlock label={t("email")} value={contactInfo.email} />
+            <InfoBlock
+              label={t("socialMedia")}
+              value={
+                contactInfo.socialMediaHandles?.FB ||
+                contactInfo.socialMediaHandles?.IG ||
+                contactInfo.socialMediaHandles?.twitter ||
+                "—"
+              }
+            />
           </div>
         </div>
       </CardContent>
     </Card>
   );
 };
+
+const InfoBlock = ({ label, value }: { label: string; value?: string }) => (
+  <div>
+    <p className="text-[12px] font-bold text-[#8C8C8C] font-['Futura'] leading-[15.95px]">{label}</p>
+    <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">{value || "—"}</p>
+  </div>
+);
 
 export default ContactInfoCard;

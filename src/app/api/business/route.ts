@@ -49,40 +49,53 @@ export async function POST(req: Request) {
     if (!clerkUser) {
       return NextResponse.json({ message: "User not logged in" }, { status: 401 });
     }
+
     const {
       clerkUserID,
       businessName,
       businessType,
-      membershipFeeType,
       businessOwner,
       website,
-      address,
+      physicalAddress,
+      mailingAddress,
       pointOfContact,
       socialMediaHandles,
       description,
+      organizationType,
+      businessScale,
+      numberOfEmployees,
+      logoUrl,
+      bannerUrl,
+      gender,
     } = await req.json();
+
     // Check if business already exists
-    const existingBusiness = await Business.findOne({ businessName: businessName });
+    const existingBusiness = await Business.findOne({ businessName });
     if (existingBusiness) {
       return NextResponse.json({ message: "Business already exists" }, { status: 400 });
     }
 
-    // Create new business
-    const new_business = new Business({
+    const newBusiness = new Business({
       clerkUserID,
       businessName,
       businessType,
-      membershipFeeType,
       businessOwner,
       website,
-      address,
+      physicalAddress,
+      mailingAddress,
       pointOfContact,
       socialMediaHandles,
       description,
+      organizationType,
+      businessScale,
+      numberOfEmployees,
+      logoUrl,
+      bannerUrl,
+      gender,
     });
 
-    await new_business.save();
-    return NextResponse.json(new_business, { status: 201 });
+    await newBusiness.save();
+    return NextResponse.json(newBusiness, { status: 201 });
   } catch (error) {
     console.error("Error creating business:", error);
     return NextResponse.json({ message: "Error occurred", error }, { status: 500 });

@@ -5,7 +5,7 @@ import { IBusinessCore } from "./types";
 export type IBusiness = IBusinessCore & {
   _id?: string;
   clerkUserID: string;
-  membershipFeeType?: string;
+  membershipStartDate: Date;
   lastPayDate?: Date;
   membershipExpiryDate?: Date;
 };
@@ -13,9 +13,9 @@ export type IBusiness = IBusinessCore & {
 const BusinessSchema = new Schema<IBusiness>({
   clerkUserID: { type: String, required: true, unique: true },
   ...BusinessCoreSchema,
-  membershipFeeType: { type: String },
-  lastPayDate: { type: Date },
-  membershipExpiryDate: { type: Date },
+  membershipStartDate: { type: Date, required: true },
+  lastPayDate: { type: Date, required: false },
+  membershipExpiryDate: { type: Date, required: false },
 });
 
 export default mongoose.models.Business || mongoose.model("Business", BusinessSchema);

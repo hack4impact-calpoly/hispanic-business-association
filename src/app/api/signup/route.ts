@@ -50,12 +50,17 @@ export async function POST(req: NextRequest) {
       businessType: body["businessType"],
       businessOwner: body["businessOwner"],
       website: body["website"],
-      address: {
-        street: body["address"]["street"],
-        city: body["address"]["city"],
-        state: body["address"]["state"],
-        zip: body["address"]["zip"],
-        county: body["address"]["county"],
+      physicalAddress: {
+        street: body["physicalAddress"]["street"],
+        city: body["physicalAddress"]["city"],
+        state: body["physicalAddress"]["state"],
+        zip: body["physicalAddress"]["zip"],
+      },
+      mailingAddress: {
+        street: body["mailingAddress"]["street"],
+        city: body["mailingAddress"]["city"],
+        state: body["mailingAddress"]["state"],
+        zip: body["mailingAddress"]["zip"],
       },
       pointOfContact: {
         name: body["pointOfContact"]["name"],
@@ -64,7 +69,11 @@ export async function POST(req: NextRequest) {
       },
       description: body["description"],
       date: body["date"],
-      status: body["status"],
+      status: body["status"] ?? "open",
+      organizationType: body["organizationType"],
+      businessScale: body["businessScale"],
+      numberOfEmployees: body["numberOfEmployees"],
+      gender: body["gender"],
       decision: null,
     };
 

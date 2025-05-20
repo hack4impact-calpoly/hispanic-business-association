@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { Card, CardContent } from "../shadcnComponents/card";
@@ -12,9 +12,9 @@ import Step5_Verification from "./Step5_Verification";
 import Step6_Submission from "./Step6_Submission";
 import LanguageSelector from "./LanguageSelector";
 import { ISignupRequest } from "@/database/signupRequestSchema";
-import { IBusiness } from "@/database/businessSchema";
 import { useClerkSignup } from "@/hooks/useClerkSignup";
 import { useTranslations } from "next-intl";
+import { BusinessType, OrganizationType, BusinessScale, EmployeeRange, Gender } from "@/database/types";
 
 interface BusinessSignupAppInfo {
   contactInfo: { name: string; phone: string; email: string };
@@ -22,8 +22,12 @@ interface BusinessSignupAppInfo {
     businessName: string;
     website: string;
     businessOwner: string;
-    businessType: string;
     description: string;
+    businessType?: BusinessType;
+    organizationType?: OrganizationType;
+    businessScale?: BusinessScale;
+    numberOfEmployees?: EmployeeRange;
+    gender?: Gender;
     physicalAddress: { street: string; city: string; state: string; zip: string };
     mailingAddress: { street: string; city: string; state: string; zip: string };
   };
@@ -63,7 +67,11 @@ const BusinessSignupApplication = () => {
         businessName: "",
         website: "",
         businessOwner: "",
-        businessType: "",
+        businessType: undefined,
+        organizationType: undefined,
+        businessScale: undefined,
+        numberOfEmployees: undefined,
+        gender: undefined,
         description: "",
         physicalAddress: { street: "", city: "", state: "", zip: "" },
         mailingAddress: { street: "", city: "", state: "", zip: "" },
@@ -107,7 +115,7 @@ const BusinessSignupApplication = () => {
         }
         const status = await startSignup(email, password1);
         if (status === "verified") {
-          await postAllData(""); // You can modify hook to return userId if needed
+          await postAllData("");
           setStep(6);
         } else if (status === "needs_verification") {
           setStep(5);
@@ -136,13 +144,20 @@ const BusinessSignupApplication = () => {
       businessName: values.businessInfo.businessName,
       website: values.businessInfo.website,
       businessOwner: values.businessInfo.businessOwner,
-      businessType: values.businessInfo.businessType,
+      businessType: values.businessInfo.businessType ?? "Retail shops",
       description: values.businessInfo.description,
+      organizationType: values.businessInfo.organizationType ?? "Community",
+      businessScale: values.businessInfo.businessScale ?? "Small Business",
+      numberOfEmployees: values.businessInfo.numberOfEmployees ?? "1-10",
+      gender: values.businessInfo.gender ?? "Prefer not to say",
       status: "open",
-      address: {
+      physicalAddress: {
         ...values.businessInfo.physicalAddress,
         zip: Number(values.businessInfo.physicalAddress.zip),
-        county: "", // or fill in a default if you’re not collecting this yet
+      },
+      mailingAddress: {
+        ...values.businessInfo.mailingAddress,
+        zip: Number(values.businessInfo.mailingAddress.zip),
       },
       pointOfContact: {
         name: values.contactInfo.name,
@@ -155,7 +170,6 @@ const BusinessSignupApplication = () => {
       date: new Date(),
     };
 
-    // POST to signup requests
     try {
       const response = await fetch("api/signup", {
         method: "POST",

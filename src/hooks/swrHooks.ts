@@ -207,7 +207,12 @@ export function useActiveBusinessRequest(config?: SWRConfiguration) {
  * Utility to manually mutate cached request data
  * Useful for optimistic updates when approving/denying requests
  */
-export function updateRequestStatus(id: string, status: "closed", decision: "approved" | "denied", cache: IRequest[]) {
+export function updateRequestStatus(
+  id: string,
+  status: "closed",
+  decision: "approved" | "denied" | "request changes",
+  cache: IRequest[],
+) {
   return cache?.map((request) =>
     // Using string indexing since _id might not be in the interface but exists in MongoDB documents
     (request as any)._id === id ? { ...request, status, decision } : request,
