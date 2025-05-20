@@ -51,7 +51,7 @@ export interface IBusinessCore {
   mailingAddress: IAddress;
   pointOfContact: IContact;
   socialMediaHandles?: ISocialMedia;
-  description: string;
+  description?: string;
   organizationType: OrganizationType;
   businessType?: BusinessType; // Optional if org is not "Business"
   businessScale?: BusinessScale;

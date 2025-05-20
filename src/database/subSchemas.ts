@@ -44,7 +44,7 @@ export const BusinessCoreSchema = {
 
   pointOfContact: ContactSchema,
   socialMediaHandles: SocialMediaSchema,
-  description: { type: String, required: true },
+  description: { type: String, required: false },
 
   organizationType: {
     type: String,

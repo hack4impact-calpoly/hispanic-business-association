@@ -22,7 +22,7 @@ interface BusinessSignupAppInfo {
     businessName: string;
     website: string;
     businessOwner: string;
-    description: string;
+    description?: string;
     businessType?: BusinessType;
     organizationType?: OrganizationType;
     businessScale?: BusinessScale;
@@ -145,7 +145,7 @@ const BusinessSignupApplication = () => {
       website: values.businessInfo.website,
       businessOwner: values.businessInfo.businessOwner,
       businessType: values.businessInfo.businessType ?? "Retail shops",
-      description: values.businessInfo.description,
+      description: values.businessInfo.description ?? "Something",
       organizationType: values.businessInfo.organizationType ?? "Community",
       businessScale: values.businessInfo.businessScale ?? "Small Business",
       numberOfEmployees: values.businessInfo.numberOfEmployees ?? "1-10",
