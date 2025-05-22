@@ -63,12 +63,12 @@ export async function POST(req: Request) {
       description,
       organizationType,
       businessScale,
+      membershipStartDate,
       numberOfEmployees,
       logoUrl,
       bannerUrl,
       gender,
     } = await req.json();
-
     // Check if business already exists
     const existingBusiness = await Business.findOne({ businessName });
     if (existingBusiness) {
@@ -84,6 +84,7 @@ export async function POST(req: Request) {
       physicalAddress,
       mailingAddress,
       pointOfContact,
+      membershipStartDate,
       socialMediaHandles,
       description,
       organizationType,
