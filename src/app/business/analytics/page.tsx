@@ -94,7 +94,7 @@ export default function AdminAnalyticsPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-semibold text-black">Business Analytics</h1>
+      <h1 className="text-lg sm:text-xl font-semibold text-center mb-6">Business Analytics</h1>
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -108,7 +108,7 @@ export default function AdminAnalyticsPage() {
 
       {/* Pie chart section */}
       <div>
-        <h2 className="text-xl font-medium text-black mt-8 mb-4">Business Composition</h2>
+        <h1 className="text-lg sm:text-xl font-semibold text-center mb-6">Business Composition</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <PieChartWidget title="Organization Type" data={orgTypeData} />
           <PieChartWidget title="Business Scale" data={businessScaleData} />
