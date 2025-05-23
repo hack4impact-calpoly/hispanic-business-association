@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import InformationCard from "@/components/ui/RequestsCards/RequestInformationCard";
@@ -16,14 +15,8 @@ interface RequestHistoryDetailPageProps {
 
 export default function RequestHistoryDetailPage({ params }: RequestHistoryDetailPageProps) {
   const t = useTranslations();
-  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const { id } = params;
-
-  // Set isClient to true after component mounts
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   // Fetch the specific request history using SWR
   const { historyItem, isLoading: historyLoading, isError: historyError } = useRequestHistoryById(id);
