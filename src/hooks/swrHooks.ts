@@ -19,24 +19,6 @@ export interface SWRResponse<Data, Error> {
   ) => Promise<Data | undefined>;
 }
 
-/**
- * Hook for fetching current user data
- */
-export function useUser(config?: SWRConfiguration) {
-  const { data, error, isLoading, isValidating, mutate } = useSWR<IUser>("/api/user", {
-    revalidateOnFocus: false,
-    ...config,
-  });
-
-  return {
-    user: data,
-    isLoading,
-    isValidating,
-    isError: error,
-    mutate,
-  };
-}
-
 export function useSignUpRequests(config?: SWRConfiguration) {
   const { data, error, isLoading, isValidating, mutate } = useSWR<ISignupRequest[]>("/api/signup", {
     revalidateOnFocus: false,

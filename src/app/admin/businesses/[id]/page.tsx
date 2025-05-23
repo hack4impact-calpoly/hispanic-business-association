@@ -1,20 +1,19 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import AboutCard from "@/components/ui/BusinessPreviewComponents/AboutCard";
 import BusinessInfoCard from "@/components/ui/BusinessPreviewComponents/BusinessInfoCard";
 import ContactInfoCard from "@/components/ui/BusinessPreviewComponents/ContactInfoCard";
-import { useBusinessById, useUser } from "@/hooks/swrHooks";
+import { useBusinessById } from "@/hooks/swrHooks";
 import { extractBusinessDisplayData } from "@/lib/formatters";
 import { Button } from "@/components/ui/shadcnComponents/button";
 import { useTranslations } from "next-intl";
 
 export default function BusinessDetailsPage() {
   const t = useTranslations();
-  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const params = useParams();
   const businessId = params?.id as string;
@@ -23,45 +22,11 @@ export default function BusinessDetailsPage() {
   const defaultLogo = "/logo/Default_Logo.jpg";
   const defaultBanner = "/logo/Default_Banner.png";
 
-  // Check user authentication
-  const { user, isLoading: isUserLoading } = useUser();
-
   // Fetch business data
   const { business, isLoading: isBusinessLoading } = useBusinessById(businessId);
 
   // Process business data for display
   const displayData = extractBusinessDisplayData(business);
-
-  // Handle client-side rendering
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  // Handle authentication checks
-  useEffect(() => {
-    if (!isClient) return;
-
-    const timer = setTimeout(() => {
-      if (!isUserLoading && !user) {
-        router.push("/");
-      } else if (user && user.role !== "admin") {
-        router.push("/business");
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [user, isUserLoading, isClient, router]);
-
-  // Loading state
-  if (isBusinessLoading || !isClient) {
-    return (
-      <ResponsiveLayout title={t("bizDetails")}>
-        <div className="flex justify-center items-center min-h-screen">
-          <p className="text-gray-500">{t("loadBizDetail")}</p>
-        </div>
-      </ResponsiveLayout>
-    );
-  }
 
   // Handle business not found
   if (!business) {

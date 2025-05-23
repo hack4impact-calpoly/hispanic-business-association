@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import { RequestCard } from "@/components/ui/RequestsCards/RequestCard";
 import FilterButton from "@/components/ui/GeneralAdminComponents/FilterButton";
-import { useRequests, useUser, useBusinesses, useSignUpRequests, useRequestHistory } from "@/hooks/swrHooks";
+import { useRequests, useBusinesses, useSignUpRequests, useRequestHistory } from "@/hooks/swrHooks";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
@@ -15,15 +15,7 @@ export default function AdminRequestsPage() {
   const router = useRouter();
   const [pendingFilter, setPendingFilter] = useState<FilterType>("Most Recent");
   const [historyFilter, setHistoryFilter] = useState<FilterType>("Most Recent");
-  const [isClient, setIsClient] = useState(false);
 
-  // Set isClient to true after component mounts
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  // Fetch data using SWR hooks
-  const { user, isLoading: isUserLoading } = useUser();
   const { requests, isLoading: isRequestsLoading } = useRequests();
   const { businesses, isLoading: isBusinessesLoading } = useBusinesses();
   const { historyRequests, isLoading: isHistoryLoading } = useRequestHistory();
@@ -55,21 +47,6 @@ export default function AdminRequestsPage() {
     // Fall back to placeholder if nothing is found
     return t("businessName");
   };
-
-  // Handle authentication checks with a delay to prevent immediate redirects
-  useEffect(() => {
-    if (!isClient) return;
-
-    const timer = setTimeout(() => {
-      if (!isUserLoading && !user) {
-        router.push("/");
-      } else if (user && user.role !== "admin") {
-        router.push("/business");
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [user, isUserLoading, isClient, router]);
 
   // Calculate stats based on requests data
   const stats = {
