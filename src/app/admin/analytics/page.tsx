@@ -1,5 +1,6 @@
 "use client";
 
+import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import { useBusinesses } from "@/hooks/swrHooks";
 import { StatCard } from "@/components/ui/AnalyticsComponents/StatCard";
 import { PieChartWidget } from "@/components/ui/AnalyticsComponents/PieChartWidget";
@@ -93,33 +94,35 @@ export default function AdminAnalyticsPage() {
   const growthData = getBusinessGrowthData();
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-lg sm:text-xl font-semibold text-center mb-6">Business Analytics</h1>
+    <ResponsiveLayout title="Business Analytics">
+      <div className="p-6 space-y-6">
+        <h1 className="text-lg sm:text-xl font-semibold text-center mb-6">Business Analytics</h1>
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <StatCard label="Total Businesses" value={businesses.length} />
-        <StatCard label="New Businesses (Past Year)" value={newBusinesses.length} />
-        <StatCard label="Renewed Businesses (Past Year)" value={renewedBusinesses.length} />
-      </div>
-
-      {/* Trend chart */}
-      {growthData.length > 0 && <LineChartWidget title="Total Business Growth Over Time" data={growthData} />}
-
-      {/* Pie chart section */}
-      <div>
-        <h1 className="text-lg sm:text-xl font-semibold text-center mb-6">Business Composition</h1>
+        {/* Stat cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <PieChartWidget title="Organization Type" data={orgTypeData} />
-          <PieChartWidget title="Business Scale" data={businessScaleData} />
-          <PieChartWidget title="Number of Employees" data={employeeRangeData} />
-          <PieChartWidget title="Gender" data={genderData} />
+          <StatCard label="Total Businesses" value={businesses.length} />
+          <StatCard label="New Businesses (Past Year)" value={newBusinesses.length} />
+          <StatCard label="Renewed Businesses (Past Year)" value={renewedBusinesses.length} />
+        </div>
+
+        {/* Trend chart */}
+        {growthData.length > 0 && <LineChartWidget title="Total Business Growth Over Time" data={growthData} />}
+
+        {/* Pie chart section */}
+        <div>
+          <h1 className="text-lg sm:text-xl font-semibold text-center mb-6">Business Composition</h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <PieChartWidget title="Organization Type" data={orgTypeData} />
+            <PieChartWidget title="Business Scale" data={businessScaleData} />
+            <PieChartWidget title="Number of Employees" data={employeeRangeData} />
+            <PieChartWidget title="Gender" data={genderData} />
+          </div>
+        </div>
+
+        <div className="mt-8">
+          <BarChartWidget title="Business Type" data={businessTypeData} />
         </div>
       </div>
-
-      <div className="mt-8">
-        <BarChartWidget title="Business Type" data={businessTypeData} />
-      </div>
-    </div>
+    </ResponsiveLayout>
   );
 }
