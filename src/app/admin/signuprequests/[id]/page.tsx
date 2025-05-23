@@ -37,15 +37,15 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
 
   const newInfo = signupRequest
     ? {
-        businessName: signupRequest.businessName || "",
-        businessType: signupRequest.businessType || "",
-        businessOwner: signupRequest.businessOwner || "",
-        website: signupRequest.website || "",
+        businessName: signupRequest.businessName,
+        businessType: signupRequest.businessType,
+        businessOwner: signupRequest.businessOwner,
+        website: signupRequest.website,
         physicalAddress: signupRequest.physicalAddress,
         mailingAddress: signupRequest.mailingAddress,
         pointOfContact: signupRequest.pointOfContact,
         socialMediaHandles: signupRequest.socialMediaHandles,
-        description: signupRequest.description || "",
+        description: signupRequest.description,
         logoUrl: signupRequest.logoUrl,
         bannerUrl: signupRequest.bannerUrl,
         organizationType: signupRequest.organizationType,
