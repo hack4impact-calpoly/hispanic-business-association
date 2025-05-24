@@ -13,8 +13,7 @@ interface EditContactInfoProps {
 
 // Simplified contact form field structure - removed alternative POC
 interface ContactFormData {
-  pocFirstName: string;
-  pocLastName: string;
+  pocName: string;
   phoneNumber: string;
   email: string;
   instagram: string;
@@ -24,8 +23,7 @@ interface ContactFormData {
 
 // Initialize empty contact form state
 const initialContactFormState: ContactFormData = {
-  pocFirstName: "",
-  pocLastName: "",
+  pocName: "",
   phoneNumber: "",
   email: "",
   instagram: "",
@@ -69,79 +67,47 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
 
   // Initialize form data from business and activeRequest
   useEffect(() => {
-    const timer = setTimeout(() => {
-      let loadedFormData: ContactFormData = { ...initialContactFormState };
+    // Only run when data is ready
+    if (isRequestLoading) return;
 
-      // Load current business data first
-      if (business) {
-        const poc = business.pointOfContact || {};
+    let loadedFormData: ContactFormData = { ...initialContactFormState };
 
-        let firstName = "";
-        let lastName = "";
+    if (business) {
+      const poc = business.pointOfContact || {};
+      const socialMedia = business.socialMediaHandles || {};
 
-        if (poc.name) {
-          const nameParts = poc.name.split(" ");
-          firstName = nameParts[0] || "";
-          lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
-        }
+      loadedFormData = {
+        pocName: poc.name || "",
+        phoneNumber: poc.phoneNumber ? poc.phoneNumber.toString() : "",
+        email: poc.email || "",
+        instagram: socialMedia.IG || "",
+        facebook: socialMedia.FB || "",
+        twitter: socialMedia.twitter || "",
+      };
+    }
 
-        const socialMedia = business.socialMediaHandles || {};
+    if (activeRequest) {
+      const poc = activeRequest.pointOfContact;
 
-        loadedFormData = {
-          pocFirstName: firstName,
-          pocLastName: lastName,
-          phoneNumber: poc.phoneNumber ? poc.phoneNumber.toString() : "",
-          email: poc.email || "",
-          instagram: socialMedia.IG || "",
-          facebook: socialMedia.FB || "",
-          twitter: socialMedia.twitter || "",
-        };
+      if (poc && (poc.name || poc.phoneNumber || poc.email)) {
+        if (poc.name) loadedFormData.pocName = poc.name;
+        if (poc.phoneNumber) loadedFormData.phoneNumber = poc.phoneNumber.toString();
+        if (poc.email) loadedFormData.email = poc.email;
       }
 
-      // Override with activeRequest data if it exists and has actual data
-      if (activeRequest) {
-        const poc = activeRequest.pointOfContact;
-
-        // Only override POC fields if activeRequest actually has POC data
-        if (poc && (poc.name || poc.phoneNumber || poc.email)) {
-          let firstName = "";
-          let lastName = "";
-
-          if (poc.name) {
-            const nameParts = poc.name.split(" ");
-            firstName = nameParts[0] || "";
-            lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
-          }
-
-          if (firstName || lastName) {
-            loadedFormData.pocFirstName = firstName;
-            loadedFormData.pocLastName = lastName;
-          }
-          if (poc.phoneNumber) {
-            loadedFormData.phoneNumber = poc.phoneNumber.toString();
-          }
-          if (poc.email) {
-            loadedFormData.email = poc.email;
-          }
-        }
-
-        // Only override social media if activeRequest has social media data
-        const socialMedia = activeRequest.socialMediaHandles;
-        if (socialMedia && (socialMedia.IG || socialMedia.FB || socialMedia.twitter)) {
-          if (socialMedia.IG) loadedFormData.instagram = socialMedia.IG;
-          if (socialMedia.FB) loadedFormData.facebook = socialMedia.FB;
-          if (socialMedia.twitter) loadedFormData.twitter = socialMedia.twitter;
-        }
-
-        setExistingRequestId((activeRequest as any)._id);
+      const socialMedia = activeRequest.socialMediaHandles;
+      if (socialMedia) {
+        if (socialMedia.IG) loadedFormData.instagram = socialMedia.IG;
+        if (socialMedia.FB) loadedFormData.facebook = socialMedia.FB;
+        if (socialMedia.twitter) loadedFormData.twitter = socialMedia.twitter;
       }
 
-      setFormData(loadedFormData);
-      setOriginalFormData(JSON.parse(JSON.stringify(loadedFormData)));
-      setIsLoading(false);
-    }, 300);
+      setExistingRequestId((activeRequest as any)._id);
+    }
 
-    return () => clearTimeout(timer);
+    setFormData(loadedFormData);
+    setOriginalFormData(JSON.parse(JSON.stringify(loadedFormData)));
+    setIsLoading(false);
   }, [activeRequest, business, isRequestLoading]);
 
   // Submit form data, sending only changed fields
@@ -152,9 +118,8 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
     const changedPayload: any = {};
     let hasChanges = false;
 
-    // Point of Contact object
-    const currentPOCName = `${formData.pocFirstName} ${formData.pocLastName}`.trim();
-    const originalPOCName = `${originalFormData.pocFirstName} ${originalFormData.pocLastName}`.trim();
+    const currentPOCName = formData.pocName.trim();
+    const originalPOCName = originalFormData.pocName.trim();
     const currentPhoneNumber = formData.phoneNumber;
     const originalPhoneNumber = originalFormData.phoneNumber;
     const currentEmail = formData.email;
@@ -281,22 +246,13 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
             <label className="block text-sm font-medium mb-1">{t("pointOfContact")}</label>
             <div className="flex space-x-2 mb-2">
               <input
-                name="pocFirstName"
+                name="pocName"
                 type="text"
-                placeholder={t("firstName")}
-                value={formData.pocFirstName}
+                placeholder={t("pointOfContact")}
+                value={formData.pocName}
                 onChange={handleChange}
-                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label={t("pocFirstName")}
-              />
-              <input
-                name="pocLastName"
-                type="text"
-                placeholder={t("lastName")}
-                value={formData.pocLastName}
-                onChange={handleChange}
-                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label={t("pocLastName")}
+                className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label={t("pointOfContact")}
               />
             </div>
           </div>
