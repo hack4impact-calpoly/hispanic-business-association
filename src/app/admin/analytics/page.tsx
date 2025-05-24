@@ -6,8 +6,10 @@ import { StatCard } from "@/components/ui/AnalyticsComponents/StatCard";
 import { PieChartWidget } from "@/components/ui/AnalyticsComponents/PieChartWidget";
 import { BarChartWidget } from "@/components/ui/AnalyticsComponents/BarChartWidget";
 import { LineChartWidget } from "@/components/ui/AnalyticsComponents/LineChartWidget";
+import { useTranslations } from "next-intl";
 
 export default function AdminAnalyticsPage() {
+  const t = useTranslations();
   const { businesses = [], isLoading } = useBusinesses();
 
   if (isLoading) {
@@ -94,33 +96,33 @@ export default function AdminAnalyticsPage() {
   const growthData = getBusinessGrowthData();
 
   return (
-    <ResponsiveLayout title="Business Analytics">
+    <ResponsiveLayout title={t("analytics")}>
       <div className="p-6 space-y-6">
-        <h1 className="text-lg sm:text-xl font-semibold text-center mb-6">Business Analytics</h1>
+        <h1 className="text-lg sm:text-xl font-semibold text-center mb-6">{t("analytics")}</h1>
 
         {/* Stat cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <StatCard label="Total Businesses" value={businesses.length} />
-          <StatCard label="New Businesses (Past Year)" value={newBusinesses.length} />
-          <StatCard label="Renewed Businesses (Past Year)" value={renewedBusinesses.length} />
+          <StatCard label={t("businesses")} value={businesses.length} />
+          <StatCard label={t("newBusinessesPastYear")} value={newBusinesses.length} />
+          <StatCard label={t("renewedBusinessesPastYear")} value={renewedBusinesses.length} />
         </div>
 
         {/* Trend chart */}
-        {growthData.length > 0 && <LineChartWidget title="Total Business Growth Over Time" data={growthData} />}
+        {growthData.length > 0 && <LineChartWidget title={t("bizGrowthOverTime")} data={growthData} />}
 
         {/* Pie chart section */}
         <div>
-          <h1 className="text-lg sm:text-xl font-semibold text-center mb-6">Business Composition</h1>
+          <h1 className="text-lg sm:text-xl font-semibold text-center mb-6">{t("businessComposition")}</h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <PieChartWidget title="Organization Type" data={orgTypeData} />
-            <PieChartWidget title="Business Scale" data={businessScaleData} />
-            <PieChartWidget title="Number of Employees" data={employeeRangeData} />
-            <PieChartWidget title="Gender" data={genderData} />
+            <PieChartWidget title={t("organizationType")} data={orgTypeData} />
+            <PieChartWidget title={t("businessScale")} data={businessScaleData} />
+            <PieChartWidget title={t("numberOfEmployees")} data={employeeRangeData} />
+            <PieChartWidget title={t("gender")} data={genderData} />
           </div>
         </div>
 
         <div className="mt-8">
-          <BarChartWidget title="Business Type" data={businessTypeData} />
+          <BarChartWidget title={t("businessTypeChart")} data={businessTypeData} />
         </div>
       </div>
     </ResponsiveLayout>

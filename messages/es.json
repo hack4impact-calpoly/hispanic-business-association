@@ -188,5 +188,10 @@
   "daysAgo": "días atrás",
   "approveReqError": "Error al aprobar la solicitud",
   "denyReqError": "Error al denegar la solicitud",
-  "reasonDenial": "Motivo del rechazo"
+  "reasonDenial": "Motivo del rechazo",
+  "newBusinessesPastYear": "Nuevos negocios (último año)",
+  "renewedBusinessesPastYear": "Negocios renovados (último año)",
+  "businessComposition": "Composición empresarial",
+  "businessTypeChart": "Tipo de negocio",
+  "bizGrowthOverTime": "Crecimiento total de negocios a lo largo del tiempo"
 }
