@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import BusinessCard from "@/components/ui/GeneralAdminComponents/BusinessCard";
 import FilterButton from "@/components/ui/GeneralAdminComponents/FilterButton";
-import { useBusinesses, useUser } from "@/hooks/swrHooks";
+import { useBusinesses, useUser, useAdminAddress } from "@/hooks/swrHooks";
 import { SignInButton } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";
+import AdminAddressCard from "@/components/ui/BusinessPreviewComponents/AdminAddressCard";
 
 type FilterType = "Business Name A-Z" | "Business Name Z-A" | "Most Recent" | "Oldest";
 
@@ -26,6 +27,7 @@ export default function AdminBusinessesPage() {
   // Fetch data using SWR hooks
   const { user, isLoading: isUserLoading } = useUser();
   const { businesses, isLoading: isBusinessesLoading } = useBusinesses();
+  const { adminAddress } = useAdminAddress();
 
   // Handle authentication checks with a delay to prevent immediate redirects
   useEffect(() => {
@@ -101,6 +103,9 @@ export default function AdminBusinessesPage() {
     <ResponsiveLayout title={t("dashboard")}>
       <div className="relative min-h-screen bg-white px-2 sm:px-4 md:px-6 py-4 sm:py-6 pb-[142px] md:pb-12">
         <div className="w-full max-w-7xl mx-auto">
+          <div className="mb-3 sm:mb-4 md:mb-6 w-full">
+            <AdminAddressCard info={adminAddress} />
+          </div>
           {/* Header with Filter */}
           <div className="flex justify-between items-center mb-4 sm:mb-6 md:mb-8 w-full px-0">
             <h2 className="font-futura font-medium text-xl sm:text-[26px] leading-[34.53px] text-black">
