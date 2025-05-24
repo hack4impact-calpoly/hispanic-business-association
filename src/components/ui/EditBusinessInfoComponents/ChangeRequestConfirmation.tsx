@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import { Card, CardContent } from "../shadcnComponents/card";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTranslations } from "next-intl";
 
@@ -48,8 +49,8 @@ const ChangeRequestConfirmation: React.FC<ChangeRequestConfirmationProps> = ({ o
   );
 
   if (isMobile) {
-    // Mobile: Full-screen modal
-    return <article className="fixed inset-0 z-[60] bg-white overflow-y-auto">{content}</article>;
+    // Mobile: Full-screen modal with space for bottom nav
+    return <article className="fixed inset-x-0 top-0 bottom-[72px] z-[60] bg-white overflow-y-auto">{content}</article>;
   }
 
   // Desktop: Backdrop + centered modal
