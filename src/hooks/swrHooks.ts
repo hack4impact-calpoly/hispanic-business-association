@@ -3,6 +3,7 @@ import { IBusiness } from "@/database/businessSchema";
 import { IUser } from "@/database/userSchema";
 import { IRequest } from "@/database/requestSchema";
 import { ISignupRequest } from "@/database/signupRequestSchema";
+import { IAdminMailingAddress } from "@/database/adminAddressSchema";
 import { fetcher } from "@/lib/fetcher";
 
 /**
