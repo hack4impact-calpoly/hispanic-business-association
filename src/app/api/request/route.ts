@@ -59,17 +59,23 @@ export async function POST(req: NextRequest) {
       if (body.description !== undefined) updatedNewData.description = body.description;
       if (body.logoUrl !== undefined) updatedNewData.logoUrl = body.logoUrl;
       if (body.bannerUrl !== undefined) updatedNewData.bannerUrl = body.bannerUrl;
+      if (body.organizationType !== undefined) updatedNewData.organizationType = body.organizationType;
+      if (body.businessScale !== undefined) updatedNewData.businessScale = body.businessScale;
+      if (body.numberOfEmployees !== undefined) updatedNewData.numberOfEmployees = body.numberOfEmployees;
+      if (body.gender !== undefined) updatedNewData.gender = body.gender;
 
-      // Handle nested objects if provided
+      // Handle address changes - support both legacy and new structure
       if (body.address) {
-        updatedNewData.address = updatedNewData.address || {};
-        if (body.address.street !== undefined) updatedNewData.address.street = body.address.street;
-        if (body.address.city !== undefined) updatedNewData.address.city = body.address.city;
-        if (body.address.state !== undefined) updatedNewData.address.state = body.address.state;
-        if (body.address.zip !== undefined) updatedNewData.address.zip = body.address.zip;
-        if (body.address.county !== undefined) updatedNewData.address.county = body.address.county;
+        updatedNewData.physicalAddress = { ...body.address };
+      }
+      if (body.physicalAddress) {
+        updatedNewData.physicalAddress = { ...body.physicalAddress };
+      }
+      if (body.mailingAddress) {
+        updatedNewData.mailingAddress = { ...body.mailingAddress };
       }
 
+      // Handle nested objects if provided
       if (body.pointOfContact) {
         updatedNewData.pointOfContact = updatedNewData.pointOfContact || {};
         if (body.pointOfContact.name !== undefined) updatedNewData.pointOfContact.name = body.pointOfContact.name;
@@ -115,12 +121,17 @@ export async function POST(req: NextRequest) {
         businessType: business.businessType,
         businessOwner: business.businessOwner,
         website: business.website,
-        address: business.address,
+        physicalAddress: business.physicalAddress,
+        mailingAddress: business.mailingAddress,
         pointOfContact: business.pointOfContact,
         socialMediaHandles: business.socialMediaHandles,
         description: business.description,
         logoUrl: business.logoUrl,
         bannerUrl: business.bannerUrl,
+        organizationType: business.organizationType,
+        businessScale: business.businessScale,
+        numberOfEmployees: business.numberOfEmployees,
+        gender: business.gender,
       };
 
       // Initialize new data with old data (for fields not being updated)
@@ -134,17 +145,23 @@ export async function POST(req: NextRequest) {
       if (body.description !== undefined) newData.description = body.description;
       if (body.logoUrl !== undefined) newData.logoUrl = body.logoUrl;
       if (body.bannerUrl !== undefined) newData.bannerUrl = body.bannerUrl;
+      if (body.organizationType !== undefined) newData.organizationType = body.organizationType;
+      if (body.businessScale !== undefined) newData.businessScale = body.businessScale;
+      if (body.numberOfEmployees !== undefined) newData.numberOfEmployees = body.numberOfEmployees;
+      if (body.gender !== undefined) newData.gender = body.gender;
 
-      // Handle nested objects if provided
+      // Handle address changes - support both legacy and new structure
       if (body.address) {
-        newData.address = { ...oldData.address };
-        if (body.address.street !== undefined) newData.address.street = body.address.street;
-        if (body.address.city !== undefined) newData.address.city = body.address.city;
-        if (body.address.state !== undefined) newData.address.state = body.address.state;
-        if (body.address.zip !== undefined) newData.address.zip = body.address.zip;
-        if (body.address.county !== undefined) newData.address.county = body.address.county;
+        newData.physicalAddress = { ...body.address };
+      }
+      if (body.physicalAddress) {
+        newData.physicalAddress = { ...body.physicalAddress };
+      }
+      if (body.mailingAddress) {
+        newData.mailingAddress = { ...body.mailingAddress };
       }
 
+      // Handle nested objects if provided
       if (body.pointOfContact) {
         newData.pointOfContact = { ...oldData.pointOfContact };
         if (body.pointOfContact.name !== undefined) newData.pointOfContact.name = body.pointOfContact.name;
@@ -180,17 +197,23 @@ export async function POST(req: NextRequest) {
         if (body.description !== undefined) updatedNewData.description = body.description;
         if (body.logoUrl !== undefined) updatedNewData.logoUrl = body.logoUrl;
         if (body.bannerUrl !== undefined) updatedNewData.bannerUrl = body.bannerUrl;
+        if (body.organizationType !== undefined) updatedNewData.organizationType = body.organizationType;
+        if (body.businessScale !== undefined) updatedNewData.businessScale = body.businessScale;
+        if (body.numberOfEmployees !== undefined) updatedNewData.numberOfEmployees = body.numberOfEmployees;
+        if (body.gender !== undefined) updatedNewData.gender = body.gender;
 
-        // Handle nested objects if provided
+        // Handle address changes
         if (body.address) {
-          updatedNewData.address = updatedNewData.address || {};
-          if (body.address.street !== undefined) updatedNewData.address.street = body.address.street;
-          if (body.address.city !== undefined) updatedNewData.address.city = body.address.city;
-          if (body.address.state !== undefined) updatedNewData.address.state = body.address.state;
-          if (body.address.zip !== undefined) updatedNewData.address.zip = body.address.zip;
-          if (body.address.county !== undefined) updatedNewData.address.county = body.address.county;
+          updatedNewData.physicalAddress = { ...body.address };
+        }
+        if (body.physicalAddress) {
+          updatedNewData.physicalAddress = { ...body.physicalAddress };
+        }
+        if (body.mailingAddress) {
+          updatedNewData.mailingAddress = { ...body.mailingAddress };
         }
 
+        // Handle nested objects if provided
         if (body.pointOfContact) {
           updatedNewData.pointOfContact = updatedNewData.pointOfContact || {};
           if (body.pointOfContact.name !== undefined) updatedNewData.pointOfContact.name = body.pointOfContact.name;
