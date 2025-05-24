@@ -8,7 +8,7 @@ import FilterButton from "@/components/ui/GeneralAdminComponents/FilterButton";
 import { useBusinesses, useUser, useAdminAddress } from "@/hooks/swrHooks";
 import { SignInButton } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";
-import AdminAddressCard from "@/components/ui/BusinessPreviewComponents/AdminAddressCard";
+import AdminAddressCard from "@/components/ui/GeneralAdminComponents/AdminAddressCard";
 
 type FilterType = "Business Name A-Z" | "Business Name Z-A" | "Most Recent" | "Oldest";
 
