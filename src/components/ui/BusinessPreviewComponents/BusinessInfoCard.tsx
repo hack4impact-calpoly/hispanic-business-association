@@ -8,7 +8,7 @@ import { useTranslations } from "next-intl";
 // Extended business info structure
 interface BusinessInfo {
   name: string;
-  type?: string; // ← make optional
+  type?: string;
   owner: string;
   website?: string;
   organizationType?: string;
@@ -42,16 +42,16 @@ const BusinessInfoCard = ({ info, editable = false, onEditClick }: BusinessInfoC
   const t = useTranslations();
 
   const businessInfo = info ?? {
-    name: "HALO Hair Studio",
-    type: "Beauty & Personal Care",
-    owner: "Selena Lilies",
-    website: "https://halohairpasorobles.com/",
-    organizationType: "Business",
-    businessScale: "Small Business",
-    numberOfEmployees: "1-10",
-    gender: "Female",
-    physicalAddress: { street: "1413 Riverside Ave.", city: "Paso Robles", state: "CA", zip: "93446" },
-    mailingAddress: { street: "1413 Riverside Ave.", city: "Paso Robles", state: "CA", zip: "93446" },
+    name: "—",
+    type: "—",
+    owner: "—",
+    website: "—",
+    organizationType: "—",
+    businessScale: "—",
+    numberOfEmployees: "—",
+    gender: "—",
+    physicalAddress: { street: "—", city: "—", state: "—", zip: "—" },
+    mailingAddress: { street: "—", city: "—", state: "—", zip: "—" },
   };
 
   const handleEditClick = () => {
