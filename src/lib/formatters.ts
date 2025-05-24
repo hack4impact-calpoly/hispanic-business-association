@@ -41,9 +41,9 @@ export function extractBusinessDisplayData(business?: IBusiness) {
 
   return {
     businessInfo: {
-      name: business.businessName,
-      type: business.businessType,
-      owner: business.businessOwner,
+      businessName: business.businessName,
+      businessType: business.businessType,
+      businessOwner: business.businessOwner,
       website: business.website,
       organizationType: business.organizationType,
       businessScale: business.businessScale,
