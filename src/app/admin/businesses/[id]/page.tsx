@@ -97,7 +97,7 @@ export default function BusinessDetailsPage() {
         <div className="container mx-auto px-6 md:px-8 max-w-7xl mt-28">
           {/* Business Name Section */}
           <section className="flex flex-col md:flex-row justify-between items-start md:items-center mb-5">
-            <h2 className="text-2xl">{displayData?.businessInfo.name || t("businessName")}</h2>
+            <h2 className="text-2xl">{displayData?.businessInfo.businessName || t("businessName")}</h2>
           </section>
 
           {/* About Section */}
@@ -107,7 +107,24 @@ export default function BusinessDetailsPage() {
 
           {/* Information Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 lg:gap-16 mb-10">
-            <BusinessInfoCard info={displayData?.businessInfo} editable={false} />
+            <BusinessInfoCard
+              info={
+                displayData?.businessInfo
+                  ? {
+                      ...displayData.businessInfo,
+                      physicalAddress: {
+                        ...displayData.businessInfo.physicalAddress,
+                        zip: Number(displayData.businessInfo.physicalAddress.zip),
+                      },
+                      mailingAddress: {
+                        ...displayData.businessInfo.mailingAddress,
+                        zip: Number(displayData.businessInfo.mailingAddress.zip),
+                      },
+                    }
+                  : undefined
+              }
+              editable={false}
+            />
             <ContactInfoCard info={displayData?.contactInfo} editable={false} />
           </div>
         </div>

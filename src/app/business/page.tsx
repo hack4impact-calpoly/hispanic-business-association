@@ -182,7 +182,7 @@ export default function BusinessDashboardPage() {
             <h2 className="text-2xl">
               {loading
                 ? `${t("welcome")}...`
-                : `${t("welcome")}, ${displayData?.businessInfo.name || t("businessOwner")}`}
+                : `${t("welcome")}, ${displayData?.businessInfo.businessName || t("businessOwner")}`}
             </h2>
             <p className="text-sm text-zinc-500 mt-1 md:mt-0 pr-5">
               {t("memberSince")} {displayData?.membership.memberSince || "November 2023"}
@@ -208,7 +208,25 @@ export default function BusinessDashboardPage() {
 
           {/* Information Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 lg:gap-16 mb-10">
-            <BusinessInfoCard info={displayData?.businessInfo} editable={true} onEditClick={handleEditBizClick} />
+            <BusinessInfoCard
+              info={
+                displayData?.businessInfo
+                  ? {
+                      ...displayData.businessInfo,
+                      physicalAddress: {
+                        ...displayData.businessInfo.physicalAddress,
+                        zip: Number(displayData.businessInfo.physicalAddress.zip),
+                      },
+                      mailingAddress: {
+                        ...displayData.businessInfo.mailingAddress,
+                        zip: Number(displayData.businessInfo.mailingAddress.zip),
+                      },
+                    }
+                  : undefined
+              }
+              editable={true}
+              onEditClick={handleEditBizClick}
+            />
             <ContactInfoCard info={displayData?.contactInfo} editable={true} onEditClick={handleEditContactClick} />
           </div>
         </div>
