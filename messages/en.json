@@ -74,6 +74,7 @@
   "selectGender": "Select Gender",
   "physAdd": "Physical Address",
   "mailAdd": "Mailing Address",
+  "street": "Street",
   "city": "City",
   "state": "State",
   "zip": "ZIP",

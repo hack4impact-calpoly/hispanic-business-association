@@ -14,13 +14,7 @@ interface EditBusinessInfoProps {
 interface FormDataShape {
   businessName: string;
   businessType: string;
-  ownerFirstName: string;
-  ownerLastName: string;
-  ownerAdditionalName: string;
-  coOwnerFirstName: string;
-  coOwnerLastName: string;
-  coOwner2FirstName: string;
-  coOwner2LastName: string;
+  businessOwner: string;
   website: string;
   organizationType: string;
   businessScale: string;
@@ -44,13 +38,7 @@ interface FormDataShape {
 const initialFormState: FormDataShape = {
   businessName: "",
   businessType: "",
-  ownerFirstName: "",
-  ownerLastName: "",
-  ownerAdditionalName: "",
-  coOwnerFirstName: "",
-  coOwnerLastName: "",
-  coOwner2FirstName: "",
-  coOwner2LastName: "",
+  businessOwner: "",
   website: "",
   organizationType: "",
   businessScale: "",
@@ -133,14 +121,7 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
   useEffect(() => {
     const timer = setTimeout(() => {
       if (activeRequest) {
-        let firstName = "";
-        let lastName = "";
-
-        if (activeRequest.businessOwner) {
-          const nameParts = activeRequest.businessOwner.split(" ");
-          firstName = nameParts[0] || "";
-          lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
-        }
+        const ownerName = activeRequest.businessOwner || "";
 
         const physicalAddressData = activeRequest.physicalAddress || { street: "", city: "", state: "", zip: "" };
         const mailingAddressData = activeRequest.mailingAddress || { street: "", city: "", state: "", zip: "" };
@@ -149,13 +130,7 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
         const formValues: FormDataShape = {
           businessName: activeRequest.businessName || "",
           businessType: activeRequest.businessType || "",
-          ownerFirstName: firstName,
-          ownerLastName: lastName,
-          ownerAdditionalName: "",
-          coOwnerFirstName: "",
-          coOwnerLastName: "",
-          coOwner2FirstName: "",
-          coOwner2LastName: "",
+          businessOwner: ownerName,
           website: activeRequest.website || "",
           organizationType: activeRequest.organizationType || "",
           businessScale: activeRequest.businessScale || "",
@@ -206,11 +181,8 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
       hasChanges = true;
     }
 
-    // Check business owner changes
-    const currentOwnerFullName = `${formData.ownerFirstName} ${formData.ownerLastName}`.trim();
-    const originalOwnerFullName = `${originalFormData.ownerFirstName} ${originalFormData.ownerLastName}`.trim();
-    if (currentOwnerFullName !== originalOwnerFullName) {
-      changedPayloadFields.businessOwner = currentOwnerFullName;
+    if (formData.businessOwner !== originalFormData.businessOwner) {
+      changedPayloadFields.businessOwner = formData.businessOwner;
       hasChanges = true;
     }
 
@@ -350,6 +322,22 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
             />
           </div>
 
+          {/* Business Owner Inputs */}
+          <div>
+            <label htmlFor="businessOwner" className="block text-sm font-medium mb-1">
+              {t("bizowner")}
+            </label>
+            <input
+              id="businessOwner"
+              name="businessOwner"
+              type="text"
+              placeholder={t("bizowner")}
+              value={formData.businessOwner}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
           {/* Organization Type Select */}
           <div>
             <label htmlFor="organizationType" className="block text-sm font-medium mb-1">
@@ -453,90 +441,6 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
               <option value="Prefer not to say">Prefer not to say</option>
               <option value="Other">Other</option>
             </select>
-          </div>
-
-          {/* Business Owner Inputs */}
-          <div>
-            <label className="block text-sm font-medium mb-1">{t("bizowner")}</label>
-            <div className="flex space-x-2 mb-2">
-              <input
-                name="ownerFirstName"
-                type="text"
-                placeholder={t("firstName")}
-                value={formData.ownerFirstName}
-                onChange={handleChange}
-                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label={t("ownerFirstName")}
-              />
-              <input
-                name="ownerLastName"
-                type="text"
-                placeholder={t("lastName")}
-                value={formData.ownerLastName}
-                onChange={handleChange}
-                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label={t("ownerLastName")}
-              />
-            </div>
-            <input
-              name="ownerAdditionalName"
-              type="text"
-              placeholder={t("additionalName")}
-              value={formData.ownerAdditionalName}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              aria-label={t("ownerAdditionalName")}
-            />
-          </div>
-
-          {/* Co-Owner 1 Inputs */}
-          <div>
-            <label className="block text-sm font-medium mb-1">{t("bizCoOwner")}</label>
-            <div className="flex space-x-2 mb-2">
-              <input
-                name="coOwnerFirstName"
-                type="text"
-                placeholder={t("firstName")}
-                value={formData.coOwnerFirstName}
-                onChange={handleChange}
-                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label={t("coOwner1FirstName")}
-              />
-              <input
-                name="coOwnerLastName"
-                type="text"
-                placeholder={t("lastName")}
-                value={formData.coOwnerLastName}
-                onChange={handleChange}
-                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label={t("coOwner1LastName")}
-              />
-            </div>
-          </div>
-
-          {/* Co-Owner 2 Inputs */}
-          <div>
-            <label className="block text-sm font-medium mb-1">{t("bizCoOwner")} 2</label>
-            <div className="flex space-x-2">
-              <input
-                name="coOwner2FirstName"
-                type="text"
-                placeholder={t("firstName")}
-                value={formData.coOwner2FirstName}
-                onChange={handleChange}
-                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label={t("coOwner2FirstName")}
-              />
-              <input
-                name="coOwner2LastName"
-                type="text"
-                placeholder={t("lastName")}
-                value={formData.coOwner2LastName}
-                onChange={handleChange}
-                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label={t("coOwner2LastName")}
-              />
-            </div>
           </div>
 
           {/* Website Input */}

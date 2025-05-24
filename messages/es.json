@@ -74,6 +74,7 @@
   "selectEmployeeRange": "Seleccionar Rango de Empleados",
   "physAdd": "Dirección Física",
   "mailAdd": "Dirección de Envío",
+  "street": "Calle",
   "city": "Ciudad",
   "state": "Estado",
   "zip": "ZIP",
