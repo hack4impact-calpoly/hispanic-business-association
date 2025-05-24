@@ -69,18 +69,12 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
 
   // Initialize form data from business and activeRequest
   useEffect(() => {
-    console.log("EditContactInfo useEffect - business:", business);
-    console.log("EditContactInfo useEffect - activeRequest:", activeRequest);
-    console.log("EditContactInfo useEffect - isRequestLoading:", isRequestLoading);
-
     const timer = setTimeout(() => {
       let loadedFormData: ContactFormData = { ...initialContactFormState };
 
       // Load current business data first
       if (business) {
-        console.log("Loading from business data...");
         const poc = business.pointOfContact || {};
-        console.log("POC data from business:", poc);
 
         let firstName = "";
         let lastName = "";
@@ -92,7 +86,6 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
         }
 
         const socialMedia = business.socialMediaHandles || {};
-        console.log("Social media from business:", socialMedia);
 
         loadedFormData = {
           pocFirstName: firstName,
@@ -103,21 +96,14 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
           facebook: socialMedia.FB || "",
           twitter: socialMedia.twitter || "",
         };
-
-        console.log("Loaded form data from business:", loadedFormData);
-      } else {
-        console.log("No business data available");
       }
 
       // Override with activeRequest data if it exists and has actual data
       if (activeRequest) {
-        console.log("Overriding with activeRequest data...");
         const poc = activeRequest.pointOfContact;
 
         // Only override POC fields if activeRequest actually has POC data
         if (poc && (poc.name || poc.phoneNumber || poc.email)) {
-          console.log("POC data from activeRequest:", poc);
-
           let firstName = "";
           let lastName = "";
 
@@ -142,20 +128,14 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
         // Only override social media if activeRequest has social media data
         const socialMedia = activeRequest.socialMediaHandles;
         if (socialMedia && (socialMedia.IG || socialMedia.FB || socialMedia.twitter)) {
-          console.log("Social media from activeRequest:", socialMedia);
-
           if (socialMedia.IG) loadedFormData.instagram = socialMedia.IG;
           if (socialMedia.FB) loadedFormData.facebook = socialMedia.FB;
           if (socialMedia.twitter) loadedFormData.twitter = socialMedia.twitter;
         }
 
-        console.log("Final form data after selective activeRequest override:", loadedFormData);
         setExistingRequestId((activeRequest as any)._id);
-      } else {
-        console.log("No activeRequest data to override with");
       }
 
-      console.log("Setting form data:", loadedFormData);
       setFormData(loadedFormData);
       setOriginalFormData(JSON.parse(JSON.stringify(loadedFormData)));
       setIsLoading(false);
