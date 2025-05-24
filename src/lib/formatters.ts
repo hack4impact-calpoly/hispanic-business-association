@@ -80,6 +80,11 @@ export function extractBusinessDisplayData(business?: IBusiness) {
             state: "",
             zip: "",
           },
+      pointOfContact: business.pointOfContact ?? {
+        name: "",
+        phoneNumber: "",
+        email: "",
+      },
     },
 
     contactInfo: {
