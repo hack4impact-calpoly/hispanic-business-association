@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { useActiveBusinessRequest } from "@/hooks/swrHooks";
+import { useActiveBusinessRequest, useBusiness } from "@/hooks/swrHooks";
 import { useTranslations } from "next-intl";
 
 interface EditBusinessInfoProps {
@@ -86,6 +86,7 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
   const [isLoading, setIsLoading] = useState(true);
   const [feedback, setFeedback] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
   const { activeRequest, isLoading: isRequestLoading } = useActiveBusinessRequest();
+  const { business } = useBusiness();
   const [existingRequestId, setExistingRequestId] = useState<string | undefined>(undefined);
 
   const [formData, setFormData] = useState<FormDataShape>({ ...initialFormState });
@@ -120,22 +121,22 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
   // Initialize form data
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (activeRequest) {
-        const ownerName = activeRequest.businessOwner || "";
+      let formValues: FormDataShape = { ...initialFormState };
 
-        const physicalAddressData = activeRequest.physicalAddress || { street: "", city: "", state: "", zip: "" };
-        const mailingAddressData = activeRequest.mailingAddress || { street: "", city: "", state: "", zip: "" };
-        const initialSameAddress = false;
+      // Load current business data first
+      if (business) {
+        const physicalAddressData = business.physicalAddress || { street: "", city: "", state: "", zip: "" };
+        const mailingAddressData = business.mailingAddress || { street: "", city: "", state: "", zip: "" };
 
-        const formValues: FormDataShape = {
-          businessName: activeRequest.businessName || "",
-          businessType: activeRequest.businessType || "",
-          businessOwner: ownerName,
-          website: activeRequest.website || "",
-          organizationType: activeRequest.organizationType || "",
-          businessScale: activeRequest.businessScale || "",
-          numberOfEmployees: activeRequest.numberOfEmployees || "",
-          gender: activeRequest.gender || "",
+        formValues = {
+          businessName: business.businessName || "",
+          businessType: business.businessType || "",
+          businessOwner: business.businessOwner || "",
+          website: business.website || "",
+          organizationType: business.organizationType || "",
+          businessScale: business.businessScale || "",
+          numberOfEmployees: business.numberOfEmployees || "",
+          gender: business.gender || "",
           physicalAddress: {
             street: physicalAddressData.street || "",
             city: physicalAddressData.city || "",
@@ -148,18 +149,50 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
             state: mailingAddressData.state || "",
             zip: mailingAddressData.zip?.toString() || "",
           },
-          sameAddress: initialSameAddress,
+          sameAddress: false,
         };
+      }
 
-        setFormData(formValues);
-        setOriginalFormData(JSON.parse(JSON.stringify(formValues)));
+      // Override with activeRequest data if it exists
+      if (activeRequest) {
+        if (activeRequest.businessName !== undefined) formValues.businessName = activeRequest.businessName;
+        if (activeRequest.businessType !== undefined) formValues.businessType = activeRequest.businessType;
+        if (activeRequest.businessOwner !== undefined) formValues.businessOwner = activeRequest.businessOwner;
+        if (activeRequest.website !== undefined) formValues.website = activeRequest.website;
+        if (activeRequest.organizationType !== undefined) formValues.organizationType = activeRequest.organizationType;
+        if (activeRequest.businessScale !== undefined) formValues.businessScale = activeRequest.businessScale;
+        if (activeRequest.numberOfEmployees !== undefined)
+          formValues.numberOfEmployees = activeRequest.numberOfEmployees;
+        if (activeRequest.gender !== undefined) formValues.gender = activeRequest.gender;
+
+        if (activeRequest.physicalAddress) {
+          formValues.physicalAddress = {
+            street: activeRequest.physicalAddress.street || "",
+            city: activeRequest.physicalAddress.city || "",
+            state: activeRequest.physicalAddress.state || "",
+            zip: activeRequest.physicalAddress.zip?.toString() || "",
+          };
+        }
+
+        if (activeRequest.mailingAddress) {
+          formValues.mailingAddress = {
+            street: activeRequest.mailingAddress.street || "",
+            city: activeRequest.mailingAddress.city || "",
+            state: activeRequest.mailingAddress.state || "",
+            zip: activeRequest.mailingAddress.zip?.toString() || "",
+          };
+        }
+
         setExistingRequestId((activeRequest as any)._id);
       }
+
+      setFormData(formValues);
+      setOriginalFormData(JSON.parse(JSON.stringify(formValues)));
       setIsLoading(false);
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [activeRequest]);
+  }, [activeRequest, business]);
 
   // Submit form with only changed field values
   const handleSubmit = async () => {
@@ -357,70 +390,74 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
             </select>
           </div>
 
-          {/* Business Type Select */}
-          <div>
-            <label htmlFor="businessType" className="block text-sm font-medium mb-1">
-              {t("businessType")}
-            </label>
-            <select
-              id="businessType"
-              name="businessType"
-              value={formData.businessType}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">{t("selectType")}</option>
-              <option value="Food">Food</option>
-              <option value="Housing">Housing</option>
-              <option value="Banking/Finance">Banking/Finance</option>
-              <option value="Retail shops">Retail shops</option>
-              <option value="Wedding/Events">Wedding/Events</option>
-              <option value="Automotive">Automotive</option>
-              <option value="Education">Education</option>
-              <option value="Technology">Technology</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
+          {/* Business Type Select - Only show for Business organizations */}
+          {formData.organizationType === "Business" && (
+            <>
+              <div>
+                <label htmlFor="businessType" className="block text-sm font-medium mb-1">
+                  {t("businessType")}
+                </label>
+                <select
+                  id="businessType"
+                  name="businessType"
+                  value={formData.businessType}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">{t("selectType")}</option>
+                  <option value="Food">Food</option>
+                  <option value="Housing">Housing</option>
+                  <option value="Banking/Finance">Banking/Finance</option>
+                  <option value="Retail shops">Retail shops</option>
+                  <option value="Wedding/Events">Wedding/Events</option>
+                  <option value="Automotive">Automotive</option>
+                  <option value="Education">Education</option>
+                  <option value="Technology">Technology</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
 
-          {/* Business Scale Select */}
-          <div>
-            <label htmlFor="businessScale" className="block text-sm font-medium mb-1">
-              {t("businessScale")}
-            </label>
-            <select
-              id="businessScale"
-              name="businessScale"
-              value={formData.businessScale}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">{t("selectScale")}</option>
-              <option value="Corporate">Corporate</option>
-              <option value="Small Business">Small Business</option>
-            </select>
-          </div>
+              {/* Business Scale Select */}
+              <div>
+                <label htmlFor="businessScale" className="block text-sm font-medium mb-1">
+                  {t("businessScale")}
+                </label>
+                <select
+                  id="businessScale"
+                  name="businessScale"
+                  value={formData.businessScale}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">{t("selectScale")}</option>
+                  <option value="Corporate">Corporate</option>
+                  <option value="Small Business">Small Business</option>
+                </select>
+              </div>
 
-          {/* Number of Employees Select */}
-          <div>
-            <label htmlFor="numberOfEmployees" className="block text-sm font-medium mb-1">
-              {t("numberOfEmployees")}
-            </label>
-            <select
-              id="numberOfEmployees"
-              name="numberOfEmployees"
-              value={formData.numberOfEmployees}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">{t("selectEmployeeRange")}</option>
-              <option value="1-10">1-10</option>
-              <option value="11-20">11-20</option>
-              <option value="21-50">21-50</option>
-              <option value="51-99">51-99</option>
-              <option value="100+">100+</option>
-            </select>
-          </div>
+              {/* Number of Employees Select */}
+              <div>
+                <label htmlFor="numberOfEmployees" className="block text-sm font-medium mb-1">
+                  {t("numberOfEmployees")}
+                </label>
+                <select
+                  id="numberOfEmployees"
+                  name="numberOfEmployees"
+                  value={formData.numberOfEmployees}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">{t("selectEmployeeRange")}</option>
+                  <option value="1-10">1-10</option>
+                  <option value="11-20">11-20</option>
+                  <option value="21-50">21-50</option>
+                  <option value="51-99">51-99</option>
+                  <option value="100+">100+</option>
+                </select>
+              </div>
+            </>
+          )}
 
           {/* Gender Select */}
           <div>
