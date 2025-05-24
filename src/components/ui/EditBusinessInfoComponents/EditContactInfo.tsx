@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { useActiveBusinessRequest } from "@/hooks/swrHooks";
+import { useActiveBusinessRequest, useBusiness } from "@/hooks/swrHooks";
 import { useTranslations } from "next-intl";
 
 interface EditContactInfoProps {
@@ -11,14 +11,10 @@ interface EditContactInfoProps {
   onSubmitSuccess?: () => void;
 }
 
-// Declare contact form field structure
+// Simplified contact form field structure - removed alternative POC
 interface ContactFormData {
   pocFirstName: string;
   pocLastName: string;
-  pocAdditionalName: string; // Currently not sent to API, form-only field
-  altPocFirst: string; // Currently not sent to API, form-only field
-  altPocLast: string; // Currently not sent to API, form-only field
-  altPocAdditional: string; // Currently not sent to API, form-only field
   phoneNumber: string;
   email: string;
   instagram: string;
@@ -30,10 +26,6 @@ interface ContactFormData {
 const initialContactFormState: ContactFormData = {
   pocFirstName: "",
   pocLastName: "",
-  pocAdditionalName: "",
-  altPocFirst: "",
-  altPocLast: "",
-  altPocAdditional: "",
   phoneNumber: "",
   email: "",
   instagram: "",
@@ -62,13 +54,12 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
   const t = useTranslations();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  // Add info status for non-error notifications
   const [feedback, setFeedback] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
   const { activeRequest, isLoading: isRequestLoading } = useActiveBusinessRequest();
+  const { business } = useBusiness();
   const [existingRequestId, setExistingRequestId] = useState<string | undefined>(undefined);
 
   const [formData, setFormData] = useState<ContactFormData>({ ...initialContactFormState });
-  // Track initial form values for change detection
   const [originalFormData, setOriginalFormData] = useState<ContactFormData>({ ...initialContactFormState });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -76,11 +67,21 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Initialize form data from active business request
+  // Initialize form data from business and activeRequest
   useEffect(() => {
+    console.log("EditContactInfo useEffect - business:", business);
+    console.log("EditContactInfo useEffect - activeRequest:", activeRequest);
+    console.log("EditContactInfo useEffect - isRequestLoading:", isRequestLoading);
+
     const timer = setTimeout(() => {
-      if (activeRequest) {
-        const poc = activeRequest.pointOfContact || {};
+      let loadedFormData: ContactFormData = { ...initialContactFormState };
+
+      // Load current business data first
+      if (business) {
+        console.log("Loading from business data...");
+        const poc = business.pointOfContact || {};
+        console.log("POC data from business:", poc);
+
         let firstName = "";
         let lastName = "";
 
@@ -90,31 +91,78 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
           lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
         }
 
-        const socialMedia = activeRequest.socialMediaHandles || {};
+        const socialMedia = business.socialMediaHandles || {};
+        console.log("Social media from business:", socialMedia);
 
-        const loadedFormData: ContactFormData = {
+        loadedFormData = {
           pocFirstName: firstName,
           pocLastName: lastName,
-          pocAdditionalName: "", // Store UI-only field
-          altPocFirst: "", // Store UI-only field
-          altPocLast: "", // Store UI-only field
-          altPocAdditional: "", // Store UI-only field
           phoneNumber: poc.phoneNumber ? poc.phoneNumber.toString() : "",
           email: poc.email || "",
           instagram: socialMedia.IG || "",
           facebook: socialMedia.FB || "",
           twitter: socialMedia.twitter || "",
         };
-        setFormData(loadedFormData);
-        // Clone data to prevent reference issues
-        setOriginalFormData(JSON.parse(JSON.stringify(loadedFormData)));
-        setExistingRequestId((activeRequest as any)._id);
+
+        console.log("Loaded form data from business:", loadedFormData);
+      } else {
+        console.log("No business data available");
       }
+
+      // Override with activeRequest data if it exists and has actual data
+      if (activeRequest) {
+        console.log("Overriding with activeRequest data...");
+        const poc = activeRequest.pointOfContact;
+
+        // Only override POC fields if activeRequest actually has POC data
+        if (poc && (poc.name || poc.phoneNumber || poc.email)) {
+          console.log("POC data from activeRequest:", poc);
+
+          let firstName = "";
+          let lastName = "";
+
+          if (poc.name) {
+            const nameParts = poc.name.split(" ");
+            firstName = nameParts[0] || "";
+            lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
+          }
+
+          if (firstName || lastName) {
+            loadedFormData.pocFirstName = firstName;
+            loadedFormData.pocLastName = lastName;
+          }
+          if (poc.phoneNumber) {
+            loadedFormData.phoneNumber = poc.phoneNumber.toString();
+          }
+          if (poc.email) {
+            loadedFormData.email = poc.email;
+          }
+        }
+
+        // Only override social media if activeRequest has social media data
+        const socialMedia = activeRequest.socialMediaHandles;
+        if (socialMedia && (socialMedia.IG || socialMedia.FB || socialMedia.twitter)) {
+          console.log("Social media from activeRequest:", socialMedia);
+
+          if (socialMedia.IG) loadedFormData.instagram = socialMedia.IG;
+          if (socialMedia.FB) loadedFormData.facebook = socialMedia.FB;
+          if (socialMedia.twitter) loadedFormData.twitter = socialMedia.twitter;
+        }
+
+        console.log("Final form data after selective activeRequest override:", loadedFormData);
+        setExistingRequestId((activeRequest as any)._id);
+      } else {
+        console.log("No activeRequest data to override with");
+      }
+
+      console.log("Setting form data:", loadedFormData);
+      setFormData(loadedFormData);
+      setOriginalFormData(JSON.parse(JSON.stringify(loadedFormData)));
       setIsLoading(false);
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [activeRequest]);
+  }, [activeRequest, business, isRequestLoading]);
 
   // Submit form data, sending only changed fields
   const handleSubmit = async () => {
@@ -199,7 +247,6 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
       } else {
         setFeedback({ type: "success", message: t("changesSent") });
       }
-      // Reset baseline data after successful submission
       setOriginalFormData(JSON.parse(JSON.stringify(formData)));
     } catch (error: any) {
       console.error("Error submitting changes:", error);
@@ -272,48 +319,6 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
                 aria-label={t("pocLastName")}
               />
             </div>
-            <input
-              name="pocAdditionalName"
-              type="text"
-              placeholder={t("additionalName")}
-              value={formData.pocAdditionalName}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              aria-label={t("pocAdditionalName")}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">{t("altPointofContact")}</label>
-            <div className="flex space-x-2 mb-2">
-              <input
-                name="altPocFirst"
-                type="text"
-                placeholder={t("firstName")}
-                value={formData.altPocFirst}
-                onChange={handleChange}
-                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label={t("altPocFirstName")}
-              />
-              <input
-                name="altPocLast"
-                type="text"
-                placeholder={t("lastName")}
-                value={formData.altPocLast}
-                onChange={handleChange}
-                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label={t("altPocLastName")}
-              />
-            </div>
-            <input
-              name="altPocAdditional"
-              type="text"
-              placeholder={t("additionalName")}
-              value={formData.altPocAdditional}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              aria-label={t("altPocAdditionalName")}
-            />
           </div>
 
           <div>
@@ -395,7 +400,7 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
         <div className="flex max-sm:justify-center justify-end gap-4 mb-5">
           <button
             onClick={handleSubmit}
-            disabled={isSubmitting || isLoading} // Also disable if initial data is loading
+            disabled={isSubmitting || isLoading}
             className={`w-full sm:w-auto gap-2.5 py-2 px-4 md:py-2.5 md:px-5 text-sm md:text-base font-bold text-white 
               ${isSubmitting || isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-[#405BA9] hover:bg-[#293241]"} 
               rounded-3xl min-h-[36px] md:min-h-[40px] transition-colors flex justify-center items-center`}

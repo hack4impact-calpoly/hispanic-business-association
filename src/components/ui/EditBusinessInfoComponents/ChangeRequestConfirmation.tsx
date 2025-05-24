@@ -14,8 +14,8 @@ const ChangeRequestConfirmation: React.FC<ChangeRequestConfirmationProps> = ({ o
   const t = useTranslations();
 
   return (
-    <Card className="w-full max-w-[805px] rounded-lg shadow-sm">
-      <CardContent className="flex flex-col p-5 py-6 w-full">
+    <article className="fixed inset-x-0 top-0 bottom-[92px] z-[60] h-[calc(103vh-92px)] bg-white overflow-y-auto sm:rounded-lg w-full max-w-full md:fixed md:inset-0 md:m-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:h-auto md:max-h-[90vh] md:mx-auto md:w-[805px] md:overflow-visible border border-gray-200 flex flex-col">
+      <div className="flex flex-col p-5 py-6 w-full">
         <header className="flex justify-end">
           <button onClick={onClose} className="text-gray-600 hover:text-gray-800 focus:outline-none" aria-label="Close">
             <Image src="/icons/General_Icons/Close.png" alt="Close" width={30} height={30} className="object-contain" />
@@ -31,7 +31,7 @@ const ChangeRequestConfirmation: React.FC<ChangeRequestConfirmationProps> = ({ o
             {t("nowPending")}
           </h1>
 
-          <p className="mt-7 text-xl text-[#293241] w-[620px] max-md:max-w-full text-left">{t("requestMessage")}</p>
+          <p className="mt-7 text-xl text-[#293241] w-full max-w-[620px] text-left px-4">{t("requestMessage")}</p>
         </main>
 
         <hr className="shrink-0 mt-24 h-px border border-solid border-[#BEBEBE] w-full max-md:mt-10" />
@@ -44,8 +44,8 @@ const ChangeRequestConfirmation: React.FC<ChangeRequestConfirmationProps> = ({ o
             {t("backHome")}
           </button>
         </footer>
-      </CardContent>
-    </Card>
+      </div>
+    </article>
   );
 };
 
