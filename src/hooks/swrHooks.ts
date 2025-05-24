@@ -20,6 +20,21 @@ export interface SWRResponse<Data, Error> {
   ) => Promise<Data | undefined>;
 }
 
+export function useAdminAddress(config?: SWRConfiguration) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IAdminMailingAddress>("/api/adminMailingAddress", {
+    revalidateOnFocus: false,
+    ...config,
+  });
+
+  return {
+    adminAddress: data,
+    isLoading,
+    isValidating,
+    isError: error,
+    mutate,
+  };
+}
+
 export function useSignUpRequests(config?: SWRConfiguration) {
   const { data, error, isLoading, isValidating, mutate } = useSWR<ISignupRequest[]>("/api/signup", {
     revalidateOnFocus: false,
