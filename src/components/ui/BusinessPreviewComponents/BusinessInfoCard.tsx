@@ -64,17 +64,16 @@ const BusinessInfoCard = ({ info, editable = false, onEditClick }: BusinessInfoC
           <div className="space-y-[26px]">
             <InfoBlock label={t("businessName")} value={businessInfo.businessName} />
             <InfoBlock label={t("bizowner")} value={businessInfo.businessOwner} />
+            <InfoBlock label={t("gender")} value={businessInfo.gender} />
             <InfoBlock label={t("organizationType")} value={businessInfo.organizationType} />
 
             {businessInfo.organizationType === "Business" && (
               <>
+                <InfoBlock label={t("businessType")} value={businessInfo.businessType} />
                 <InfoBlock label={t("businessScale")} value={businessInfo.businessScale} />
                 <InfoBlock label={t("numberOfEmployees")} value={businessInfo.numberOfEmployees} />
-                <InfoBlock label={t("businessType")} value={businessInfo.businessType} />
               </>
             )}
-
-            <InfoBlock label={t("gender")} value={businessInfo.gender} />
           </div>
 
           <div className="space-y-[26px]">

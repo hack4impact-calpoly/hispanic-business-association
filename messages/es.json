@@ -187,5 +187,6 @@
   "hoursAgo": "horas atrás",
   "daysAgo": "días atrás",
   "approveReqError": "Error al aprobar la solicitud",
-  "denyReqError": "Error al denegar la solicitud"
+  "denyReqError": "Error al denegar la solicitud",
+  "reasonDenial": "Motivo del rechazo"
 }
