@@ -133,12 +133,12 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
         <div className="space-y-3">
           {[
             ["businessName", t("businessName")],
-            ["businessType", t("businessType")],
+            ["businessOwner", t("bizowner")],
+            ["gender", t("gender")],
             ["organizationType", t("organizationType")],
+            ["businessType", t("businessType")],
             ["businessScale", t("businessScale")],
             ["numberOfEmployees", t("numberOfEmployees")],
-            ["gender", t("gender")],
-            ["businessOwner", t("bizowner")],
             ["website", t("website")],
             ["description", t("desc")],
           ].map(([key, label]) => (
