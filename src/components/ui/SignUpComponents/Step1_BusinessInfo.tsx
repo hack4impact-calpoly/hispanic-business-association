@@ -7,12 +7,15 @@ interface Step1Props {
   formErrorMessage: string;
   onBack: () => void;
   onNext: () => void;
+  watch: (name?: string | string[], defaultValue?: any) => any;
 }
 
 const ORG_TYPES = ["nonprofit", "community", "business"];
 
-const Step1_BusinessInfo = ({ register, formErrorMessage, onBack, onNext }: Step1Props) => {
+const Step1_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch }: Step1Props) => {
   const t = useTranslations();
+
+  const selectedBusinessType = watch("businessInfo.businessType") || "";
 
   return (
     <div className="w-[90%] mr-auto ml-auto">
@@ -38,9 +41,10 @@ const Step1_BusinessInfo = ({ register, formErrorMessage, onBack, onNext }: Step
           <div className="col-span-6">
             <select
               key="businessType"
-              className="w-full border border-black rounded-md p-2 focus:outline-black"
-              type="text"
               id="businessType"
+              className={`w-full border border-[#8C8C8C] text-base rounded-md p-2 focus:outline-black ${
+                (selectedBusinessType || "") === "" ? "text-[#5B748C]" : "text-black"
+              }`}
               {...register("businessInfo.businessType", { required: "Organization Type is required" })}
             >
               <option value="">{t("organizationType") + "*"}</option>

@@ -60,6 +60,7 @@ const BusinessSignupApplication = () => {
     setValue,
     getValues,
     trigger,
+    watch,
   } = useForm<BusinessSignupAppInfo>({
     defaultValues: {
       contactInfo: { name: "", phone: "", email: "" },
@@ -207,6 +208,7 @@ const BusinessSignupApplication = () => {
             formErrorMessage={formErrorMessage}
             onBack={prevStep}
             onNext={nextStep}
+            watch={watch}
           />
         );
       case 2:
