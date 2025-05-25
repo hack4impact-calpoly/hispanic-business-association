@@ -61,8 +61,8 @@ const Step1_BusinessInfo = ({ register, formErrorMessage, onBack, onNext }: Step
           className="w-full border-[#8C8C8C]"
           type="text"
           id="description"
-          placeholder={t("bizDescrip") + "*"}
-          {...register("businessInfo.description", { required: "Description is required" })}
+          placeholder={t("bizDescrip")}
+          // {...register("businessInfo.description", { required: "Description is required" })}
         />
 
         {formErrorMessage && (
