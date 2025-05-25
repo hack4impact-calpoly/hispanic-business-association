@@ -2,7 +2,7 @@ import { Input } from "../shadcnComponents/input";
 import StepNavigation from "./StepNavigation";
 import { useTranslations } from "next-intl";
 
-interface Step1Props {
+interface Step1AProps {
   register: any;
   formErrorMessage: string;
   onBack: () => void;
@@ -10,12 +10,12 @@ interface Step1Props {
   watch: (name?: string | string[], defaultValue?: any) => any;
 }
 
-const ORG_TYPES = ["nonprofit", "community", "business"];
+const ORG_TYPES = ["Nonprofit", "Community", "Business"];
 
-const Step1_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch }: Step1Props) => {
+const Step1A_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch }: Step1AProps) => {
   const t = useTranslations();
 
-  const selectedBusinessType = watch("businessInfo.businessType") || "";
+  const selectedOrganizationType = watch("businessInfo.organizationType") || "";
 
   return (
     <div className="w-[90%] mr-auto ml-auto">
@@ -40,17 +40,17 @@ const Step1_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch 
         <div className="grid grid-cols-12 gap-2">
           <div className="col-span-6">
             <select
-              key="businessType"
-              id="businessType"
+              key="organizationType"
+              id="organizationType"
               className={`w-full border border-[#8C8C8C] text-base rounded-md p-2 focus:outline-black ${
-                (selectedBusinessType || "") === "" ? "text-[#5B748C]" : "text-black"
+                (selectedOrganizationType || "") === "" ? "text-[#5B748C]" : "text-black"
               }`}
-              {...register("businessInfo.businessType", { required: "Organization Type is required" })}
+              {...register("businessInfo.organizationType", { required: "Organization Type is required" })}
             >
               <option value="">{t("organizationType") + "*"}</option>
               {ORG_TYPES.map((type) => (
                 <option key={type} value={type}>
-                  {t(type)}
+                  {t(type.toLocaleLowerCase())}
                 </option>
               ))}
             </select>
@@ -87,4 +87,4 @@ const Step1_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch 
   );
 };
 
-export default Step1_BusinessInfo;
+export default Step1A_BusinessInfo;

@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { Card, CardContent } from "../shadcnComponents/card";
-import Step1_BusinessInfo from "./Step1_BusinessInfo";
+import Step1A_BusinessInfo from "./Step1A_BusinessInfo";
+import Step1B_BusinessInfo from "./Step1B_BusinessInfo";
 import Step2_Address from "./Step2_Address";
 import Step3_SocialLinks from "./Step3_SocialLinks";
 import Step4_ContactInfo from "./Step4_ContactInfo";
@@ -15,6 +16,7 @@ import { ISignupRequest } from "@/database/signupRequestSchema";
 import { useClerkSignup } from "@/hooks/useClerkSignup";
 import { useTranslations } from "next-intl";
 import { BusinessType, OrganizationType, BusinessScale, EmployeeRange, Gender } from "@/database/types";
+import { set } from "mongoose";
 
 interface BusinessSignupAppInfo {
   contactInfo: { name: string; phone: string; email: string };
@@ -97,6 +99,16 @@ const BusinessSignupApplication = () => {
   const nextStep = async () => {
     switch (step) {
       case 1:
+        console.log(`first step: ${step}`);
+        if (getValues("businessInfo.organizationType") === "Business") {
+          if (await validateData()) setStep(15); // for 1.5
+        } else {
+          if (await validateData()) setStep(2);
+        }
+        break;
+      case 15: // only whent org type is business
+        if (await validateData()) setStep(2);
+        break;
       case 2:
         if (step === 2 && isMailingAddressSame) {
           const phys = getValues("businessInfo.physicalAddress");
@@ -203,7 +215,17 @@ const BusinessSignupApplication = () => {
     switch (step) {
       case 1:
         return (
-          <Step1_BusinessInfo
+          <Step1A_BusinessInfo
+            register={register}
+            formErrorMessage={formErrorMessage}
+            onBack={prevStep}
+            onNext={nextStep}
+            watch={watch}
+          />
+        );
+      case 15:
+        return (
+          <Step1B_BusinessInfo
             register={register}
             formErrorMessage={formErrorMessage}
             onBack={prevStep}
