@@ -65,6 +65,7 @@
   "nameBizOwner": "Name of Business Owner",
   "bizDescrip": "Description of the Business",
   "organizationType": "Organization Type",
+  "businessType": "Business Type",
   "businessScale": "Business Scale",
   "numberOfEmployees": "Number of Employees",
   "gender": "Gender",
@@ -182,5 +183,18 @@
   "denyReqError": "Error denying request",
   "nonprofit": "Nonprofit",
   "community": "Community",
-  "business": "Business"
+  "business": "Business",
+  "food": "Food",
+  "housing": "Housing",
+  "bankingFinance": "Banking/Finance",
+  "retail": "Retail Shops",
+  "weddingEvents": "Wedding/Events",
+  "automotive": "Automotive",
+  "education": "Education",
+  "technology": "Technology",
+  "marketing": "Marketing",
+  "other": "Other",
+  "corporate": "Corporate",
+  "smallBusiness": "Small Business",
+  "employeeRange": "Employee Range"
 }

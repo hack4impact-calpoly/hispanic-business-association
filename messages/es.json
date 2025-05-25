@@ -65,6 +65,7 @@
   "nameBizOwner": "Nombre del Propietario del Negocio",
   "bizDescrip": "Descripción del Negocio",
   "organizationType": "Tipo de Organización",
+  "businessType": "Tipo de Negocio",
   "businessScale": "Tamaño del Negocio",
   "numberOfEmployees": "Número de empleados",
   "gender": "Género",
@@ -182,5 +183,18 @@
   "denyReqError": "Error al denegar la solicitud",
   "nonprofit": "No Lucrativo",
   "community": "Comunidad",
-  "business": "Negocio"
+  "business": "Negocio",
+  "food": "Alimento",
+  "housing": "Alojamiento",
+  "bankingFinance": "Banca/Finanzas",
+  "retail": "Tiendas Minoristas",
+  "weddingEvents": "Bodas/Eventos",
+  "automotive": "Automotor",
+  "education": "Educación",
+  "technology": "Tecnología",
+  "marketing": "Mercadotecnia",
+  "other": "Otro",
+  "corporate": "Corporativo",
+  "smallBusiness": "Pequeña Empresa",
+  "employeeRange": "Gama de Empleados"
 }

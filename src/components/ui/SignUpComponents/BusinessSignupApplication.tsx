@@ -140,8 +140,19 @@ const BusinessSignupApplication = () => {
   };
 
   const prevStep = () => {
-    setFormErrorMessage("");
-    setStep(Math.max(1, step - 1));
+    if (step == 15) {
+      setStep(1);
+    } else if (step == 2 && getValues("businessInfo.organizationType") === "Business") {
+      setStep(15);
+    } else {
+      setFormErrorMessage("");
+      setStep(Math.max(1, step - 1));
+    }
+  };
+
+  const setPageSubtitle = () => {
+    if (step === 15) return pageSubtitles[0];
+    return pageSubtitles[step - 1];
   };
 
   const postAllData = async (clerkID: string) => {
@@ -297,7 +308,7 @@ const BusinessSignupApplication = () => {
             <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
             <div className="mt-[40px]">
               <strong className="text-[24px]">{t("formTitleSign")}</strong>
-              {step <= 5 && <h4 className="pt-2 text-[16px]">{pageSubtitles[step - 1]}</h4>}
+              {step !== 6 && <h4 className="pt-2 text-[16px]">{setPageSubtitle()}</h4>}
             </div>
           </div>
 

@@ -1,3 +1,4 @@
+import { ORGANIZATION_TYPES } from "@/database/types";
 import { Input } from "../shadcnComponents/input";
 import StepNavigation from "./StepNavigation";
 import { useTranslations } from "next-intl";
@@ -9,8 +10,6 @@ interface Step1AProps {
   onNext: () => void;
   watch: (name?: string | string[], defaultValue?: any) => any;
 }
-
-const ORG_TYPES = ["Nonprofit", "Community", "Business"];
 
 const Step1A_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch }: Step1AProps) => {
   const t = useTranslations();
@@ -48,7 +47,7 @@ const Step1A_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
               {...register("businessInfo.organizationType", { required: "Organization Type is required" })}
             >
               <option value="">{t("organizationType") + "*"}</option>
-              {ORG_TYPES.map((type) => (
+              {ORGANIZATION_TYPES.map((type) => (
                 <option key={type} value={type}>
                   {t(type.toLocaleLowerCase())}
                 </option>
