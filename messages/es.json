@@ -1,7 +1,6 @@
 {
   "businessInformation": "Información Comercial",
-  "businessName": "Nombre Comercial",
-  "businessType": "Tipo de Negocio",
+  "organizationName": "Nombre de la Organización",
   "owner": "Propietario",
   "website": "Dirección del Sitio Web",
   "address": "Dirección",
@@ -65,8 +64,8 @@
   "submit": "Finalizar",
   "nameBizOwner": "Nombre del Propietario del Negocio",
   "bizDescrip": "Descripción del Negocio",
-  "organizationType": "Tipo de organización",
-  "businessScale": "Tamaño del negocio",
+  "organizationType": "Tipo de Organización",
+  "businessScale": "Tamaño del Negocio",
   "numberOfEmployees": "Número de empleados",
   "gender": "Género",
   "physAdd": "Dirección Física",
@@ -180,5 +179,8 @@
   "hoursAgo": "horas atrás",
   "daysAgo": "días atrás",
   "approveReqError": "Error al aprobar la solicitud",
-  "denyReqError": "Error al denegar la solicitud"
+  "denyReqError": "Error al denegar la solicitud",
+  "nonprofit": "No Lucrativo",
+  "community": "Comunidad",
+  "business": "Negocio"
 }

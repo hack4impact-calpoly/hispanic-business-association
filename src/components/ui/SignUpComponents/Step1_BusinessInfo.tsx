@@ -9,6 +9,8 @@ interface Step1Props {
   onNext: () => void;
 }
 
+const ORG_TYPES = ["nonprofit", "community", "business"];
+
 const Step1_BusinessInfo = ({ register, formErrorMessage, onBack, onNext }: Step1Props) => {
   const t = useTranslations();
 
@@ -20,8 +22,8 @@ const Step1_BusinessInfo = ({ register, formErrorMessage, onBack, onNext }: Step
           className="w-full border-[#8C8C8C]"
           type="text"
           id="BusinessName"
-          placeholder={t("businessName") + "*"}
-          {...register("businessInfo.businessName", { required: "Business name is required" })}
+          placeholder={t("organizationName") + "*"}
+          {...register("businessInfo.businessName", { required: "Organization name is required" })}
         />
 
         <Input
@@ -29,20 +31,25 @@ const Step1_BusinessInfo = ({ register, formErrorMessage, onBack, onNext }: Step
           className="w-full border-[#8C8C8C]"
           type="text"
           id="WebsiteURL"
-          placeholder={t("website") + "*"}
-          {...register("businessInfo.website", { required: "Website URL is required" })}
+          placeholder={t("website")}
         />
 
         <div className="grid grid-cols-12 gap-2">
           <div className="col-span-6">
-            <Input
+            <select
               key="businessType"
-              className="w-full border-[#8C8C8C]"
+              className="w-full border border-black rounded-md p-2 focus:outline-black"
               type="text"
               id="businessType"
-              placeholder={t("businessType") + "*"}
-              {...register("businessInfo.businessType", { required: "Business Type is required" })}
-            />
+              {...register("businessInfo.businessType", { required: "Organization Type is required" })}
+            >
+              <option value="">{t("organizationType") + "*"}</option>
+              {ORG_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {t(type)}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="col-span-6">
             <Input
@@ -62,7 +69,6 @@ const Step1_BusinessInfo = ({ register, formErrorMessage, onBack, onNext }: Step
           type="text"
           id="description"
           placeholder={t("bizDescrip")}
-          // {...register("businessInfo.description", { required: "Description is required" })}
         />
 
         {formErrorMessage && (
