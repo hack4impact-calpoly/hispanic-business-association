@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import InformationCard from "@/components/ui/RequestsCards/RequestInformationCard";
-import { useSignUpRequest, useBusiness, updateRequestStatus, useSignUpRequests } from "@/hooks/swrHooks";
+import { useSignUpRequest } from "@/hooks/swrHooks";
 import { Button } from "@/components/ui/shadcnComponents/button";
 import RequestApprovedCard from "@/components/ui/RequestsCards/RequestApprovedCard";
 import RequestDeniedCard from "@/components/ui/RequestsCards/RequestDeniedCard";
@@ -37,15 +37,15 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
 
   const newInfo = signupRequest
     ? {
-        name: signupRequest.businessName || "",
-        type: signupRequest.businessType || "",
-        owner: signupRequest.businessOwner || "",
-        website: signupRequest.website || "",
+        businessName: signupRequest.businessName,
+        businessType: signupRequest.businessType,
+        businessOwner: signupRequest.businessOwner,
+        website: signupRequest.website,
         physicalAddress: signupRequest.physicalAddress,
         mailingAddress: signupRequest.mailingAddress,
         pointOfContact: signupRequest.pointOfContact,
         socialMediaHandles: signupRequest.socialMediaHandles,
-        description: signupRequest.description || "",
+        description: signupRequest.description,
         logoUrl: signupRequest.logoUrl,
         bannerUrl: signupRequest.bannerUrl,
         organizationType: signupRequest.organizationType,
@@ -67,14 +67,15 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
       },
       body: JSON.stringify({
         clerkUserID: signupRequest.clerkUserID,
-        name: signupRequest.businessName,
-        type: signupRequest.businessType,
-        owner: signupRequest.businessOwner,
+        businessName: signupRequest.businessName,
+        businessType: signupRequest.businessType,
+        businessOwner: signupRequest.businessOwner,
         website: signupRequest.website,
         physicalAddress: signupRequest.physicalAddress,
         mailingAddress: signupRequest.mailingAddress,
         pointOfContact: signupRequest.pointOfContact,
         socialMediaHandles: signupRequest.socialMediaHandles,
+        membershipStartDate: new Date(),
         description: signupRequest.description,
         logoUrl: signupRequest.logoUrl,
         bannerUrl: signupRequest.bannerUrl,
@@ -189,7 +190,7 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
           {!isLoading && !isError && newInfo && (
             <>
               <h2 className="font-futura font-bold text-[22px] sm:text-[26px] leading-[34.55px] text-black mb-6 sm:mb-8">
-                {newInfo.name}
+                {newInfo.businessName}
               </h2>
               <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 mb-12 lg:mb-16">
                 <div className="w-full flex justify-center">

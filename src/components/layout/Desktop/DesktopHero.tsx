@@ -51,17 +51,6 @@ const DesktopHero = ({ title }: DesktopHeroProps) => {
           </button>
         </div>
 
-        <div className="flex items-center gap-[18px] mr-[23px]">
-          <Image src="/icons/DesktopHero/Search.png" alt="Search" width={25} height={25} className="cursor-pointer" />
-          <Image
-            src="/icons/DesktopHero/Notification.png"
-            alt="Notifications"
-            width={25}
-            height={25}
-            className="cursor-pointer"
-          />
-        </div>
-
         <div className="flex items-center gap-[10px]">
           <div className="w-[50px] h-[50px] rounded-full border border-[#00000036] flex items-center justify-center overflow-hidden">
             <Image
@@ -76,13 +65,6 @@ const DesktopHero = ({ title }: DesktopHeroProps) => {
               }}
             />
           </div>
-          <Image
-            src="/icons/DesktopHero/Expand Arrow.png"
-            alt="Expand"
-            width={25}
-            height={25}
-            className="cursor-pointer"
-          />
         </div>
       </div>
     </div>

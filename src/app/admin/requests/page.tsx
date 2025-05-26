@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import { RequestCard } from "@/components/ui/RequestsCards/RequestCard";
 import FilterButton from "@/components/ui/GeneralAdminComponents/FilterButton";
-import { useRequests, useUser, useBusinesses, useSignUpRequests, useRequestHistory } from "@/hooks/swrHooks";
+import { useRequests, useBusinesses, useSignUpRequests, useRequestHistory } from "@/hooks/swrHooks";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
@@ -15,15 +15,9 @@ export default function AdminRequestsPage() {
   const router = useRouter();
   const [pendingFilter, setPendingFilter] = useState<FilterType>("Most Recent");
   const [historyFilter, setHistoryFilter] = useState<FilterType>("Most Recent");
-  const [isClient, setIsClient] = useState(false);
+  const [pendingAccFilter, setPendingAccFilter] = useState<FilterType>("Most Recent");
+  const [historyAccFilter, setHistoryAccFilter] = useState<FilterType>("Most Recent");
 
-  // Set isClient to true after component mounts
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  // Fetch data using SWR hooks
-  const { user, isLoading: isUserLoading } = useUser();
   const { requests, isLoading: isRequestsLoading } = useRequests();
   const { businesses, isLoading: isBusinessesLoading } = useBusinesses();
   const { historyRequests, isLoading: isHistoryLoading } = useRequestHistory();
@@ -55,21 +49,6 @@ export default function AdminRequestsPage() {
     // Fall back to placeholder if nothing is found
     return t("businessName");
   };
-
-  // Handle authentication checks with a delay to prevent immediate redirects
-  useEffect(() => {
-    if (!isClient) return;
-
-    const timer = setTimeout(() => {
-      if (!isUserLoading && !user) {
-        router.push("/");
-      } else if (user && user.role !== "admin") {
-        router.push("/business");
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [user, isUserLoading, isClient, router]);
 
   // Calculate stats based on requests data
   const stats = {
@@ -104,7 +83,7 @@ export default function AdminRequestsPage() {
     const pendingRequests = signupRequests.filter((req) => req.status === "open");
     const sorted = [...pendingRequests];
 
-    switch (pendingFilter) {
+    switch (pendingAccFilter) {
       case "Most Recent":
         return sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       case "Oldest":
@@ -148,7 +127,7 @@ export default function AdminRequestsPage() {
     const historyRequests = signupRequests.filter((req) => req.status === "closed");
     const sorted = [...historyRequests];
 
-    switch (historyFilter) {
+    switch (historyAccFilter) {
       case "Most Recent":
         return sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       case "Oldest":
@@ -169,6 +148,14 @@ export default function AdminRequestsPage() {
 
   const handleHistoryFilterChange = (filter: string) => {
     setHistoryFilter(filter as FilterType);
+  };
+
+  const handlePendingAccFilterChange = (filter: string) => {
+    setPendingAccFilter(filter as FilterType);
+  };
+
+  const handleHistoryAccFilterChange = (filter: string) => {
+    setHistoryAccFilter(filter as FilterType);
   };
 
   // Navigate to pending request detail page
@@ -313,7 +300,7 @@ export default function AdminRequestsPage() {
                     {t("pendingAccReq")}
                   </h2>
                   <div className="flex-shrink-0">
-                    <FilterButton onFilterChange={handlePendingFilterChange} selectedFilter={pendingFilter} />
+                    <FilterButton onFilterChange={handlePendingAccFilterChange} selectedFilter={pendingAccFilter} />
                   </div>
                 </div>
 
@@ -349,7 +336,7 @@ export default function AdminRequestsPage() {
                     {t("accReqHistory")}
                   </h2>
                   <div className="flex-shrink-0">
-                    <FilterButton onFilterChange={handleHistoryFilterChange} selectedFilter={historyFilter} />
+                    <FilterButton onFilterChange={handleHistoryAccFilterChange} selectedFilter={historyAccFilter} />
                   </div>
                 </div>
 

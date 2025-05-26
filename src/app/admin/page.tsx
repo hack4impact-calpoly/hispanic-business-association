@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import BusinessCard from "@/components/ui/GeneralAdminComponents/BusinessCard";
 import FilterButton from "@/components/ui/GeneralAdminComponents/FilterButton";
-import { useBusinesses, useUser } from "@/hooks/swrHooks";
-import { SignInButton } from "@clerk/nextjs";
+import { useBusinesses } from "@/hooks/swrHooks";
 import { useTranslations } from "next-intl";
 
 type FilterType = "Business Name A-Z" | "Business Name Z-A" | "Most Recent" | "Oldest";
@@ -16,31 +15,9 @@ export default function AdminBusinessesPage() {
 
   const router = useRouter();
   const [filter, setFilter] = useState<FilterType>("Business Name A-Z");
-  const [isClient, setIsClient] = useState(false);
-
-  // Set isClient to true after component mounts
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   // Fetch data using SWR hooks
-  const { user, isLoading: isUserLoading } = useUser();
   const { businesses, isLoading: isBusinessesLoading } = useBusinesses();
-
-  // Handle authentication checks with a delay to prevent immediate redirects
-  useEffect(() => {
-    if (!isClient) return;
-
-    const timer = setTimeout(() => {
-      if (!isUserLoading && !user) {
-        router.push("/");
-      } else if (user && user.role !== "admin") {
-        router.push("/business");
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [user, isUserLoading, isClient, router]);
 
   // Apply filter to businesses
   const filteredBusinesses = () => {
@@ -78,23 +55,6 @@ export default function AdminBusinessesPage() {
   const handleBusinessClick = (id: string) => {
     router.push(`/admin/businesses/${id}`);
   };
-
-  // Show sign-in UI if not authenticated
-  if (isClient && !isUserLoading && !user) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
-          <h2 className="text-2xl font-bold mb-6 text-center">{t("authReq")}</h2>
-          <p className="mb-6 text-gray-600 text-center">{t("adminSignMsg")}</p>
-          <div className="flex justify-center">
-            <SignInButton mode="modal">
-              <button className="bg-[#405BA9] text-white px-6 py-2 rounded-md hover:bg-[#293241]">{t("signIn")}</button>
-            </SignInButton>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Main content
   return (

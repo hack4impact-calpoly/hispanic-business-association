@@ -5,8 +5,8 @@ import Image from "next/image";
 import { Button } from "@/components/ui/shadcnComponents/button";
 import { Input } from "@/components/ui/shadcnComponents/input";
 import { Card, CardContent } from "@/components/ui/shadcnComponents/card";
-import { useSignIn, useAuth } from "@clerk/nextjs";
-import { useRouter, useParams, usePathname } from "next/navigation";
+import { useSignIn } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
@@ -176,26 +176,28 @@ export default function Login() {
               )}
             </div>
 
-            <div className="relative">
-              <Input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                placeholder={t("password")}
-                value={formData.password}
-                onChange={handleChange}
-                className={showError(formData.password, passwordError) ? "border-red-500" : ""}
-              />
-              <button
-                type="button"
-                onClick={togglePasswordVisibility}
-                className="absolute inset-y-0 right-0 flex items-center pr-3"
-              >
-                {showPassword ? (
-                  <EyeOff className="h-5 w-5 text-gray-400" />
-                ) : (
-                  <Eye className="h-5 w-5 text-gray-400" />
-                )}
-              </button>
+            <div>
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder={t("password")}
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={showError(formData.password, passwordError) ? "border-red-500 pr-10" : "pr-10"}
+                />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5 text-gray-400" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-400" />
+                  )}
+                </button>
+              </div>
               {showError(formData.password, passwordError) && (
                 <p className="mt-1 text-sm text-red-500">{passwordErrorMessage}</p>
               )}
