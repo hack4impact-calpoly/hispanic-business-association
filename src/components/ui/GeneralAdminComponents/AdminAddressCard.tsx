@@ -43,7 +43,7 @@ const AdminAddressCard = ({ info, editable = false, onEditClick }: AdminAddressC
             </h2>
             <button
               onClick={handleEditClick}
-              className="absolute top-4 right-4 bg-white bg-opacity-70 p-2 rounded-full hover:bg-opacity-100 transition-all"
+              className="absolute top-4 right-4 bg-white bg-opacity-70 p-2 rounded-full hover:bg-[#E0E0E0] transition-all"
               aria-label="Edit banner and logo"
             >
               <Image src="/icons/BusinessPreviewAndEdit/Edit.png" alt="Edit" width={16} height={16} />
