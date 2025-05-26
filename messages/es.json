@@ -1,6 +1,7 @@
 {
   "businessInformation": "Información Comercial",
   "businessName": "Nombre Comercial",
+  "businessType": "Tipo de negocio",
   "organizationName": "Nombre de la Organización",
   "owner": "Propietario",
   "website": "Dirección del Sitio Web",
