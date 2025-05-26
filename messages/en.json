@@ -68,7 +68,7 @@
   "businessType": "Business Type",
   "businessScale": "Business Scale",
   "numberOfEmployees": "Number of Employees",
-  "gender": "Owner Gender",
+  "ownerGender": "Owner Gender",
   "physAdd": "Physical Address",
   "mailAdd": "Mailing Address",
   "city": "City",

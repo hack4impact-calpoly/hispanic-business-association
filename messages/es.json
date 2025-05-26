@@ -68,7 +68,7 @@
   "businessType": "Tipo de Negocio",
   "businessScale": "Tamaño del Negocio",
   "numberOfEmployees": "Número de empleados",
-  "gender": "Género del Propietario",
+  "ownerGender": "Género del Propietario",
   "physAdd": "Dirección Física",
   "mailAdd": "Dirección de Envio",
   "city": "Ciudad",

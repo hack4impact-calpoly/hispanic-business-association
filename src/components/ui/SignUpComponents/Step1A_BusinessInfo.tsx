@@ -80,7 +80,7 @@ const Step1A_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
               }`}
               {...register("businessInfo.gender", { required: "Gender is required" })}
             >
-              <option value="">{t("gender") + "*"}</option>
+              <option value="">{t("ownerGender") + "*"}</option>
               {GENDER_OPTIONS.map((type) => (
                 <option key={type} value={type}>
                   {t(type.toLowerCase().replace(/[\W_]+(.)?/g, (_, char) => (char ? char.toUpperCase() : "")))}
