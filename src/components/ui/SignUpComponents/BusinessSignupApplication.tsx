@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { Card, CardContent } from "../shadcnComponents/card";
-import Step1_BusinessInfo from "./Step1_BusinessInfo";
+import Step1A_BusinessInfo from "./Step1A_BusinessInfo";
+import Step1B_BusinessInfo from "./Step1B_BusinessInfo";
 import Step2_Address from "./Step2_Address";
 import Step3_SocialLinks from "./Step3_SocialLinks";
 import Step4_ContactInfo from "./Step4_ContactInfo";
@@ -24,7 +25,7 @@ interface BusinessSignupAppInfo {
     businessOwner: string;
     description?: string;
     businessType?: BusinessType;
-    organizationType?: OrganizationType;
+    organizationType: OrganizationType;
     businessScale?: BusinessScale;
     numberOfEmployees?: EmployeeRange;
     gender?: Gender;
@@ -38,7 +39,6 @@ const BusinessSignupApplication = () => {
   const t = useTranslations();
 
   const [step, setStep] = useState(1);
-  const [langOption, setLangOption] = useState(0);
   const [formErrorMessage, setFormErrorMessage] = useState("");
   const [isMailingAddressSame, setIsMailingAddressSame] = useState(false);
 
@@ -60,6 +60,7 @@ const BusinessSignupApplication = () => {
     setValue,
     getValues,
     trigger,
+    watch,
   } = useForm<BusinessSignupAppInfo>({
     defaultValues: {
       contactInfo: { name: "", phone: "", email: "" },
@@ -96,6 +97,16 @@ const BusinessSignupApplication = () => {
   const nextStep = async () => {
     switch (step) {
       case 1:
+        console.log(`first step: ${step}`);
+        if (getValues("businessInfo.organizationType") === "Business") {
+          if (await validateData()) setStep(15); // for 1.5
+        } else {
+          if (await validateData()) setStep(2);
+        }
+        break;
+      case 15: // only whent org type is business
+        if (await validateData()) setStep(2);
+        break;
       case 2:
         if (step === 2 && isMailingAddressSame) {
           const phys = getValues("businessInfo.physicalAddress");
@@ -127,8 +138,19 @@ const BusinessSignupApplication = () => {
   };
 
   const prevStep = () => {
-    setFormErrorMessage("");
-    setStep(Math.max(1, step - 1));
+    if (step == 15) {
+      setStep(1);
+    } else if (step == 2 && getValues("businessInfo.organizationType") === "Business") {
+      setStep(15);
+    } else {
+      setFormErrorMessage("");
+      setStep(Math.max(1, step - 1));
+    }
+  };
+
+  const setPageSubtitle = () => {
+    if (step === 15) return pageSubtitles[0];
+    return pageSubtitles[step - 1];
   };
 
   const postAllData = async (clerkID: string) => {
@@ -144,12 +166,12 @@ const BusinessSignupApplication = () => {
       businessName: values.businessInfo.businessName,
       website: values.businessInfo.website,
       businessOwner: values.businessInfo.businessOwner,
-      businessType: values.businessInfo.businessType ?? "Retail shops",
-      description: values.businessInfo.description ?? "Something",
-      organizationType: values.businessInfo.organizationType ?? "Community",
-      businessScale: values.businessInfo.businessScale ?? "Small Business",
-      numberOfEmployees: values.businessInfo.numberOfEmployees ?? "1-10",
-      gender: values.businessInfo.gender ?? "Prefer not to say",
+      businessType: values.businessInfo.businessType,
+      description: values.businessInfo.description,
+      organizationType: values.businessInfo.organizationType,
+      businessScale: values.businessInfo.businessScale,
+      numberOfEmployees: values.businessInfo.numberOfEmployees,
+      gender: values.businessInfo.gender,
       status: "open",
       physicalAddress: {
         ...values.businessInfo.physicalAddress,
@@ -202,11 +224,22 @@ const BusinessSignupApplication = () => {
     switch (step) {
       case 1:
         return (
-          <Step1_BusinessInfo
+          <Step1A_BusinessInfo
             register={register}
             formErrorMessage={formErrorMessage}
             onBack={prevStep}
             onNext={nextStep}
+            watch={watch}
+          />
+        );
+      case 15:
+        return (
+          <Step1B_BusinessInfo
+            register={register}
+            formErrorMessage={formErrorMessage}
+            onBack={prevStep}
+            onNext={nextStep}
+            watch={watch}
           />
         );
       case 2:
@@ -273,7 +306,7 @@ const BusinessSignupApplication = () => {
             <Image src="/logo/HBA_NoBack_NoWords.png" alt="Logo" width={100} height={100} />
             <div className="mt-[40px]">
               <strong className="text-[24px]">{t("formTitleSign")}</strong>
-              {step <= 5 && <h4 className="pt-2 text-[16px]">{pageSubtitles[step - 1]}</h4>}
+              {step !== 6 && <h4 className="pt-2 text-[16px]">{setPageSubtitle()}</h4>}
             </div>
           </div>
 

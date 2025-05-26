@@ -99,20 +99,20 @@ export default function DesktopSidebar() {
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           className={cn(
-            "transition-all duration-300",
+            "transition-all duration-300 flex items-center justify-center rounded-full hover:bg[#1F2530]",
             isExpanded
               ? "w-[60px] h-[45px] mt-[25px] ml-[288px] bg-[#1F2530] rounded-[5px]"
-              : "w-[30px] h-[30px] mt-[29px] ml-[35px]",
+              : "w-[30px] h-[30px] mt-[29px] mx-auto",
           )}
         >
-          <Image src="/icons/DesktopSidebar/Menu.png" alt="Menu" width={30} height={30} className="p-1 mx-auto" />
+          <Image src="/icons/DesktopSidebar/Menu.png" alt="Menu" width={30} height={30} />
         </button>
 
         {/* Navigation items + Sign Out */}
         <div
           className={cn(
             "flex flex-col mt-[40px]",
-            !isExpanded && "ml-[30px] space-y-[40px]",
+            !isExpanded && "items-center space-y-[40px]",
             isExpanded && "ml-0 space-y-[30px]",
           )}
         >
@@ -124,7 +124,7 @@ export default function DesktopSidebar() {
                 "flex items-center transition-all duration-300",
                 isExpanded
                   ? "ml-[16px] w-[328px] h-[45px] rounded-[5px] pl-[18px]"
-                  : "w-[30px] h-[30px] space-y-[100px]",
+                  : "w-[40px] h-[40px] justify-center rounded-full",
                 isExpanded && item.current && "bg-[#3E495C]",
                 isExpanded && !item.current && "bg-[#293241]",
                 "hover:bg-[#1F2530]",
@@ -143,10 +143,10 @@ export default function DesktopSidebar() {
           <button
             onClick={handleSignOut}
             className={cn(
-              "flex items-center transition-all duration-300 mt-[10px] text-white hover:bg-[#1F2530]",
+              "flex items-center transition-all duration-300 mt-[10px] text-white",
               isExpanded
-                ? "ml-[18px] w-[328px] h-[45px] pl-[18px] font-futura text-base font-medium"
-                : "ml-[4px] mt-[40px]",
+                ? "ml-[18px] w-[328px] h-[45px] pl-[18px] font-futura text-base font-medium hover:bg-[#1F2530] rounded-[5px]"
+                : "w-[40px] h-[40px] justify-center rounded-full hover:bg-[#1F2530] mx-auto mt-[40px]",
             )}
           >
             <Image src="/icons/DesktopSidebar/Logout.png" alt="Sign Out" width={30} height={30} className="shrink-0" />
