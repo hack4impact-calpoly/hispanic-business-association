@@ -53,12 +53,12 @@ const Step1B_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
         </select>
 
         <select
-          key="employeeRange"
-          id="employeeRange"
+          key="numberOfEmployees"
+          id="numberOfEmployees"
           className={`w-full h-10 border border-[#8C8C8C] text-[14px] rounded-md p-2 focus:outline-black ${
             (selectedEmployeeRange || "") === "" ? "text-[#5B748C]" : "text-black"
           }`}
-          {...register("businessInfo.employeeRange", { required: "Employee Range is required" })}
+          {...register("businessInfo.numberOfEmployees", { required: "Number of Employees is required" })}
         >
           <option value="">{t("employeeRange") + "*"}</option>
           {EMPLOYEE_RANGES.map((type) => (

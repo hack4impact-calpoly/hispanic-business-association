@@ -25,7 +25,7 @@ interface BusinessSignupAppInfo {
     businessOwner: string;
     description?: string;
     businessType?: BusinessType;
-    organizationType?: OrganizationType;
+    organizationType: OrganizationType;
     businessScale?: BusinessScale;
     numberOfEmployees?: EmployeeRange;
     gender?: Gender;
@@ -166,12 +166,12 @@ const BusinessSignupApplication = () => {
       businessName: values.businessInfo.businessName,
       website: values.businessInfo.website,
       businessOwner: values.businessInfo.businessOwner,
-      businessType: values.businessInfo.businessType ?? "Retail shops",
-      description: values.businessInfo.description ?? "Something",
-      organizationType: values.businessInfo.organizationType ?? "Community",
-      businessScale: values.businessInfo.businessScale ?? "Small Business",
-      numberOfEmployees: values.businessInfo.numberOfEmployees ?? "1-10",
-      gender: values.businessInfo.gender ?? "Prefer not to say",
+      businessType: values.businessInfo.businessType,
+      description: values.businessInfo.description,
+      organizationType: values.businessInfo.organizationType,
+      businessScale: values.businessInfo.businessScale,
+      numberOfEmployees: values.businessInfo.numberOfEmployees,
+      gender: values.businessInfo.gender,
       status: "open",
       physicalAddress: {
         ...values.businessInfo.physicalAddress,

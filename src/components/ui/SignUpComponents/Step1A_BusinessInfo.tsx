@@ -30,11 +30,12 @@ const Step1A_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
         />
         <div className="grid grid-cols-12 gap-2">
           <Input
-            key="websiteURL"
+            key="website"
             className="w-full border-[#8C8C8C] col-span-6"
             type="text"
-            id="WebsiteURL"
+            id="website"
             placeholder={t("website")}
+            {...register("businessInfo.website")}
           />
           <div className="col-span-6">
             <select
@@ -95,6 +96,7 @@ const Step1A_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
           type="text"
           id="description"
           placeholder={t("bizDescrip")}
+          {...register("businessInfo.description")}
         />
 
         {formErrorMessage && (
