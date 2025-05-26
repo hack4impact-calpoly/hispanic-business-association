@@ -1,4 +1,4 @@
-import { ORGANIZATION_TYPES } from "@/database/types";
+import { GENDER_OPTIONS, ORGANIZATION_TYPES } from "@/database/types";
 import { Input } from "../shadcnComponents/input";
 import StepNavigation from "./StepNavigation";
 import { useTranslations } from "next-intl";
@@ -15,6 +15,7 @@ const Step1A_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
   const t = useTranslations();
 
   const selectedOrganizationType = watch("businessInfo.organizationType") || "";
+  const selectedGender = watch("businessInfo.gender") || "";
 
   return (
     <div className="w-[90%] mr-auto ml-auto">
@@ -27,21 +28,19 @@ const Step1A_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
           placeholder={t("organizationName") + "*"}
           {...register("businessInfo.businessName", { required: "Organization name is required" })}
         />
-
-        <Input
-          key="websiteURL"
-          className="w-full border-[#8C8C8C]"
-          type="text"
-          id="WebsiteURL"
-          placeholder={t("website")}
-        />
-
         <div className="grid grid-cols-12 gap-2">
+          <Input
+            key="websiteURL"
+            className="w-full border-[#8C8C8C] col-span-6"
+            type="text"
+            id="WebsiteURL"
+            placeholder={t("website")}
+          />
           <div className="col-span-6">
             <select
               key="organizationType"
               id="organizationType"
-              className={`w-full border border-[#8C8C8C] text-base rounded-md p-2 focus:outline-black ${
+              className={`w-full h-10 border border-[#8C8C8C] text-[14px] rounded-md p-2 focus:outline-black ${
                 (selectedOrganizationType || "") === "" ? "text-[#5B748C]" : "text-black"
               }`}
               {...register("businessInfo.organizationType", { required: "Organization Type is required" })}
@@ -54,6 +53,13 @@ const Step1A_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
               ))}
             </select>
           </div>
+        </div>
+
+        <div className="grid grid-cols-12 mt-[-10px] mb-[-10px] pr-1">
+          <div className="col-span-10">{"*" + t("genderRequirement")}</div>
+        </div>
+
+        <div className="grid grid-cols-12 gap-2">
           <div className="col-span-6">
             <Input
               key="businessOwner"
@@ -63,6 +69,23 @@ const Step1A_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
               placeholder={t("nameBizOwner") + "*"}
               {...register("businessInfo.businessOwner", { required: "Business Owner is required" })}
             />
+          </div>
+          <div className="col-span-6">
+            <select
+              key="gender"
+              id="gender"
+              className={`w-full h-10 border border-[#8C8C8C] text-[14px] rounded-md p-2 focus:outline-black ${
+                (selectedGender || "") === "" ? "text-[#5B748C]" : "text-black"
+              }`}
+              {...register("businessInfo.gender", { required: "Gender is required" })}
+            >
+              <option value="">{t("gender") + "*"}</option>
+              {GENDER_OPTIONS.map((type) => (
+                <option key={type} value={type}>
+                  {t(type.toLowerCase().replace(/[\W_]+(.)?/g, (_, char) => (char ? char.toUpperCase() : "")))}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

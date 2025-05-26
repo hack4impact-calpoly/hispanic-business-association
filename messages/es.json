@@ -68,7 +68,7 @@
   "businessType": "Tipo de Negocio",
   "businessScale": "Tamaño del Negocio",
   "numberOfEmployees": "Número de empleados",
-  "gender": "Género",
+  "gender": "Género del Propietario",
   "physAdd": "Dirección Física",
   "mailAdd": "Dirección de Envio",
   "city": "Ciudad",
@@ -196,5 +196,10 @@
   "other": "Otro",
   "corporate": "Corporativo",
   "smallBusiness": "Pequeña Empresa",
-  "employeeRange": "Gama de Empleados"
+  "employeeRange": "Gama de Empleados",
+  "female": "Femenina",
+  "male": "Masculino",
+  "nonBinary": "No Binario",
+  "preferNotToSay": "Prefiero no decirlo",
+  "genderRequirement": "Se requiere el género para fines de subvención."
 }

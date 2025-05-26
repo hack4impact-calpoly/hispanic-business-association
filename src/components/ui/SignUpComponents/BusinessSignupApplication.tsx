@@ -16,7 +16,6 @@ import { ISignupRequest } from "@/database/signupRequestSchema";
 import { useClerkSignup } from "@/hooks/useClerkSignup";
 import { useTranslations } from "next-intl";
 import { BusinessType, OrganizationType, BusinessScale, EmployeeRange, Gender } from "@/database/types";
-import { set } from "mongoose";
 
 interface BusinessSignupAppInfo {
   contactInfo: { name: string; phone: string; email: string };
@@ -40,7 +39,6 @@ const BusinessSignupApplication = () => {
   const t = useTranslations();
 
   const [step, setStep] = useState(1);
-  const [langOption, setLangOption] = useState(0);
   const [formErrorMessage, setFormErrorMessage] = useState("");
   const [isMailingAddressSame, setIsMailingAddressSame] = useState(false);
 

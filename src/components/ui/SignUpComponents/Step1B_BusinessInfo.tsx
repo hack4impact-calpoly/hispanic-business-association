@@ -23,7 +23,7 @@ const Step1B_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
         <select
           key="businessType"
           id="businessType"
-          className={`w-full border border-[#8C8C8C] text-base rounded-md p-2 focus:outline-black ${
+          className={`w-full h-10 border border-[#8C8C8C] text-[14px] rounded-md p-2 focus:outline-black ${
             (selectedBusinessType || "") === "" ? "text-[#5B748C]" : "text-black"
           }`}
           {...register("businessInfo.businessType", { required: "Business Type is required" })}
@@ -39,7 +39,7 @@ const Step1B_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
         <select
           key="businessScale"
           id="businessScale"
-          className={`w-full border border-[#8C8C8C] text-base rounded-md p-2 focus:outline-black ${
+          className={`w-full h-10 border border-[#8C8C8C] text-[14px] rounded-md p-2 focus:outline-black ${
             (selectedBusinessScale || "") === "" ? "text-[#5B748C]" : "text-black"
           }`}
           {...register("businessInfo.businessScale", { required: "Business Scale is required" })}
@@ -55,7 +55,7 @@ const Step1B_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
         <select
           key="employeeRange"
           id="employeeRange"
-          className={`w-full border border-[#8C8C8C] text-base rounded-md p-2 focus:outline-black ${
+          className={`w-full h-10 border border-[#8C8C8C] text-[14px] rounded-md p-2 focus:outline-black ${
             (selectedEmployeeRange || "") === "" ? "text-[#5B748C]" : "text-black"
           }`}
           {...register("businessInfo.employeeRange", { required: "Employee Range is required" })}

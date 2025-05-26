@@ -68,7 +68,7 @@
   "businessType": "Business Type",
   "businessScale": "Business Scale",
   "numberOfEmployees": "Number of Employees",
-  "gender": "Gender",
+  "gender": "Owner Gender",
   "physAdd": "Physical Address",
   "mailAdd": "Mailing Address",
   "city": "City",
@@ -196,5 +196,10 @@
   "other": "Other",
   "corporate": "Corporate",
   "smallBusiness": "Small Business",
-  "employeeRange": "Employee Range"
+  "employeeRange": "Employee Range",
+  "female": "Female",
+  "male": "Male",
+  "nonBinary": "Non-Binary",
+  "preferNotToSay": "Prefer not to say",
+  "genderRequirement": "Gender is required for grant purposes."
 }
