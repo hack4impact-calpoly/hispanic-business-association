@@ -4,35 +4,10 @@ import Image from "next/image";
 import { Card, CardHeader, CardContent } from "../shadcnComponents/card";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-
-// Extended business info structure
-interface BusinessInfo {
-  name: string;
-  type: string;
-  owner: string;
-  website?: string;
-  organizationType?: string;
-  businessScale?: string;
-  numberOfEmployees?: string;
-  gender?: string;
-  physicalAddress: {
-    formatted?: string;
-    street: string;
-    city: string;
-    state: string;
-    zip: string;
-  };
-  mailingAddress: {
-    formatted?: string;
-    street: string;
-    city: string;
-    state: string;
-    zip: string;
-  };
-}
+import { IBusinessCore } from "@/database/types";
 
 interface BusinessInfoCardProps {
-  info?: BusinessInfo;
+  info?: IBusinessCore;
   editable?: boolean;
   onEditClick?: () => void;
 }
@@ -42,16 +17,16 @@ const BusinessInfoCard = ({ info, editable = false, onEditClick }: BusinessInfoC
   const t = useTranslations();
 
   const businessInfo = info ?? {
-    name: "HALO Hair Studio",
-    type: "Beauty & Personal Care",
-    owner: "Selena Lilies",
-    website: "https://halohairpasorobles.com/",
-    organizationType: "Business",
-    businessScale: "Small Business",
-    numberOfEmployees: "1-10",
-    gender: "Female",
-    physicalAddress: { street: "1413 Riverside Ave.", city: "Paso Robles", state: "CA", zip: "93446" },
-    mailingAddress: { street: "1413 Riverside Ave.", city: "Paso Robles", state: "CA", zip: "93446" },
+    businessName: "—",
+    businessOwner: "—",
+    website: "—",
+    organizationType: "—",
+    businessScale: "—",
+    numberOfEmployees: "—",
+    gender: "—",
+    physicalAddress: { street: "—", city: "—", state: "—", zip: "—" },
+    mailingAddress: { street: "—", city: "—", state: "—", zip: "—" },
+    pointOfContact: { name: "—", phoneNumber: 0, email: "—" },
   };
 
   const handleEditClick = () => {
@@ -83,26 +58,48 @@ const BusinessInfoCard = ({ info, editable = false, onEditClick }: BusinessInfoC
           <div className="h-[1px] bg-[#BEBEBE] mt-4 mb-6 w-full" />
         </div>
       </CardHeader>
+
       <CardContent className="px-[21px] pt-0">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-[26px]">
-            <InfoBlock label={t("businessName")} value={businessInfo.name} />
-            <InfoBlock label={t("businessType")} value={businessInfo.type} />
-            <InfoBlock label={t("owner")} value={businessInfo.owner} />
-            <InfoBlock label={t("organizationType")} value={businessInfo.organizationType} />
-            <InfoBlock label={t("businessScale")} value={businessInfo.businessScale} />
-            <InfoBlock label={t("numberOfEmployees")} value={businessInfo.numberOfEmployees} />
+            <InfoBlock label={t("businessName")} value={businessInfo.businessName} />
+            <InfoBlock label={t("bizowner")} value={businessInfo.businessOwner} />
             <InfoBlock label={t("gender")} value={businessInfo.gender} />
+            <InfoBlock label={t("organizationType")} value={businessInfo.organizationType} />
+
+            {businessInfo.organizationType === "Business" && (
+              <>
+                <InfoBlock label={t("businessType")} value={businessInfo.businessType} />
+                <InfoBlock label={t("businessScale")} value={businessInfo.businessScale} />
+                <InfoBlock label={t("numberOfEmployees")} value={businessInfo.numberOfEmployees} />
+              </>
+            )}
           </div>
+
           <div className="space-y-[26px]">
             <InfoBlock label={t("website")} value={businessInfo.website} />
+
             <div>
-              <Label text={t("physicalAddress")} />
-              <AddressBlock address={businessInfo.physicalAddress} />
+              <Label text={t("physAdd")} />
+              <AddressBlock
+                address={{
+                  street: businessInfo.physicalAddress.street,
+                  city: businessInfo.physicalAddress.city,
+                  state: businessInfo.physicalAddress.state,
+                  zip: String(businessInfo.physicalAddress.zip),
+                }}
+              />
             </div>
             <div>
-              <Label text={t("mailingAddress")} />
-              <AddressBlock address={businessInfo.mailingAddress} />
+              <Label text={t("mailAdd")} />
+              <AddressBlock
+                address={{
+                  street: businessInfo.mailingAddress.street,
+                  city: businessInfo.mailingAddress.city,
+                  state: businessInfo.mailingAddress.state,
+                  zip: String(businessInfo.mailingAddress.zip),
+                }}
+              />
             </div>
           </div>
         </div>

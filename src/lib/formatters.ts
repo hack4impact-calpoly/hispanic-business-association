@@ -41,10 +41,14 @@ export function extractBusinessDisplayData(business?: IBusiness) {
 
   return {
     businessInfo: {
-      name: business.businessName,
-      type: business.businessType,
-      owner: business.businessOwner,
+      businessName: business.businessName,
+      businessType: business.businessType,
+      businessOwner: business.businessOwner,
       website: business.website,
+      organizationType: business.organizationType,
+      businessScale: business.businessScale,
+      numberOfEmployees: business.numberOfEmployees,
+      gender: business.gender,
       physicalAddress: business.physicalAddress
         ? {
             formatted: formatAddress(business.physicalAddress),
@@ -61,13 +65,13 @@ export function extractBusinessDisplayData(business?: IBusiness) {
             zip: "",
           },
 
-      mailingAddress: business.physicalAddress
+      mailingAddress: business.mailingAddress
         ? {
-            formatted: formatAddress(business.physicalAddress),
-            street: business.physicalAddress.street,
-            city: business.physicalAddress.city,
-            state: business.physicalAddress.state,
-            zip: business.physicalAddress.zip.toString(),
+            formatted: formatAddress(business.mailingAddress),
+            street: business.mailingAddress.street,
+            city: business.mailingAddress.city,
+            state: business.mailingAddress.state,
+            zip: business.mailingAddress.zip.toString(),
           }
         : {
             formatted: "Address not available",
@@ -76,6 +80,11 @@ export function extractBusinessDisplayData(business?: IBusiness) {
             state: "",
             zip: "",
           },
+      pointOfContact: business.pointOfContact ?? {
+        name: "",
+        phoneNumber: "",
+        email: "",
+      },
     },
 
     contactInfo: {

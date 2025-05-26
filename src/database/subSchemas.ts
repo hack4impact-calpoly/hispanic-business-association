@@ -17,9 +17,25 @@ export const SocialMediaSchema = {
   FB: { type: String },
 };
 
+const EMPLOYEE_RANGE = ["1-10", "11-20", "21-50", "51-99", "100+"];
+const BUSINESS_SCALE = ["Corporate", "Small Business"];
+const ORG_TYPES = ["Nonprofit", "Community", "Business"];
+const BUSINESS_TYPES = [
+  "Food",
+  "Housing",
+  "Banking/Finance",
+  "Retail shops",
+  "Wedding/Events",
+  "Automotive",
+  "Education",
+  "Technology",
+  "Marketing",
+  "Other",
+];
+const GENDER_OPTIONS = ["Female", "Male", "Non-binary", "Prefer not to say", "Other"];
+
 export const BusinessCoreSchema = {
   businessName: { type: String, required: true },
-  businessType: { type: String, required: true }, // Enum enforced on frontend
   businessOwner: { type: String, required: true },
   website: { type: String, required: false },
 
@@ -28,21 +44,40 @@ export const BusinessCoreSchema = {
 
   pointOfContact: ContactSchema,
   socialMediaHandles: SocialMediaSchema,
-  description: { type: String, required: true },
+  description: { type: String, required: false },
 
-  organizationType: { type: String, required: true },
-  businessScale: { type: String, required: true },
+  organizationType: {
+    type: String,
+    required: true,
+    enum: ORG_TYPES,
+  },
+  businessType: {
+    type: String,
+    enum: BUSINESS_TYPES,
+    required: function (this: any) {
+      return this.organizationType === "Business";
+    },
+  },
+  businessScale: {
+    type: String,
+    enum: BUSINESS_SCALE,
+    required: function (this: any) {
+      return this.organizationType === "Business";
+    },
+  },
   numberOfEmployees: {
     type: String,
-    enum: ["1-10", "11-20", "21-50", "50-99", "100+"],
-    required: true,
+    enum: EMPLOYEE_RANGE,
+    required: function (this: any) {
+      return this.organizationType === "Business";
+    },
   },
-
-  logoUrl: { type: String },
-  bannerUrl: { type: String },
 
   gender: {
     type: String,
-    enum: ["Female", "Male", "Non-binary", "Prefer not to say", "Other"],
+    enum: GENDER_OPTIONS,
   },
+
+  logoUrl: { type: String }, //not in application
+  bannerUrl: { type: String }, //not in application
 };

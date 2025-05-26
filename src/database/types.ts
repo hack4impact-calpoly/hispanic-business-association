@@ -1,22 +1,29 @@
-export type BusinessScale = "Corporate" | "Small Business";
-export type OrganizationType = "Nonprofit" | "Community" | "Business";
-export type BusinessType =
-  | "Food"
-  | "Housing"
-  | "Banking/Finance"
-  | "Retail shops"
-  | "Wedding/Events"
-  | "Automotive"
-  | "Community"
-  | "Education"
-  | "Nonprofit"
-  | "Technology"
-  | "Marketing";
+// ENUM-LIKE CONSTANTS for reuse and consistency
+export const ORGANIZATION_TYPES = ["Nonprofit", "Community", "Business"] as const;
+export const BUSINESS_TYPES = [
+  "Food",
+  "Housing",
+  "Banking/Finance",
+  "Retail shops",
+  "Wedding/Events",
+  "Automotive",
+  "Education",
+  "Technology",
+  "Marketing",
+  "Other",
+] as const;
+export const BUSINESS_SCALES = ["Corporate", "Small Business"] as const;
+export const EMPLOYEE_RANGES = ["1-10", "11-20", "21-50", "51-99", "100+"] as const;
+export const GENDER_OPTIONS = ["Female", "Male", "Non-binary", "Prefer not to say", "Other"] as const;
 
-export type EmployeeRange = "1-10" | "11-20" | "21-50" | "50-99" | "100+";
+// TYPES from constants
+export type OrganizationType = (typeof ORGANIZATION_TYPES)[number];
+export type BusinessType = (typeof BUSINESS_TYPES)[number];
+export type BusinessScale = (typeof BUSINESS_SCALES)[number];
+export type EmployeeRange = (typeof EMPLOYEE_RANGES)[number];
+export type Gender = (typeof GENDER_OPTIONS)[number];
 
-export type Gender = "Female" | "Male" | "Non-binary" | "Prefer not to say" | "Other";
-
+// STRUCTURED INTERFACES
 export interface IAddress {
   street: string;
   city: string;
@@ -38,17 +45,17 @@ export interface ISocialMedia {
 
 export interface IBusinessCore {
   businessName: string;
-  businessType: BusinessType;
   businessOwner: string;
   website?: string;
   physicalAddress: IAddress;
   mailingAddress: IAddress;
   pointOfContact: IContact;
   socialMediaHandles?: ISocialMedia;
-  description: string;
+  description?: string;
   organizationType: OrganizationType;
-  businessScale: BusinessScale;
-  numberOfEmployees: EmployeeRange;
+  businessType?: BusinessType; // Optional if org is not "Business"
+  businessScale?: BusinessScale;
+  numberOfEmployees?: EmployeeRange;
   logoUrl?: string;
   bannerUrl?: string;
   gender?: Gender;

@@ -69,18 +69,12 @@ const ContactInfoCard = ({ info, editable = false, onEditClick }: ContactInfoCar
           <div className="space-y-[21px]">
             <InfoBlock label={t("pointOfContact")} value={contactInfo.name} />
             <InfoBlock label={t("phoneNumber")} value={contactInfo.phoneNumber} />
+            <InfoBlock label={t("email")} value={contactInfo.email} />
           </div>
           <div className="space-y-[23px]">
-            <InfoBlock label={t("email")} value={contactInfo.email} />
-            <InfoBlock
-              label={t("socialMedia")}
-              value={
-                contactInfo.socialMediaHandles?.FB ||
-                contactInfo.socialMediaHandles?.IG ||
-                contactInfo.socialMediaHandles?.twitter ||
-                "—"
-              }
-            />
+            <InfoBlock label="Facebook" value={contactInfo.socialMediaHandles?.FB} />
+            <InfoBlock label="Instagram" value={contactInfo.socialMediaHandles?.IG} />
+            <InfoBlock label="Twitter" value={contactInfo.socialMediaHandles?.twitter} />
           </div>
         </div>
       </CardContent>

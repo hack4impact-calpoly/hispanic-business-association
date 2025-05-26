@@ -34,7 +34,7 @@ const Step3_SocialLinks = ({ register, onBack, onNext }: Step3Props) => {
           type="text"
           id="X"
           placeholder="X"
-          {...register("socialLinks.X", {
+          {...register("socialLinks.twitter", {
             pattern: { value: /^@/, message: "Not in a familiar format." },
           })}
         />

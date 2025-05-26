@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { useActiveBusinessRequest } from "@/hooks/swrHooks";
+import { useActiveBusinessRequest, useBusiness } from "@/hooks/swrHooks";
 import { useTranslations } from "next-intl";
 
 interface EditContactInfoProps {
@@ -11,14 +11,9 @@ interface EditContactInfoProps {
   onSubmitSuccess?: () => void;
 }
 
-// Declare contact form field structure
+// Simplified contact form field structure - removed alternative POC
 interface ContactFormData {
-  pocFirstName: string;
-  pocLastName: string;
-  pocAdditionalName: string; // Currently not sent to API, form-only field
-  altPocFirst: string; // Currently not sent to API, form-only field
-  altPocLast: string; // Currently not sent to API, form-only field
-  altPocAdditional: string; // Currently not sent to API, form-only field
+  pocName: string;
   phoneNumber: string;
   email: string;
   instagram: string;
@@ -28,12 +23,7 @@ interface ContactFormData {
 
 // Initialize empty contact form state
 const initialContactFormState: ContactFormData = {
-  pocFirstName: "",
-  pocLastName: "",
-  pocAdditionalName: "",
-  altPocFirst: "",
-  altPocLast: "",
-  altPocAdditional: "",
+  pocName: "",
   phoneNumber: "",
   email: "",
   instagram: "",
@@ -62,13 +52,12 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
   const t = useTranslations();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  // Add info status for non-error notifications
   const [feedback, setFeedback] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
   const { activeRequest, isLoading: isRequestLoading } = useActiveBusinessRequest();
+  const { business } = useBusiness();
   const [existingRequestId, setExistingRequestId] = useState<string | undefined>(undefined);
 
   const [formData, setFormData] = useState<ContactFormData>({ ...initialContactFormState });
-  // Track initial form values for change detection
   const [originalFormData, setOriginalFormData] = useState<ContactFormData>({ ...initialContactFormState });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -76,45 +65,50 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Initialize form data from active business request
+  // Initialize form data from business and activeRequest
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (activeRequest) {
-        const poc = activeRequest.pointOfContact || {};
-        let firstName = "";
-        let lastName = "";
+    // Only run when data is ready
+    if (isRequestLoading) return;
 
-        if (poc.name) {
-          const nameParts = poc.name.split(" ");
-          firstName = nameParts[0] || "";
-          lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
-        }
+    let loadedFormData: ContactFormData = { ...initialContactFormState };
 
-        const socialMedia = activeRequest.socialMediaHandles || {};
+    if (business) {
+      const poc = business.pointOfContact || {};
+      const socialMedia = business.socialMediaHandles || {};
 
-        const loadedFormData: ContactFormData = {
-          pocFirstName: firstName,
-          pocLastName: lastName,
-          pocAdditionalName: "", // Store UI-only field
-          altPocFirst: "", // Store UI-only field
-          altPocLast: "", // Store UI-only field
-          altPocAdditional: "", // Store UI-only field
-          phoneNumber: poc.phoneNumber ? poc.phoneNumber.toString() : "",
-          email: poc.email || "",
-          instagram: socialMedia.IG || "",
-          facebook: socialMedia.FB || "",
-          twitter: socialMedia.twitter || "",
-        };
-        setFormData(loadedFormData);
-        // Clone data to prevent reference issues
-        setOriginalFormData(JSON.parse(JSON.stringify(loadedFormData)));
-        setExistingRequestId((activeRequest as any)._id);
+      loadedFormData = {
+        pocName: poc.name || "",
+        phoneNumber: poc.phoneNumber ? poc.phoneNumber.toString() : "",
+        email: poc.email || "",
+        instagram: socialMedia.IG || "",
+        facebook: socialMedia.FB || "",
+        twitter: socialMedia.twitter || "",
+      };
+    }
+
+    if (activeRequest) {
+      const poc = activeRequest.pointOfContact;
+
+      if (poc && (poc.name || poc.phoneNumber || poc.email)) {
+        if (poc.name) loadedFormData.pocName = poc.name;
+        if (poc.phoneNumber) loadedFormData.phoneNumber = poc.phoneNumber.toString();
+        if (poc.email) loadedFormData.email = poc.email;
       }
-      setIsLoading(false);
-    }, 300);
 
-    return () => clearTimeout(timer);
-  }, [activeRequest]);
+      const socialMedia = activeRequest.socialMediaHandles;
+      if (socialMedia) {
+        if (socialMedia.IG) loadedFormData.instagram = socialMedia.IG;
+        if (socialMedia.FB) loadedFormData.facebook = socialMedia.FB;
+        if (socialMedia.twitter) loadedFormData.twitter = socialMedia.twitter;
+      }
+
+      setExistingRequestId((activeRequest as any)._id);
+    }
+
+    setFormData(loadedFormData);
+    setOriginalFormData(JSON.parse(JSON.stringify(loadedFormData)));
+    setIsLoading(false);
+  }, [activeRequest, business, isRequestLoading]);
 
   // Submit form data, sending only changed fields
   const handleSubmit = async () => {
@@ -124,9 +118,8 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
     const changedPayload: any = {};
     let hasChanges = false;
 
-    // Point of Contact object
-    const currentPOCName = `${formData.pocFirstName} ${formData.pocLastName}`.trim();
-    const originalPOCName = `${originalFormData.pocFirstName} ${originalFormData.pocLastName}`.trim();
+    const currentPOCName = formData.pocName.trim();
+    const originalPOCName = originalFormData.pocName.trim();
     const currentPhoneNumber = formData.phoneNumber;
     const originalPhoneNumber = originalFormData.phoneNumber;
     const currentEmail = formData.email;
@@ -199,7 +192,6 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
       } else {
         setFeedback({ type: "success", message: t("changesSent") });
       }
-      // Reset baseline data after successful submission
       setOriginalFormData(JSON.parse(JSON.stringify(formData)));
     } catch (error: any) {
       console.error("Error submitting changes:", error);
@@ -254,66 +246,15 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
             <label className="block text-sm font-medium mb-1">{t("pointOfContact")}</label>
             <div className="flex space-x-2 mb-2">
               <input
-                name="pocFirstName"
+                name="pocName"
                 type="text"
-                placeholder={t("firstName")}
-                value={formData.pocFirstName}
+                placeholder={t("pointOfContact")}
+                value={formData.pocName}
                 onChange={handleChange}
-                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label={t("pocFirstName")}
-              />
-              <input
-                name="pocLastName"
-                type="text"
-                placeholder={t("lastName")}
-                value={formData.pocLastName}
-                onChange={handleChange}
-                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label={t("pocLastName")}
+                className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label={t("pointOfContact")}
               />
             </div>
-            <input
-              name="pocAdditionalName"
-              type="text"
-              placeholder={t("additionalName")}
-              value={formData.pocAdditionalName}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              aria-label={t("pocAdditionalName")}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">{t("altPointofContact")}</label>
-            <div className="flex space-x-2 mb-2">
-              <input
-                name="altPocFirst"
-                type="text"
-                placeholder={t("firstName")}
-                value={formData.altPocFirst}
-                onChange={handleChange}
-                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label={t("altPocFirstName")}
-              />
-              <input
-                name="altPocLast"
-                type="text"
-                placeholder={t("lastName")}
-                value={formData.altPocLast}
-                onChange={handleChange}
-                className="w-1/2 border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label={t("altPocLastName")}
-              />
-            </div>
-            <input
-              name="altPocAdditional"
-              type="text"
-              placeholder={t("additionalName")}
-              value={formData.altPocAdditional}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              aria-label={t("altPocAdditionalName")}
-            />
           </div>
 
           <div>
@@ -395,7 +336,7 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
         <div className="flex max-sm:justify-center justify-end gap-4 mb-5">
           <button
             onClick={handleSubmit}
-            disabled={isSubmitting || isLoading} // Also disable if initial data is loading
+            disabled={isSubmitting || isLoading}
             className={`w-full sm:w-auto gap-2.5 py-2 px-4 md:py-2.5 md:px-5 text-sm md:text-base font-bold text-white 
               ${isSubmitting || isLoading ? "bg-blue-400 cursor-not-allowed" : "bg-[#405BA9] hover:bg-[#293241]"} 
               rounded-3xl min-h-[36px] md:min-h-[40px] transition-colors flex justify-center items-center`}
