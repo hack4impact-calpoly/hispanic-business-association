@@ -111,17 +111,17 @@ const MembershipExpirationAlert = ({ onRenewClick, className }: MembershipExpira
       {/* MESSAGE: Expiration notification with renewal call-to-action */}
       <p className="flex-grow">
         {expiresInDays < 7
-          ? `${t("membershipexpiration")} ${expiresInDays} ${t("day")}${expiresInDays !== 1 ? "s" : ". "}`
+          ? `${t("membershipexpiration")} ${expiresInDays} ${t("day")}${expiresInDays !== 1 ? "s. " : ". "}`
           : expiresInWeeks <= 0
-            ? `${t("membershipexpiration")} ${expiresInMonths} ${t("month")}${expiresInMonths !== 1 ? "s" : ". "}`
-            : `${t("membershipexpiration")} ${expiresInWeeks} ${t("week")}${expiresInWeeks !== 1 ? "s" : ". "}`}
+            ? `${t("membershipexpiration")} ${expiresInMonths} ${t("month")}${expiresInMonths !== 1 ? "s. " : ". "}`
+            : `${t("membershipexpiration")} ${expiresInWeeks} ${t("week")}${expiresInWeeks !== 1 ? "s. " : ". "}`}
         {
           <button onClick={handleRenewClick} className="underline cursor-pointer focus:outline-none">
             {t("Renew here with Square (Recommended)")}
           </button>
         }
         <br />
-        Or send a check to:
+        {t("Or send a check to:")}
         <br />
         {adminAddress?.address.street}, {adminAddress?.address.city}, {adminAddress?.address.state}{" "}
         {adminAddress?.address.zip}
