@@ -23,7 +23,6 @@
   "email": "Email",
   "socialMedia": "Social Media",
   "membershipexpiration": "Membership expires in",
-  "month": "month",
   "renew": "Renew here now.",
   "messageSent": "Message sent!",
   "changesApproved": "Changes approved!",
@@ -47,6 +46,11 @@
   "selectType": "Select Type",
   "send": "Send",
   "failRenew": "Failed to renew membership",
+  "day": "day",
+  "week": "week",
+  "month": "month",
+  "Renew here with Square (Recommended)": "Renew here with Square (Recommended)",
+  "Or send a check to:": "Or send a check to:",
   "welcome": "Welcome",
   "memberSince": "Member since",
   "dashboard": "Dashboard",
@@ -213,5 +217,7 @@
   "male": "Male",
   "nonBinary": "Non-Binary",
   "preferNotToSay": "Prefer not to say",
-  "genderRequirement": "Gender is required for grant purposes."
+  "genderRequirement": "Gender is required for grant purposes.",
+  "Mailing Address Information": "Mailing Address Information",
+  "Edit Mailing Address": "Edit Mailing Address"
 }
