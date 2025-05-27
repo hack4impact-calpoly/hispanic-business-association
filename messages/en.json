@@ -217,5 +217,7 @@
   "male": "Male",
   "nonBinary": "Non-Binary",
   "preferNotToSay": "Prefer not to say",
-  "genderRequirement": "Gender is required for grant purposes."
+  "genderRequirement": "Gender is required for grant purposes.",
+  "Mailing Address Information": "Mailing Address Information",
+  "Edit Mailing Address": "Edit Mailing Address"
 }

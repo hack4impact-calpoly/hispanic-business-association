@@ -72,9 +72,7 @@ const AdminAddressCard = ({ info, editable = false, onEditClick }: AdminAddressC
 
 const AddressBlock = ({ street, city, state, zip }: IAddress) => (
   <p className="text-[14px] font-bold text-[#405BA9] font-['Futura'] leading-[18.61px] break-words">
-    {street}
-    <br />
-    {city}, {state} {zip}
+    {street} {city}, {state} {zip}
   </p>
 );
 
