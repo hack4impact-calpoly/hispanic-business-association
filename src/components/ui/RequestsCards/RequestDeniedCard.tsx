@@ -10,9 +10,10 @@ interface RequestDeniedCardProps {
   onClose?: () => void;
   onDenyWithReason?: (reason: string) => Promise<void>;
   requestId?: string;
+  message?: string;
 }
 
-const RequestDeniedCard = ({ onClose, onDenyWithReason, requestId }: RequestDeniedCardProps) => {
+const RequestDeniedCard = ({ onClose, onDenyWithReason, requestId, message }: RequestDeniedCardProps) => {
   const t = useTranslations();
   const [denialReason, setDenialReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);

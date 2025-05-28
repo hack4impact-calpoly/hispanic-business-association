@@ -27,6 +27,8 @@
   "messageSent": "¡Mensaje enviado!",
   "changesApproved": "¡Cambios aprobados!",
   "deniedChanges": "Cambios denegados.",
+  "accountApproved": "Cuenta Aprobada",
+  "accountDenied": "Cuenta Denegada",
   "words": "palabras",
   "reduceDescription": "Por favor, reduzca su descripción a ",
   "wordsLess": "palabras o menos.",

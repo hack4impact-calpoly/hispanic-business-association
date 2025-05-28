@@ -214,7 +214,7 @@ export default function AdminRequestsPage() {
 
   return (
     <ResponsiveLayout title={t("reqs")}>
-      <div className="relative min-h-screen bg-white px-2 sm:px-4 md:px-6 py-6 pb-[142px] md:pb-12">
+      <div className="p-6 space-y-6">
         <div className="w-full max-w-7xl mx-auto pt-4">
           {/* Responsive Flex Container */}
           <div className="flex flex-col lg:flex-row lg:justify-between">
