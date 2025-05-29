@@ -5,11 +5,15 @@ import fs from "fs/promises"; // Use fs/promises for async file operations
 // Important: disable built-in body parsing
 // This is still crucial because Next.js would try to parse it as JSON or text otherwise.
 // We want to access the raw FormData directly.
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+// export const config = {
+//   api: {
+//     bodyParser: false,
+//   },
+// };
+
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
+export const preferredRegion = "auto";
 
 // Define a type for your attachment objects
 interface EmailAttachment {
