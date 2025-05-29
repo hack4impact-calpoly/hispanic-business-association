@@ -69,7 +69,7 @@ const RequestApprovedCard = ({ onClose, message }: RequestApprovedCardProps) => 
               height={102}
               className="mb-6"
             />
-            <p className="text-[26px] text-center font-medium">{t("changesApproved")}</p>
+            <p className="text-[26px] text-center font-medium">{message}</p>
           </CardContent>
         </Card>
       </div>

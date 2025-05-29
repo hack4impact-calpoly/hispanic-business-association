@@ -90,7 +90,7 @@ const RequestDeniedCard = ({ onClose, onDenyWithReason, requestId, message }: Re
                 height={102}
                 className="mb-4"
               />
-              <p className="text-[26px] font-semibold text-center">{t("deniedChanges")}</p>
+              <p className="text-[26px] font-semibold text-center">{message}</p>
             </div>
 
             <div className="w-full flex-1 flex flex-col">
