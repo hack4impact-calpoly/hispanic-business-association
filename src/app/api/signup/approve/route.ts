@@ -31,20 +31,20 @@ export async function POST(req: Request) {
     requestData.decision = "approved";
     await requestData.save();
 
-    // Send email notification to business POC
-    if (requestData.pointOfContact?.email) {
-      const { subject, body } = emailTemplates.signupApproved({ businessName: requestData.businessName });
-      await fetch("/api/send-email", {
-        method: "POST",
-        body: (() => {
-          const form = new FormData();
-          form.append("toAddresses", JSON.stringify([requestData.pointOfContact.email]));
-          form.append("subject", subject);
-          form.append("body", body);
-          return form;
-        })(),
-      });
-    }
+    // // Send email notification to business POC
+    // if (requestData.pointOfContact?.email) {
+    //   const { subject, body } = emailTemplates.signupApproved({ businessName: requestData.businessName });
+    //   await fetch("/api/send-email", {
+    //     method: "POST",
+    //     body: (() => {
+    //       const form = new FormData();
+    //       form.append("toAddresses", JSON.stringify([requestData.pointOfContact.email]));
+    //       form.append("subject", subject);
+    //       form.append("body", body);
+    //       return form;
+    //     })(),
+    //   });
+    // }
 
     return NextResponse.json({ message: "Request approved successfully", request: requestData });
   } catch (error) {

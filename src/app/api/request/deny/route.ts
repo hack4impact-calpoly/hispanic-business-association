@@ -53,22 +53,22 @@ export async function POST(req: Request) {
     await Request.findByIdAndDelete(requestId);
 
     // Send email notification to business POC
-    if (requestData.new?.pointOfContact?.email) {
-      const { subject, body } = emailTemplates.businessDenied({
-        businessName: requestData.new.businessName,
-        denialMessage,
-      });
-      await fetch("/api/send-email", {
-        method: "POST",
-        body: (() => {
-          const form = new FormData();
-          form.append("toAddresses", JSON.stringify([requestData.new.pointOfContact.email]));
-          form.append("subject", subject);
-          form.append("body", body);
-          return form;
-        })(),
-      });
-    }
+    // if (requestData.new?.pointOfContact?.email) {
+    //   const { subject, body } = emailTemplates.businessDenied({
+    //     businessName: requestData.new.businessName,
+    //     denialMessage,
+    //   });
+    //   await fetch("/api/send-email", {
+    //     method: "POST",
+    //     body: (() => {
+    //       const form = new FormData();
+    //       form.append("toAddresses", JSON.stringify([requestData.new.pointOfContact.email]));
+    //       form.append("subject", subject);
+    //       form.append("body", body);
+    //       return form;
+    //     })(),
+    //   });
+    // }
 
     return NextResponse.json({ message: "Request denied successfully" });
   } catch (error) {

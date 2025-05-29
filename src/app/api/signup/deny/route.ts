@@ -33,20 +33,20 @@ export async function POST(req: Request) {
     requestData.decision = "denied";
     await requestData.save();
 
-    // Send email notification to business POC
-    if (requestData.pointOfContact?.email) {
-      const { subject, body } = emailTemplates.signupDenied({ businessName: requestData.businessName });
-      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/send-email`, {
-        method: "POST",
-        body: (() => {
-          const form = new FormData();
-          form.append("toAddresses", JSON.stringify([requestData.pointOfContact.email]));
-          form.append("subject", subject);
-          form.append("body", body);
-          return form;
-        })(),
-      });
-    }
+    // // Send email notification to business POC
+    // if (requestData.pointOfContact?.email) {
+    //   const { subject, body } = emailTemplates.signupDenied({ businessName: requestData.businessName });
+    //   await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/send-email`, {
+    //     method: "POST",
+    //     body: (() => {
+    //       const form = new FormData();
+    //       form.append("toAddresses", JSON.stringify([requestData.pointOfContact.email]));
+    //       form.append("subject", subject);
+    //       form.append("body", body);
+    //       return form;
+    //     })(),
+    //   });
+    // }
 
     return NextResponse.json({ message: "Request denied successfully" });
   } catch (error) {
