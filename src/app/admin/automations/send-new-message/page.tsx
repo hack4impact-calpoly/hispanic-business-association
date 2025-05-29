@@ -67,13 +67,11 @@ export default function BusinessSendNewMessagePage() {
 
   const handleSubjectChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSubject(event.target.value);
-    console.log("hit");
   };
 
   // Modified handler for the business selection dropdown
   const handleBusinessSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedId = event.target.value;
-    console.log("Business dropdown changed. Selected ID:", selectedId);
     setSelectedBusinessId(selectedId); // Update the selected business ID
     if (selectedId) {
       setBusinessType(""); // Clear business type if a business is selected
@@ -81,19 +79,15 @@ export default function BusinessSendNewMessagePage() {
       const selectedBiz = businesses?.find((biz) => (biz as IBusiness)._id?.toString() === selectedId) as
         | IBusiness
         | undefined;
-      console.log("Selected business object:", selectedBiz);
       if (selectedBiz && selectedBiz.pointOfContact.email) {
         setToAddresses(selectedBiz.pointOfContact.email);
-        console.log("Set toAddresses to:", selectedBiz.pointOfContact.email);
       } else {
         setToAddresses("");
-        console.log("No email found for selected business, toAddresses cleared.");
       }
     } else {
       // Reset everything if no business is selected
       setToAddresses("");
       setBusinessType("");
-      console.log("No business selected, toAddresses and businessType cleared.");
     }
   };
 
@@ -104,13 +98,11 @@ export default function BusinessSendNewMessagePage() {
       setSelectedBusinessId(""); // Clear selected business if a type is selected
       setToAddresses(""); // Clear toAddresses since it's only for single business
       // Print all emails in the selected type
-      const emails = getEmailsByBusinessType(type === "ALL" ? "ALL" : type);
-      console.log("Emails for business type", type, ":", emails);
+      // (console.log removed)
     } else {
       // Reset everything if no type is selected
       setSelectedBusinessId("");
       setToAddresses("");
-      console.log("No business type selected, selectedBusinessId and toAddresses cleared.");
     }
   };
 
