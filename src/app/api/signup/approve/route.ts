@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/database/db";
 import SignupRequest from "@/database/signupRequestSchema";
 import { currentUser } from "@clerk/nextjs/server";
+import { emailTemplates } from "@/app/api/send-email/emailTemplates";
 
 export async function POST(req: Request) {
   try {
@@ -29,6 +30,21 @@ export async function POST(req: Request) {
     requestData.status = "closed";
     requestData.decision = "approved";
     await requestData.save();
+
+    // Send email notification to business POC
+    if (requestData.pointOfContact?.email) {
+      const { subject, body } = emailTemplates.signupApproved({ businessName: requestData.businessName });
+      await fetch("/api/send-email", {
+        method: "POST",
+        body: (() => {
+          const form = new FormData();
+          form.append("toAddresses", JSON.stringify([requestData.pointOfContact.email]));
+          form.append("subject", subject);
+          form.append("body", body);
+          return form;
+        })(),
+      });
+    }
 
     return NextResponse.json({ message: "Request approved successfully", request: requestData });
   } catch (error) {

@@ -3,6 +3,7 @@ import connectDB from "@/database/db";
 import Request from "@/database/requestSchema";
 import RequestHistory from "@/database/requestHistorySchema";
 import { currentUser } from "@clerk/nextjs/server";
+import { emailTemplates } from "@/app/api/send-email/emailTemplates";
 
 export async function POST(req: Request) {
   try {
@@ -50,6 +51,24 @@ export async function POST(req: Request) {
 
     // Delete the request from the requests collection
     await Request.findByIdAndDelete(requestId);
+
+    // Send email notification to business POC
+    if (requestData.new?.pointOfContact?.email) {
+      const { subject, body } = emailTemplates.businessDenied({
+        businessName: requestData.new.businessName,
+        denialMessage,
+      });
+      await fetch("/api/send-email", {
+        method: "POST",
+        body: (() => {
+          const form = new FormData();
+          form.append("toAddresses", JSON.stringify([requestData.new.pointOfContact.email]));
+          form.append("subject", subject);
+          form.append("body", body);
+          return form;
+        })(),
+      });
+    }
 
     return NextResponse.json({ message: "Request denied successfully" });
   } catch (error) {

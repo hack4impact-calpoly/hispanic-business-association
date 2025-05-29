@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/database/db";
 import SignupRequest from "@/database/signupRequestSchema";
 import { currentUser } from "@clerk/nextjs/server";
+import { emailTemplates } from "@/app/api/send-email/emailTemplates";
 
 export async function POST(req: Request) {
   try {
@@ -31,6 +32,21 @@ export async function POST(req: Request) {
     requestData.status = "closed";
     requestData.decision = "denied";
     await requestData.save();
+
+    // Send email notification to business POC
+    if (requestData.pointOfContact?.email) {
+      const { subject, body } = emailTemplates.signupDenied({ businessName: requestData.businessName });
+      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/send-email`, {
+        method: "POST",
+        body: (() => {
+          const form = new FormData();
+          form.append("toAddresses", JSON.stringify([requestData.pointOfContact.email]));
+          form.append("subject", subject);
+          form.append("body", body);
+          return form;
+        })(),
+      });
+    }
 
     return NextResponse.json({ message: "Request denied successfully" });
   } catch (error) {
