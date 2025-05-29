@@ -229,8 +229,10 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
             </>
           )}
         </div>
-        {showApprovedCard && <RequestApprovedCard onClose={() => setShowApprovedCard(false)} />}
-        {showDeniedCard && <RequestDeniedCard onClose={() => setShowDeniedCard(false)} />}
+        {showApprovedCard && (
+          <RequestApprovedCard onClose={() => setShowApprovedCard(false)} message={t("accountApproved")} />
+        )}
+        {showDeniedCard && <RequestDeniedCard onClose={() => setShowDeniedCard(false)} message={t("accountDenied")} />}
       </div>
     </ResponsiveLayout>
   );

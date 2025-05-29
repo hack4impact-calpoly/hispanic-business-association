@@ -8,9 +8,10 @@ import { useTranslations } from "next-intl";
 
 interface RequestApprovedCardProps {
   onClose?: () => void;
+  message?: string;
 }
 
-const RequestApprovedCard = ({ onClose }: RequestApprovedCardProps) => {
+const RequestApprovedCard = ({ onClose, message }: RequestApprovedCardProps) => {
   const t = useTranslations();
   const isMobile = useIsMobile();
   const [windowSize, setWindowSize] = useState({
@@ -68,7 +69,7 @@ const RequestApprovedCard = ({ onClose }: RequestApprovedCardProps) => {
               height={102}
               className="mb-6"
             />
-            <p className="text-[26px] text-center font-medium">{t("changesApproved")}</p>
+            <p className="text-[26px] text-center font-medium">{message}</p>
           </CardContent>
         </Card>
       </div>

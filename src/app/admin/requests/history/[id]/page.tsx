@@ -62,7 +62,7 @@ export default function RequestHistoryDetailPage({ params }: RequestHistoryDetai
             </div>
           )}
 
-          {isError && (
+          {!isLoading && isError && (
             <div className="flex justify-center items-center h-[300px]">
               <p className="text-lg text-red-500">{t("errLoadReq")}</p>
             </div>
