@@ -76,12 +76,6 @@ const MembershipExpirationAlert = ({ onRenewClick, className }: MembershipExpira
       if (data.url) {
         window.open(data.url, "_blank");
         // listen to webhooks
-        await fetch(`/api/business/payment`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
       } else {
       }
     } catch (err) {
