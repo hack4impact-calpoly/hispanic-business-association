@@ -7,10 +7,13 @@ import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import AboutCard from "@/components/ui/BusinessPreviewComponents/AboutCard";
 import BusinessInfoCard from "@/components/ui/BusinessPreviewComponents/BusinessInfoCard";
 import ContactInfoCard from "@/components/ui/BusinessPreviewComponents/ContactInfoCard";
-import { useBusinessById } from "@/hooks/swrHooks";
+import { useBusinessById, useDates } from "@/hooks/swrHooks";
 import { extractBusinessDisplayData } from "@/lib/formatters";
 import { Button } from "@/components/ui/shadcnComponents/button";
 import { useTranslations } from "next-intl";
+import { useState, useEffect } from "react";
+import EditPaymentMessage from "@/components/ui/GeneralAdminComponents/EditPaymentMessage";
+import EditPayment from "@/components/ui/GeneralAdminComponents/EditPayment";
 
 export default function BusinessDetailsPage() {
   const t = useTranslations();
@@ -27,6 +30,35 @@ export default function BusinessDetailsPage() {
 
   // Process business data for display
   const displayData = extractBusinessDisplayData(business);
+  const [showLastPay, setShowLastPay] = useState(false);
+  const [showEditExpiry, setShowEditExpiry] = useState(false);
+  const { lastPaidDate, expiryDate } = useDates(businessId);
+
+  const handleEditLastPayClick = () => {
+    setShowLastPay(true);
+  };
+
+  const handleEditLastPayClose = () => {
+    setShowLastPay(false);
+  };
+
+  const handleEditLastPaySubmit = () => {
+    setShowLastPay(false);
+    //do stuff
+  };
+
+  const handleEditExpiryClick = () => {
+    setShowEditExpiry(true);
+  };
+
+  const handleEditExpiryClose = () => {
+    setShowEditExpiry(false);
+  };
+
+  const handleEditExpirySubmit = () => {
+    setShowEditExpiry(false);
+    //do stuff
+  };
 
   // Handle business not found
   if (!business) {
@@ -42,6 +74,28 @@ export default function BusinessDetailsPage() {
   // Handle back button click
   const handleBackClick = () => {
     router.push("/admin");
+  };
+
+  const getExpiry = () => {
+    let expiryFormat;
+    if (expiryDate) {
+      let expiry = new Date(expiryDate);
+      expiryFormat = expiry.toLocaleDateString();
+    } else {
+      expiryFormat = t("notSet");
+    }
+    return expiryFormat;
+  };
+
+  const getLastPay = () => {
+    let lastPayFormat;
+    if (lastPaidDate) {
+      let lastPay = new Date(lastPaidDate);
+      lastPayFormat = lastPay.toLocaleDateString();
+    } else {
+      lastPayFormat = t("notSet");
+    }
+    return lastPayFormat;
   };
 
   return (
@@ -100,6 +154,14 @@ export default function BusinessDetailsPage() {
             <h2 className="text-2xl">{displayData?.businessInfo.businessName || t("businessName")}</h2>
           </section>
 
+          <div className="mb-7 w-full">
+            <EditPaymentMessage dateType="lastPay" date={getLastPay()} onClick={handleEditLastPayClick} />
+          </div>
+
+          <div className="mb-7 w-full">
+            <EditPaymentMessage dateType="expiry" date={getExpiry()} onClick={handleEditExpiryClick} />
+          </div>
+
           {/* About Section */}
           <div className="mb-6 w-full">
             <AboutCard info={{ description: displayData?.about.description || "" }} editable={false} />
@@ -129,6 +191,28 @@ export default function BusinessDetailsPage() {
           </div>
         </div>
       </main>
+
+      {showLastPay && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex w-full h-full items-start sm:items-center justify-center z-50 p-0 top-0 sm:p-4 overflow-y-auto">
+          <EditPayment
+            dateType="lastPaid"
+            bizId={businessId}
+            onClose={handleEditLastPayClose}
+            onSubmitSuccess={handleEditLastPaySubmit}
+          />
+        </div>
+      )}
+
+      {showEditExpiry && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex w-full h-full items-start sm:items-center justify-center z-50 p-0 top-0 sm:p-4 overflow-y-auto">
+          <EditPayment
+            dateType="expiry"
+            bizId={businessId}
+            onClose={handleEditExpiryClose}
+            onSubmitSuccess={handleEditExpirySubmit}
+          />
+        </div>
+      )}
     </ResponsiveLayout>
   );
 }

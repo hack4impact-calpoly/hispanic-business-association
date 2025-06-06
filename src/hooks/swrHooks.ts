@@ -214,13 +214,33 @@ export function useBusinessById(id?: string, config?: SWRConfiguration) {
   const isClerkId = id?.startsWith("user_");
   const endpoint = shouldFetch ? (isClerkId ? `/api/business?clerkId=${id}` : `/api/business/${id}`) : null;
 
-  const { data, error, isLoading, isValidating, mutate } = useSWR<IBusiness>(endpoint, {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IBusiness>(
+    endpoint,
+    endpoint ? fetcher : null, // Skip fetcher if endpoint is null
+    {
+      revalidateOnFocus: false,
+      ...config,
+    },
+  );
+
+  return {
+    business: data,
+    isLoading,
+    isValidating,
+    isError: error,
+    mutate,
+  };
+}
+
+export function useDates(id?: string, config?: SWRConfiguration) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IBusiness>(`/api/business/${id}`, {
     revalidateOnFocus: false,
     ...config,
   });
 
   return {
-    business: data,
+    lastPaidDate: data?.lastPayDate || null,
+    expiryDate: data?.membershipExpiryDate || null,
     isLoading,
     isValidating,
     isError: error,

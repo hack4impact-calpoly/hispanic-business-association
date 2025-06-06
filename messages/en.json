@@ -190,5 +190,16 @@
   "renewedBusinessesPastYear": "Renewed Businesses (Past Year)",
   "businessComposition": "Business Composition",
   "businessTypeChart": "Business Type",
-  "bizGrowthOverTime": "Total Business Growth Over Time"
+  "bizGrowthOverTime": "Total Business Growth Over Time",
+  "notSet": "Not Set",
+  "lastPaid": "Last Business Payment Date",
+  "expiryDate": "Membership Expiry Date",
+  "set": "Set",
+  "expiryFail": "Failed to update membership expiry date",
+  "expirySuccess": "Membership expiry date updated successfully",
+  "lastPaidFail": "Failed to update last pay date",
+  "lastPaidSuccess": "Last pay date updated successfully",
+  "selected": "Selected",
+  "dayPick": "Pick a day.",
+  "edit": "Edit"
 }
