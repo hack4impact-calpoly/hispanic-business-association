@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { DayPicker } from "react-day-picker";
 import { useBusinessById } from "@/hooks/swrHooks";
@@ -30,7 +30,29 @@ export default function EditPayment({ dateType, bizId, onClose, onSubmitSuccess 
     return t("set") + " " + t("expiryDate");
   };
 
-  useEffect(() => {}, [selected]);
+  const initialMonth = useMemo(() => {
+    if (dateType === "expiryDate") {
+      if (business?.membershipExpiryDate) {
+        return new Date(business.membershipExpiryDate);
+      }
+      const d = new Date();
+      d.setFullYear(d.getFullYear() + 1);
+      return d;
+    } else {
+      return new Date();
+    }
+  }, [dateType, business]);
+
+  const [currentMonth, setCurrentMonth] = useState<Date>(initialMonth);
+
+  useEffect(() => {
+    setCurrentMonth(initialMonth);
+  }, [initialMonth]);
+
+  const handleMonthChange = (year: number, month: number) => {
+    const newDate = new Date(year, month, 1);
+    setCurrentMonth(newDate);
+  };
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -49,7 +71,6 @@ export default function EditPayment({ dateType, bizId, onClose, onSubmitSuccess 
           throw new Error(t("lastPaidFail"));
         }
 
-        // Invalidate SWR cache that ensures fresh data displays
         await mutate(`/api/business/${bizId}`);
 
         setFeedback({ type: "success", message: t("lastPaidSuccess") });
@@ -73,7 +94,6 @@ export default function EditPayment({ dateType, bizId, onClose, onSubmitSuccess 
           throw new Error(t("expiryFail"));
         }
 
-        // Invalidate SWR cache that ensures fresh data displays
         await mutate(`/api/business/${bizId}`);
 
         setFeedback({ type: "success", message: t("expirySuccess") });
@@ -114,12 +134,44 @@ export default function EditPayment({ dateType, bizId, onClose, onSubmitSuccess 
         className="flex-1 overflow-y-auto overscroll-contain touch-pan-y px-4 md:px-5"
         style={{ WebkitOverflowScrolling: "touch" }}
       >
-        <div className="flex justify-center my-5">
+        <div className="flex justify-center my-5 flex-col items-center">
+          {/* Year + Month Dropdowns */}
+          <div className="flex gap-4 mb-4">
+            <select
+              value={currentMonth.getFullYear()}
+              onChange={(e) => handleMonthChange(Number(e.target.value), currentMonth.getMonth())}
+              className="border px-2 py-1 rounded"
+            >
+              {Array.from({ length: 10 }, (_, i) => {
+                const year = new Date().getFullYear() - 2 + i;
+                return (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                );
+              })}
+            </select>
+
+            <select
+              value={currentMonth.getMonth()}
+              onChange={(e) => handleMonthChange(currentMonth.getFullYear(), Number(e.target.value))}
+              className="border px-2 py-1 rounded"
+            >
+              {Array.from({ length: 12 }, (_, i) => (
+                <option key={i} value={i}>
+                  {new Date(0, i).toLocaleString("default", { month: "long" })}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* DayPicker */}
           <DayPicker
             animate
             mode="single"
             selected={selected}
             onSelect={setSelected}
+            month={currentMonth}
             footer={selected ? `${t("selected")}: ${selected.toLocaleDateString()}` : t("dayPick")}
           />
         </div>
