@@ -3,8 +3,9 @@
 import React from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import axios from "axios";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useAdminAddress, useBusiness } from "@/hooks/swrHooks";
 
 interface MembershipExpirationAlertProps {
   // Months until expiration
@@ -16,12 +17,29 @@ interface MembershipExpirationAlertProps {
 }
 
 // Alert component shown when membership nears expiration
-const MembershipExpirationAlert = ({
-  expiresInMonths = 1,
-  onRenewClick,
-  className,
-}: MembershipExpirationAlertProps) => {
+const MembershipExpirationAlert = ({ onRenewClick, className }: MembershipExpirationAlertProps) => {
   const t = useTranslations();
+  const { adminAddress } = useAdminAddress();
+  const { business } = useBusiness();
+  const [expiresInMonths, setExpiresInMonths] = useState<number>(Infinity);
+  const [expiresInWeeks, setExpiresInWeeks] = useState<number>(Infinity);
+  const [expiresInDays, setExpiresInDays] = useState<number>(Infinity);
+  useEffect(() => {
+    // Calculate the difference in months between today and the expiration date
+    const expiryDate = new Date(business?.membershipExpiryDate || new Date());
+    const today = new Date();
+
+    // Calculate the difference in months
+    const monthsDifference =
+      (expiryDate.getFullYear() - today.getFullYear()) * 12 + expiryDate.getMonth() - today.getMonth();
+
+    const timeDiffInMillis = expiryDate.getTime() - today.getTime();
+    const weeksDifference = Math.ceil(timeDiffInMillis / (1000 * 3600 * 24 * 7)); // Convert milliseconds to weeks
+    const daysDifference = Math.ceil(timeDiffInMillis / (1000 * 3600 * 24)); // Convert milliseconds to days
+    setExpiresInDays(daysDifference);
+    setExpiresInWeeks(weeksDifference);
+    setExpiresInMonths(monthsDifference);
+  }, [business?.membershipExpiryDate]);
   // CONDITIONAL: Skip rendering for expiration > 1 month
   if (expiresInMonths > 1) {
     return null;
@@ -30,9 +48,8 @@ const MembershipExpirationAlert = ({
   const handleRenewClick = async () => {
     try {
       // Make your API call (Example with fetch)
-      const response1 = await fetch(`/api/business/`);
-      const data1 = await response1.json();
-      const membershipFeeType = data1.membershipFeeType;
+
+      const membershipFeeType = business?.organizationType;
       var amt;
       if (membershipFeeType === "Community") {
         amt = process.env.NEXT_PUBLIC_COMMUNITY_MEMBERSHIP_FEE;
@@ -93,13 +110,21 @@ const MembershipExpirationAlert = ({
 
       {/* MESSAGE: Expiration notification with renewal call-to-action */}
       <p className="flex-grow">
-        {t("membershipexpiration")} {expiresInMonths} {t("month")}
-        {expiresInMonths !== 1 ? "s" : ""}.{" "}
+        {expiresInDays < 7
+          ? `${t("membershipexpiration")} ${expiresInDays} ${t("day")}${expiresInDays !== 1 ? "s. " : ". "}`
+          : expiresInWeeks <= 0
+            ? `${t("membershipexpiration")} ${expiresInMonths} ${t("month")}${expiresInMonths !== 1 ? "s. " : ". "}`
+            : `${t("membershipexpiration")} ${expiresInWeeks} ${t("week")}${expiresInWeeks !== 1 ? "s. " : ". "}`}
         {
           <button onClick={handleRenewClick} className="underline cursor-pointer focus:outline-none">
-            {t("renew")}
+            {t("Renew here with Square (Recommended)")}
           </button>
         }
+        <br />
+        {t("Or send a check to:")}
+        <br />
+        {adminAddress?.address.street}, {adminAddress?.address.city}, {adminAddress?.address.state}{" "}
+        {adminAddress?.address.zip}
       </p>
     </div>
   );

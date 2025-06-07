@@ -3,6 +3,7 @@ import { IBusiness } from "@/database/businessSchema";
 import { IUser } from "@/database/userSchema";
 import { IRequest } from "@/database/requestSchema";
 import { ISignupRequest } from "@/database/signupRequestSchema";
+import { IAdminMailingAddress } from "@/database/adminAddressSchema";
 import { fetcher } from "@/lib/fetcher";
 
 /**
@@ -17,6 +18,21 @@ export interface SWRResponse<Data, Error> {
     data?: Data | Promise<Data> | MutatorCallback<Data>,
     options?: { revalidate?: boolean },
   ) => Promise<Data | undefined>;
+}
+
+export function useAdminAddress(config?: SWRConfiguration) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IAdminMailingAddress>("/api/adminMailingAddress", {
+    revalidateOnFocus: false,
+    ...config,
+  });
+
+  return {
+    adminAddress: data,
+    isLoading,
+    isValidating,
+    isError: error,
+    mutate,
+  };
 }
 
 export function useSignUpRequests(config?: SWRConfiguration) {
