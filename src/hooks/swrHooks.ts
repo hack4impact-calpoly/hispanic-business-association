@@ -231,19 +231,3 @@ export function useBusinessById(id?: string, config?: SWRConfiguration) {
     mutate,
   };
 }
-
-export function useDates(id?: string, config?: SWRConfiguration) {
-  const { data, error, isLoading, isValidating, mutate } = useSWR<IBusiness>(`/api/business/${id}`, {
-    revalidateOnFocus: false,
-    ...config,
-  });
-
-  return {
-    lastPaidDate: data?.lastPayDate || null,
-    expiryDate: data?.membershipExpiryDate || null,
-    isLoading,
-    isValidating,
-    isError: error,
-    mutate,
-  };
-}

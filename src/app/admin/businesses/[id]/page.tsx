@@ -7,11 +7,11 @@ import ResponsiveLayout from "@/components/layout/ResponsiveLayout";
 import AboutCard from "@/components/ui/BusinessPreviewComponents/AboutCard";
 import BusinessInfoCard from "@/components/ui/BusinessPreviewComponents/BusinessInfoCard";
 import ContactInfoCard from "@/components/ui/BusinessPreviewComponents/ContactInfoCard";
-import { useBusinessById, useDates } from "@/hooks/swrHooks";
+import { useBusinessById } from "@/hooks/swrHooks";
 import { extractBusinessDisplayData } from "@/lib/formatters";
 import { Button } from "@/components/ui/shadcnComponents/button";
 import { useTranslations } from "next-intl";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import EditPaymentMessage from "@/components/ui/GeneralAdminComponents/EditPaymentMessage";
 import EditPayment from "@/components/ui/GeneralAdminComponents/EditPayment";
 
@@ -26,13 +26,16 @@ export default function BusinessDetailsPage() {
   const defaultBanner = "/logo/Default_Banner.png";
 
   // Fetch business data
-  const { business, isLoading: isBusinessLoading } = useBusinessById(businessId);
+  const { business, isLoading: isBusinessLoading, mutate } = useBusinessById(businessId);
 
   // Process business data for display
   const displayData = extractBusinessDisplayData(business);
   const [showLastPay, setShowLastPay] = useState(false);
   const [showEditExpiry, setShowEditExpiry] = useState(false);
-  const { lastPaidDate, expiryDate } = useDates(businessId);
+
+  // Extract dates directly from business object
+  const lastPaidDate = business?.lastPayDate;
+  const expiryDate = business?.membershipExpiryDate;
 
   const handleEditLastPayClick = () => {
     setShowLastPay(true);
@@ -44,7 +47,7 @@ export default function BusinessDetailsPage() {
 
   const handleEditLastPaySubmit = () => {
     setShowLastPay(false);
-    //do stuff
+    mutate();
   };
 
   const handleEditExpiryClick = () => {
@@ -57,7 +60,7 @@ export default function BusinessDetailsPage() {
 
   const handleEditExpirySubmit = () => {
     setShowEditExpiry(false);
-    //do stuff
+    mutate();
   };
 
   // Handle business not found

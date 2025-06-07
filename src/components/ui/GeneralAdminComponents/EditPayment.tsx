@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { DayPicker } from "react-day-picker";
 import { useBusinessById } from "@/hooks/swrHooks";
+import { mutate } from "swr";
 import "react-day-picker/dist/style.css";
 
 interface EditPaymentProps {
@@ -47,6 +48,10 @@ export default function EditPayment({ dateType, bizId, onClose, onSubmitSuccess 
         if (!response.ok) {
           throw new Error(t("lastPaidFail"));
         }
+
+        // Invalidate SWR cache that ensures fresh data displays
+        await mutate(`/api/business/${bizId}`);
+
         setFeedback({ type: "success", message: t("lastPaidSuccess") });
         if (onSubmitSuccess) onSubmitSuccess();
       } catch (error) {
@@ -63,9 +68,14 @@ export default function EditPayment({ dateType, bizId, onClose, onSubmitSuccess 
           },
           body: JSON.stringify({ lastPayDate: business?.lastPayDate || null, membershipExpiryDate: selected }),
         });
+
         if (!response.ok) {
           throw new Error(t("expiryFail"));
         }
+
+        // Invalidate SWR cache that ensures fresh data displays
+        await mutate(`/api/business/${bizId}`);
+
         setFeedback({ type: "success", message: t("expirySuccess") });
         if (onSubmitSuccess) onSubmitSuccess();
       } catch (error) {
