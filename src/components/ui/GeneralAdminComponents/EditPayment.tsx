@@ -172,6 +172,7 @@ export default function EditPayment({ dateType, bizId, onClose, onSubmitSuccess 
             selected={selected}
             onSelect={setSelected}
             month={currentMonth}
+            onMonthChange={setCurrentMonth}
             footer={selected ? `${t("selected")}: ${selected.toLocaleDateString()}` : t("dayPick")}
           />
         </div>
