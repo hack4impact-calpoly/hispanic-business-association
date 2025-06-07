@@ -35,6 +35,4 @@ yarn-error.log*
 next-env.d.ts
 
 # development test directories
-/src/app/test/
-/src/app/api/test/
-/src/test/
+/src/tests/
