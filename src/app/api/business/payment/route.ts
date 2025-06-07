@@ -5,11 +5,13 @@ import { currentUser } from "@clerk/nextjs/server";
 
 export async function PATCH(req: Request) {
   try {
-    await connectDB();
     const clerkUser = await currentUser();
     if (!clerkUser) {
       return NextResponse.json({ message: "User not logged in" }, { status: 401 });
     }
+
+    await connectDB();
+
     const oneYearFromNow = new Date();
     oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
     const business = await Business.updateOne(

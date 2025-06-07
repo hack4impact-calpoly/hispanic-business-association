@@ -13,8 +13,8 @@ export async function GET() {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // Ensure the user is an admin
-    if (user.publicMetadata.role !== "admin") {
+    // Verify admin role authorization
+    if (user.publicMetadata?.role !== "admin") {
       return NextResponse.json({ message: "Admin access required" }, { status: 403 });
     }
 

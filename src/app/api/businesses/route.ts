@@ -13,6 +13,11 @@ export async function GET() {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    // Verify admin role authorization
+    if (user.publicMetadata?.role !== "admin") {
+      return NextResponse.json({ message: "Admin access required" }, { status: 403 });
+    }
+
     await connectDB();
 
     // Fetch all businesses from the database

@@ -23,6 +23,11 @@ function isFieldChanged(requestValue: any, businessValue: any): boolean {
   return requestValue !== businessValue;
 }
 
+// Validate ObjectId format before database operations
+function isValidObjectId(id: string): boolean {
+  return /^[0-9a-fA-F]{24}$/.test(id);
+}
+
 export async function POST(req: Request) {
   try {
     // Check authentication
@@ -31,12 +36,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    // Verify admin role authorization
+    if (user.publicMetadata?.role !== "admin") {
+      return NextResponse.json({ message: "Admin access required" }, { status: 403 });
+    }
+
     // Extract request ID from the request body
     const body = await req.json();
     const requestId = body.requestId;
 
     if (!requestId) {
       return NextResponse.json({ message: "Request ID is required" }, { status: 400 });
+    }
+
+    // Validate ObjectId format before database operations
+    if (!isValidObjectId(requestId)) {
+      return NextResponse.json({ message: "Invalid request ID format" }, { status: 400 });
     }
 
     await connectDB();
@@ -84,7 +99,7 @@ export async function POST(req: Request) {
     if (newData.website) business.website = newData.website;
     if (newData.description) business.description = newData.description;
 
-    // Update nested objects if they exist
+    // Update legacy address field for backward compatibility
     if (newData.address) {
       if (!business.address) business.address = {};
 
@@ -95,6 +110,29 @@ export async function POST(req: Request) {
       if (newData.address.county) business.address.county = newData.address.county;
     }
 
+    // Update physicalAddress field
+    if (newData.physicalAddress) {
+      if (!business.physicalAddress) business.physicalAddress = {};
+
+      if (newData.physicalAddress.street) business.physicalAddress.street = newData.physicalAddress.street;
+      if (newData.physicalAddress.city) business.physicalAddress.city = newData.physicalAddress.city;
+      if (newData.physicalAddress.state) business.physicalAddress.state = newData.physicalAddress.state;
+      if (newData.physicalAddress.zip) business.physicalAddress.zip = newData.physicalAddress.zip;
+      if (newData.physicalAddress.county) business.physicalAddress.county = newData.physicalAddress.county;
+    }
+
+    // Update mailingAddress field
+    if (newData.mailingAddress) {
+      if (!business.mailingAddress) business.mailingAddress = {};
+
+      if (newData.mailingAddress.street) business.mailingAddress.street = newData.mailingAddress.street;
+      if (newData.mailingAddress.city) business.mailingAddress.city = newData.mailingAddress.city;
+      if (newData.mailingAddress.state) business.mailingAddress.state = newData.mailingAddress.state;
+      if (newData.mailingAddress.zip) business.mailingAddress.zip = newData.mailingAddress.zip;
+      if (newData.mailingAddress.county) business.mailingAddress.county = newData.mailingAddress.county;
+    }
+
+    // Update point of contact
     if (newData.pointOfContact) {
       if (!business.pointOfContact) business.pointOfContact = {};
 
@@ -103,6 +141,7 @@ export async function POST(req: Request) {
       if (newData.pointOfContact.email) business.pointOfContact.email = newData.pointOfContact.email;
     }
 
+    // Update social media handles
     if (newData.socialMediaHandles) {
       if (!business.socialMediaHandles) business.socialMediaHandles = {};
 
@@ -143,21 +182,6 @@ export async function POST(req: Request) {
 
     // Delete the request from the requests collection
     await Request.findByIdAndDelete(requestId);
-
-    // // Send email notification to business POC
-    // if (business.pointOfContact?.email) {
-    //   const { subject, body } = emailTemplates.businessApproved({ businessName: business.businessName });
-    //   await fetch("/api/send-email", {
-    //     method: "POST",
-    //     body: (() => {
-    //       const form = new FormData();
-    //       form.append("toAddresses", JSON.stringify([business.pointOfContact.email]));
-    //       form.append("subject", subject);
-    //       form.append("body", body);
-    //       return form;
-    //     })(),
-    //   });
-    // }
 
     return NextResponse.json({ message: "Request approved successfully" });
   } catch (error) {

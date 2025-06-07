@@ -11,6 +11,7 @@ export async function POST(req: Request) {
     return Response.json({ message: "User created", user });
   } catch (error) {
     console.error(error);
-    return Response.json({ error });
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return Response.json({ error: errorMessage });
   }
 }

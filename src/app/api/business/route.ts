@@ -9,17 +9,22 @@ import { currentUser } from "@clerk/nextjs/server";
  */
 export async function GET(req: NextRequest) {
   try {
-    await connectDB();
-
-    // Get authenticated user
     const clerkUser = await currentUser();
     if (!clerkUser) {
       return NextResponse.json({ message: "User not logged in" }, { status: 401 });
     }
 
-    // Get query parameters
+    await connectDB();
+
     const { searchParams } = new URL(req.url);
     const clerkId = searchParams.get("clerkId");
+
+    // Cross-account data access requires admin role verification
+    if (clerkId && clerkId !== clerkUser.id) {
+      if (clerkUser.publicMetadata?.role !== "admin") {
+        return NextResponse.json({ message: "Admin access required" }, { status: 403 });
+      }
+    }
 
     // Determine which user's business to retrieve
     const queryClerkId = clerkId || clerkUser.id;
@@ -44,11 +49,12 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: Request) {
   try {
-    await connectDB();
     const clerkUser = await currentUser();
     if (!clerkUser) {
       return NextResponse.json({ message: "User not logged in" }, { status: 401 });
     }
+
+    await connectDB();
 
     const {
       clerkUserID,
@@ -69,14 +75,24 @@ export async function POST(req: Request) {
       bannerUrl,
       gender,
     } = await req.json();
-    // Check if business already exists
-    const existingBusiness = await Business.findOne({ businessName });
-    if (existingBusiness) {
+
+    // Determine clerkUserID from request body or authenticated user
+    const targetClerkUserID = clerkUserID || clerkUser.id;
+
+    // Check for existing business by same user
+    const existingUserBusiness = await Business.findOne({ clerkUserID: targetClerkUserID });
+    if (existingUserBusiness) {
+      return NextResponse.json({ message: "Business already exists" }, { status: 400 });
+    }
+
+    // Check for existing business with same name
+    const existingBusinessName = await Business.findOne({ businessName });
+    if (existingBusinessName) {
       return NextResponse.json({ message: "Business already exists" }, { status: 400 });
     }
 
     const newBusiness = new Business({
-      clerkUserID,
+      clerkUserID: targetClerkUserID,
       businessName,
       businessType,
       businessOwner,
@@ -109,11 +125,12 @@ export async function POST(req: Request) {
  */
 export async function PATCH(req: Request) {
   try {
-    await connectDB();
     const clerkUser = await currentUser();
     if (!clerkUser) {
       return NextResponse.json({ message: "User not logged in" }, { status: 401 });
     }
+
+    await connectDB();
 
     const clerkUserID = clerkUser.id;
     const updates = await req.json();

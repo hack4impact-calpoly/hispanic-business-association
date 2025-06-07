@@ -4,20 +4,25 @@ import AdminMailingAddress from "@/database/adminAddressSchema";
 import { currentUser } from "@clerk/nextjs/server";
 
 /**
- * GET handler for business data
- * Supports queries by clerkId or retrieving current user's business
+ * GET handler for admin address data
+ * Retrieves current admin mailing address
  */
 export async function GET(req: NextRequest) {
   try {
-    await connectDB();
-
     // Get authenticated user
     const clerkUser = await currentUser();
     if (!clerkUser) {
       return NextResponse.json({ message: "User not logged in" }, { status: 401 });
     }
 
-    // Find business by clerk user ID
+    // Verify admin role authorization
+    if (clerkUser.publicMetadata?.role !== "admin") {
+      return NextResponse.json({ message: "Admin access required" }, { status: 403 });
+    }
+
+    await connectDB();
+
+    // Find admin address record
     const address = await AdminMailingAddress.findOne({});
     if (!address) {
       return NextResponse.json({ message: "Address not found" }, { status: 404 });
@@ -31,26 +36,45 @@ export async function GET(req: NextRequest) {
 }
 
 /**
- * PATCH handler for updating business
- * Modifies logo or banner for current authenticated user
+ * PATCH handler for updating admin address
+ * Creates new record if none exists
  */
-export async function PATCH(req: Request) {
+export async function PATCH(req: NextRequest) {
   try {
-    await connectDB();
     const clerkUser = await currentUser();
     if (!clerkUser) {
       return NextResponse.json({ message: "User not logged in" }, { status: 401 });
     }
-    const address = await req.json();
-    // Find business by clerk user ID
-    const adminAddress = await AdminMailingAddress.updateOne({}, { $set: { address: address } });
-    if (!adminAddress) {
-      return NextResponse.json({ message: "Address not found" }, { status: 404 });
+
+    // Verify admin role authorization
+    if (clerkUser.publicMetadata?.role !== "admin") {
+      return NextResponse.json({ message: "Admin access required" }, { status: 403 });
     }
+
+    await connectDB();
+
+    const addressUpdates = await req.json();
+
+    // Get existing address record
+    const existingRecord = await AdminMailingAddress.findOne({});
+
+    // Preserve existing address fields during partial updates
+    const existingAddress = existingRecord?.address || {};
+    const mergedAddress = {
+      ...existingAddress,
+      ...addressUpdates,
+    };
+
+    // Update existing record or create new one
+    const adminAddress = await AdminMailingAddress.findOneAndUpdate(
+      {},
+      { $set: { address: mergedAddress } },
+      { upsert: true, new: true },
+    );
 
     return NextResponse.json(adminAddress, { status: 200 });
   } catch (error) {
-    console.error("Error finding address:", error);
+    console.error("Error updating address:", error);
     return NextResponse.json({ message: "Error occurred", error }, { status: 500 });
   }
 }

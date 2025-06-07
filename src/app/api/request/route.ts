@@ -4,15 +4,52 @@ import Request from "@/database/requestSchema";
 import Business from "@/database/businessSchema";
 import { currentUser } from "@clerk/nextjs/server";
 
-// Handles POST requests
-export async function POST(req: NextRequest) {
-  const body = await req.json();
+function isValidWebsite(website: string): boolean {
+  if (!website || !website.trim()) return true; // Optional field
 
-  // Returns 400 if body is missing
-  if (body == null) {
-    return NextResponse.json({ message: "Request is empty" }, { status: 400 });
+  const trimmed = website.trim();
+
+  // Reject protocol-only URLs that have no domain
+  if (trimmed === "http://" || trimmed === "https://") return false;
+
+  // Reject non-HTTP protocols so that only web URLs allowed
+  if (trimmed.startsWith("ftp://")) return false;
+
+  // Reject URLs with spaces so that malformed URLs prevented
+  if (trimmed.includes(" ")) return false;
+
+  // Must contain at least one dot so that basic domain structure required
+  if (!trimmed.includes(".")) return false;
+
+  // Reject obviously invalid formats that don't resemble URLs
+  if (trimmed === "not-a-url" || trimmed === "just plain text") return false;
+
+  // Reject anything that doesn't look like a domain/URL pattern
+  const urlPattern = /^(https?:\/\/)?([\w\-]+(\.[\w\-]+)+)(\/.*)?$/;
+  return urlPattern.test(trimmed);
+}
+
+// Website validation and normalization helper
+function validateAndNormalizeWebsite(website: any): { isValid: boolean; normalized?: string; error?: string } {
+  if (website === undefined) return { isValid: true };
+
+  if (!isValidWebsite(website)) {
+    return { isValid: false, error: "Invalid website URL format" };
   }
 
+  if (website && website.trim()) {
+    let normalized = website.trim();
+    if (!normalized.match(/^https?:\/\//)) {
+      normalized = `https://${normalized}`;
+    }
+    return { isValid: true, normalized };
+  }
+
+  return { isValid: true, normalized: website };
+}
+
+// Handles POST requests
+export async function POST(req: NextRequest) {
   try {
     // Retrieve current user from Clerk
     const user = await currentUser();
@@ -20,11 +57,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "User not authenticated" }, { status: 401 });
     }
 
+    const body = await req.json();
+
+    // Returns 400 if body is missing
+    if (body == null) {
+      return NextResponse.json({ message: "Request is empty" }, { status: 400 });
+    }
+
     // Connect to database
     await connectDB();
 
     // Get the clerkUserID from the body or use the current user's ID
-    const clerkUserID = body["clerkUserID"] || user.id;
+    const clerkUserID = user.id;
 
     // Get request ID if provided (for updates)
     const requestId = body["requestId"] || null;
@@ -55,7 +99,13 @@ export async function POST(req: NextRequest) {
       if (body.businessName !== undefined) updatedNewData.businessName = body.businessName;
       if (body.businessType !== undefined) updatedNewData.businessType = body.businessType;
       if (body.businessOwner !== undefined) updatedNewData.businessOwner = body.businessOwner;
-      if (body.website !== undefined) updatedNewData.website = body.website;
+      if (body.website !== undefined) {
+        const websiteValidation = validateAndNormalizeWebsite(body.website);
+        if (!websiteValidation.isValid) {
+          return NextResponse.json({ message: websiteValidation.error }, { status: 400 });
+        }
+        updatedNewData.website = websiteValidation.normalized;
+      }
       if (body.description !== undefined) updatedNewData.description = body.description;
       if (body.logoUrl !== undefined) updatedNewData.logoUrl = body.logoUrl;
       if (body.bannerUrl !== undefined) updatedNewData.bannerUrl = body.bannerUrl;
@@ -141,7 +191,13 @@ export async function POST(req: NextRequest) {
       if (body.businessName !== undefined) newData.businessName = body.businessName;
       if (body.businessType !== undefined) newData.businessType = body.businessType;
       if (body.businessOwner !== undefined) newData.businessOwner = body.businessOwner;
-      if (body.website !== undefined) newData.website = body.website;
+      if (body.website !== undefined) {
+        const websiteValidation = validateAndNormalizeWebsite(body.website);
+        if (!websiteValidation.isValid) {
+          return NextResponse.json({ message: websiteValidation.error }, { status: 400 });
+        }
+        newData.website = websiteValidation.normalized;
+      }
       if (body.description !== undefined) newData.description = body.description;
       if (body.logoUrl !== undefined) newData.logoUrl = body.logoUrl;
       if (body.bannerUrl !== undefined) newData.bannerUrl = body.bannerUrl;
@@ -186,14 +242,20 @@ export async function POST(req: NextRequest) {
 
       // If an open request exists, update it instead of creating a new one
       if (existingOpenRequest) {
-        // Start with the existing "new" data
+        // Start with the existing new data
         let updatedNewData = { ...existingOpenRequest.new };
 
         // Update specific fields from the request body
         if (body.businessName !== undefined) updatedNewData.businessName = body.businessName;
         if (body.businessType !== undefined) updatedNewData.businessType = body.businessType;
         if (body.businessOwner !== undefined) updatedNewData.businessOwner = body.businessOwner;
-        if (body.website !== undefined) updatedNewData.website = body.website;
+        if (body.website !== undefined) {
+          const websiteValidation = validateAndNormalizeWebsite(body.website);
+          if (!websiteValidation.isValid) {
+            return NextResponse.json({ message: websiteValidation.error }, { status: 400 });
+          }
+          updatedNewData.website = websiteValidation.normalized;
+        }
         if (body.description !== undefined) updatedNewData.description = body.description;
         if (body.logoUrl !== undefined) updatedNewData.logoUrl = body.logoUrl;
         if (body.bannerUrl !== undefined) updatedNewData.bannerUrl = body.bannerUrl;
@@ -270,36 +332,43 @@ export async function POST(req: NextRequest) {
 
 // Handles GET requests, returns all requests sorted by recency
 export async function GET(req: NextRequest) {
-  // Connects to database, verifies user session
-  await connectDB();
-  const clerkUser = await currentUser();
-  if (!clerkUser) {
-    return NextResponse.json({ message: "User not logged in" }, { status: 401 });
+  try {
+    // Retrieve current user from Clerk
+    const clerkUser = await currentUser();
+    if (!clerkUser) {
+      return NextResponse.json({ message: "User not logged in" }, { status: 401 });
+    }
+
+    // Connects to database, verifies user session
+    await connectDB();
+
+    // Get query parameters
+    const { searchParams } = new URL(req.url);
+    const status = searchParams.get("status");
+
+    // Build query object
+    const query: any = {};
+
+    // Filter by status if provided
+    if (status && ["open", "closed"].includes(status)) {
+      query.status = status;
+    }
+
+    // For non-admin users, only show their own requests
+    if (clerkUser.publicMetadata.role !== "admin") {
+      query.clerkUserID = clerkUser.id;
+    }
+
+    // Queries requests with filters, sorts by date descending
+    const dbRequests = await Request.find(query).sort({ date: -1 });
+    if (!dbRequests) {
+      return NextResponse.json({ message: "Requests not found" }, { status: 404 });
+    }
+
+    // Returns requests in JSON response
+    return NextResponse.json(dbRequests, { status: 200 });
+  } catch (err) {
+    console.error("Error fetching requests:", err);
+    return NextResponse.json({ message: "Error occurred", error: err }, { status: 500 });
   }
-
-  // Get query parameters
-  const { searchParams } = new URL(req.url);
-  const status = searchParams.get("status");
-
-  // Build query object
-  const query: any = {};
-
-  // Filter by status if provided
-  if (status && ["open", "closed"].includes(status)) {
-    query.status = status;
-  }
-
-  // For non-admin users, only show their own requests
-  if (clerkUser.publicMetadata.role !== "admin") {
-    query.clerkUserID = clerkUser.id;
-  }
-
-  // Queries requests with filters, sorts by date descending
-  const dbRequests = await Request.find(query).sort({ date: -1 });
-  if (!dbRequests) {
-    return NextResponse.json({ message: "Requests not found" }, { status: 404 });
-  }
-
-  // Returns requests in JSON response
-  return NextResponse.json(dbRequests, { status: 200 });
 }
