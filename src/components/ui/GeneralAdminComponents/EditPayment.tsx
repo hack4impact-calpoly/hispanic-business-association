@@ -88,7 +88,7 @@ export default function EditPayment({ dateType, bizId, onClose, onSubmitSuccess 
 
   return (
     <article className="fixed inset-0 z-[60] bg-white sm:static sm:rounded-lg sm:h-auto sm:max-h-[90vh] sm:mx-auto sm:w-auto sm:max-w-fit sm:border sm:border-gray-200 flex flex-col">
-      <div className="sticky top-0 z-10 bg-white px-4 md:px-5 pt-4 md:pt-6 pb-2">
+      <div className="z-10 bg-white px-4 md:px-5 pt-4 md:pt-6 pb-2 rounded-t-lg">
         <header className="flex flex-wrap gap-2 md:gap-5 justify-between items-start">
           <h1 className="text-lg md:text-xl font-medium text-black">{getWords(dateType)}</h1>
           {onClose && (
