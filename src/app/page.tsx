@@ -1,14 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/shadcnComponents/button";
 import { Input } from "@/components/ui/shadcnComponents/input";
 import { Card, CardContent } from "@/components/ui/shadcnComponents/card";
-import { useSignIn } from "@clerk/nextjs";
+import { useSignIn, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
-import { useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useContext } from "react";
@@ -19,6 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../components/ui/shadcnComponents/dropdown-menu";
+import { useBusiness } from "@/hooks/swrHooks";
 
 export default function Login() {
   const t = useTranslations();
@@ -71,16 +70,37 @@ export default function Login() {
   const { user, isSignedIn } = useUser();
   const router = useRouter();
 
+  // Business validation with SWR that checks user business record existence
+  const shouldFetchBusiness = isSignedIn && user?.publicMetadata?.role === "business";
+  const {
+    business,
+    isLoading: businessLoading,
+    isError: businessError,
+  } = useBusiness(shouldFetchBusiness ? user.id : null);
+
   useEffect(() => {
-    if (isSignedIn && user) {
-      const role = user.publicMetadata?.role;
-      if (role === "admin") {
-        router.replace(`/admin`);
-      } else {
-        router.replace(`/business`);
+    if (!isSignedIn || !user) return;
+
+    const role = user.publicMetadata?.role;
+
+    // Admin users redirect immediately without business validation
+    if (role === "admin") {
+      router.replace("/admin");
+      return;
+    }
+
+    // Business users require API validation before redirect
+    if (role === "business") {
+      // Wait for business validation completion
+      if (!businessLoading) {
+        // Redirect only if business record exists
+        if (business && !businessError) {
+          router.replace("/business");
+        }
+        // Unapproved users remain on login page that allows resubmission
       }
     }
-  }, [isSignedIn, user, router]);
+  }, [isSignedIn, user, business, businessLoading, businessError, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
