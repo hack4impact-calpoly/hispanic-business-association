@@ -3,11 +3,12 @@
 import * as React from "react";
 import Image from "next/image";
 import { useState, useEffect, useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { DayPicker } from "react-day-picker";
 import { useBusinessById } from "@/hooks/swrHooks";
 import { mutate } from "swr";
 import "react-day-picker/dist/style.css";
+import { enUS, es } from "react-day-picker/locale";
 
 interface EditPaymentProps {
   dateType: string;
@@ -18,6 +19,7 @@ interface EditPaymentProps {
 
 export default function EditPayment({ dateType, bizId, onClose, onSubmitSuccess }: EditPaymentProps) {
   const t = useTranslations();
+  const locale = useLocale();
   const [selected, setSelected] = useState<Date>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
@@ -159,7 +161,7 @@ export default function EditPayment({ dateType, bizId, onClose, onSubmitSuccess 
             >
               {Array.from({ length: 12 }, (_, i) => (
                 <option key={i} value={i}>
-                  {new Date(0, i).toLocaleString("default", { month: "long" })}
+                  {new Date(0, i).toLocaleString(locale, { month: "long" })}
                 </option>
               ))}
             </select>
