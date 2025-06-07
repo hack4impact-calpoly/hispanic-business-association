@@ -47,6 +47,8 @@ export default function EditPayment({ dateType, bizId, onClose, onSubmitSuccess 
 
   const [currentMonth, setCurrentMonth] = useState<Date>(initialMonth);
 
+  const dayPickerLocale = locale === "es" ? es : enUS;
+
   useEffect(() => {
     setCurrentMonth(initialMonth);
   }, [initialMonth]);
@@ -175,6 +177,7 @@ export default function EditPayment({ dateType, bizId, onClose, onSubmitSuccess 
             onSelect={setSelected}
             month={currentMonth}
             onMonthChange={setCurrentMonth}
+            locale={dayPickerLocale}
             footer={selected ? `${t("selected")}: ${selected.toLocaleDateString()}` : t("dayPick")}
           />
         </div>
