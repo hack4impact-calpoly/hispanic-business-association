@@ -222,5 +222,16 @@
   "genderRequirement": "Se requiere el género para fines de subvención.",
   "Mailing Address Information": "Información de la dirección postal",
   "Edit Mailing Address": "Editar dirección postal",
-  "selectBiz": "Seleccione una empresa"
+  "selectBiz": "Seleccione una empresa",
+  "notSet": "No establecido",
+  "lastPaid": "Última fecha de pago comercial",
+  "expiryDate": "Fecha de vencimiento de la membresía",
+  "set": "Establecer",
+  "expiryFail": "No se pudo actualizar la fecha de vencimiento de la membresía",
+  "expirySuccess": "Fecha de caducidad de la membresía actualizada con éxito",
+  "lastPaidFail": "No se pudo actualizar la última fecha de pago",
+  "lastPaidSuccess": "Última fecha de pago actualizada con éxito",
+  "selected": "Seleccionado",
+  "dayPick": "Escoge un día.",
+  "edit": "Editar"
 }
