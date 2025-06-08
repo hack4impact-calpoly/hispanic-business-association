@@ -156,17 +156,6 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    // Retrieve current user from Clerk
-    const user = await currentUser();
-    if (!user) {
-      return NextResponse.json({ message: "User not authenticated" }, { status: 401 });
-    }
-
-    // Check for malformed user object
-    if (!user.id) {
-      return NextResponse.json({ message: "User not authenticated" }, { status: 401 });
-    }
-
     const body = await req.json();
 
     // Validate request body exists
@@ -174,10 +163,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Request is empty." }, { status: 400 });
     }
 
+    // Validate required clerkUserID in request body
+    if (!body.clerkUserID) {
+      return NextResponse.json({ message: "User ID is required" }, { status: 400 });
+    }
+
     // Validate request data
     const validation = validateSignupRequest(body);
 
-    // Add this check - currently missing!
     if (!validation.isValid) {
       return NextResponse.json(
         {
@@ -191,8 +184,8 @@ export async function POST(req: NextRequest) {
     // Connect to DB
     await connectDB();
 
-    // Get the clerkUserID from the body or use the current user's ID
-    const clerkUserID = body["clerkUserID"] || user.id;
+    // Use clerkUserID from request body (user not authenticated yet)
+    const clerkUserID = body["clerkUserID"];
 
     // Build socialMediaHandles with non-empty values only
     const socialMediaHandles: Record<string, string> = {};
