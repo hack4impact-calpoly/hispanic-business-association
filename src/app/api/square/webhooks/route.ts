@@ -1,23 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/database/db"; // Assuming you have a connectDB function
 
-const SQUARE_WEBHOOK_SECRET = process.env.SQUARE_WEBHOOK_SECRET; // Secret to verify Square's signature
-
 export async function POST(req: NextRequest) {
   try {
     // Connect to the database
     await connectDB();
-
+    console.log("Connected to DB");
     // Get the raw body of the request to validate the signature
     const rawBody = await req.text();
 
     // Get the signature from Square's webhook header
-    const signature = req.headers.get("x-square-hmacsha256-signature");
-    if (!signature) {
-      return NextResponse.json({ message: "Missing Square signature header" }, { status: 400 });
-    }
+    // const signature = req.headers.get("x-square-hmacsha256-signature");
+    // if (!signature) {
+    //   return NextResponse.json({ message: "Missing Square signature header" }, { status: 400 });
+    // }
 
     // Parse the JSON body to get the webhook event
+    console.log("GOT HERE");
     const event = JSON.parse(rawBody);
 
     // Handle the payment.updated event
