@@ -245,5 +245,9 @@
   "contactPhoneRequired": "Se requiere el número de teléfono de contacto",
   "contactPhoneInvalid": "El número de teléfono de contacto debe tener exactamente 10 dígitos",
   "contactEmailRequired": "Se requiere el correo electrónico de contacto",
-  "contactEmailInvalid": "El formato del correo electrónico de contacto no es válido"
+  "contactEmailInvalid": "El formato del correo electrónico de contacto no es válido",
+  "submissionFailedTitle": "Error en el Envío",
+  "submissionFailedMessage": "Hubo errores con su solicitud",
+  "submissionFailedInstructions": "Por favor revise los errores a continuación y corrija su información antes de intentar de nuevo.",
+  "tryAgain": "Intentar de Nuevo"
 }

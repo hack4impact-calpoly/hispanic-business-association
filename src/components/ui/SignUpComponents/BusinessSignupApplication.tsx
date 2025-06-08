@@ -11,6 +11,7 @@ import Step3_SocialLinks from "./Step3_SocialLinks";
 import Step4_ContactInfo from "./Step4_ContactInfo";
 import Step5_Verification from "./Step5_Verification";
 import Step6_Submission from "./Step6_Submission";
+import Step6_SubmissionFailure from "./Step6_SubmissionFailure";
 import LanguageSelector from "./LanguageSelector";
 import { ISignupRequest } from "@/database/signupRequestSchema";
 import { useClerkSignup } from "@/hooks/useClerkSignup";
@@ -35,6 +36,31 @@ interface BusinessSignupAppInfo {
   socialLinks: { IG?: string; twitter?: string; FB?: string };
 }
 
+const ERROR_TRANSLATION_MAP = {
+  "Business name is required": "businessNameRequired",
+  "Business owner is required": "businessOwnerRequired",
+  "Organization type is required": "organizationTypeRequired",
+  "Gender is required": "genderRequired",
+  "Business type is required for business organizations": "businessTypeRequiredForBusiness",
+  "Business scale is required for business organizations": "businessScaleRequiredForBusiness",
+  "Number of employees is required for business organizations": "numberOfEmployeesRequiredForBusiness",
+  "Physical address street is required": "physicalAddressStreetRequired",
+  "Physical address city is required": "physicalAddressCityRequired",
+  "Physical address state is required": "physicalAddressStateRequired",
+  "Physical address ZIP code is required": "physicalAddressZipRequired",
+  "Physical address ZIP code must be exactly 5 digits": "physicalAddressZipInvalid",
+  "Mailing address street is required": "mailingAddressStreetRequired",
+  "Mailing address city is required": "mailingAddressCityRequired",
+  "Mailing address state is required": "mailingAddressStateRequired",
+  "Mailing address ZIP code is required": "mailingAddressZipRequired",
+  "Mailing address ZIP code must be exactly 5 digits": "mailingAddressZipInvalid",
+  "Contact name is required": "contactNameRequired",
+  "Contact phone number is required": "contactPhoneRequired",
+  "Contact phone number must be exactly 10 digits": "contactPhoneInvalid",
+  "Contact email is required": "contactEmailRequired",
+  "Contact email format is invalid": "contactEmailInvalid",
+} as const;
+
 const BusinessSignupApplication = () => {
   const t = useTranslations();
 
@@ -47,6 +73,8 @@ const BusinessSignupApplication = () => {
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
   const [clerkCode, setClerkCode] = useState("");
+  const [submissionError, setSubmissionError] = useState<string>("");
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const { startSignup, verifyCode, error } = useClerkSignup();
 
@@ -124,8 +152,12 @@ const BusinessSignupApplication = () => {
         }
         const status = await startSignup(email, password1);
         if (status === "verified") {
-          await postAllData("");
-          setStep(6);
+          // CRITICAL FIX: Check if postAllData succeeds before setting step 6
+          const success = await postAllData("");
+          if (success) {
+            setStep(6);
+          }
+          // If postAllData fails, it sets step 7 internally - don't override
         } else if (status === "needs_verification") {
           setStep(5);
         } else if (status === "error") {
@@ -151,7 +183,8 @@ const BusinessSignupApplication = () => {
     return pageSubtitles[step - 1];
   };
 
-  const postAllData = async (clerkID: string) => {
+  // CRITICAL FIX: Return boolean to indicate success/failure
+  const postAllData = async (clerkID: string): Promise<boolean> => {
     const values = getValues();
 
     const socialMediaHandles: Partial<typeof values.socialLinks> = {};
@@ -200,10 +233,26 @@ const BusinessSignupApplication = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create request");
+        const errorData = await response.json();
+
+        const translatedErrors = (errorData.errors || []).map((error: string) => {
+          const translationKey = ERROR_TRANSLATION_MAP[error as keyof typeof ERROR_TRANSLATION_MAP];
+          return translationKey ? t(translationKey) : error;
+        });
+
+        setSubmissionError(errorData.message || t("errorMsgs"));
+        setValidationErrors(translatedErrors);
+        setStep(7);
+        return false; // Signal failure to caller
       }
+
+      return true; // Signal success to caller
     } catch (err) {
       console.error("Error creating request:", err);
+      setSubmissionError(t("unknownError"));
+      setValidationErrors([]);
+      setStep(7);
+      return false; // Signal failure to caller
     }
   };
 
@@ -289,15 +338,26 @@ const BusinessSignupApplication = () => {
             error={formErrorMessage}
           />
         );
+      case 7:
+        return (
+          <Step6_SubmissionFailure
+            onFinalAction={() => {
+              setSubmissionError("");
+              setValidationErrors([]);
+              setFormErrorMessage("");
+              setStep(4);
+            }}
+            errorMessage={submissionError}
+            errorDetails={validationErrors}
+          />
+        );
     }
   };
 
-  if (step === 6) {
-    return (
-      <div className="w-full md:max-w-[70vw] md:h-auto">
-        <Step6_Submission />
-      </div>
-    );
+  if (step === 6 || step === 7) {
+    const StepComponent = step === 6 ? <Step6_Submission /> : renderStep();
+
+    return <div className="w-full md:max-w-[70vw] md:h-auto">{StepComponent}</div>;
   }
 
   return (

@@ -245,5 +245,9 @@
   "contactPhoneRequired": "Contact phone number is required",
   "contactPhoneInvalid": "Contact phone number must be exactly 10 digits",
   "contactEmailRequired": "Contact email is required",
-  "contactEmailInvalid": "Contact email format is invalid"
+  "contactEmailInvalid": "Contact email format is invalid",
+  "submissionFailedTitle": "Submission Failed",
+  "submissionFailedMessage": "There were errors with your application",
+  "submissionFailedInstructions": "Please review the errors below and correct your information before trying again.",
+  "tryAgain": "Try Again"
 }
