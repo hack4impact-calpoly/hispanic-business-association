@@ -136,9 +136,6 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
             ["businessOwner", t("bizowner")],
             ["gender", t("gender")],
             ["organizationType", t("organizationType")],
-            ["businessType", t("businessType")],
-            ["businessScale", t("businessScale")],
-            ["numberOfEmployees", t("numberOfEmployees")],
             ["website", t("website")],
             ["description", t("desc")],
           ].map(([key, label]) => (
@@ -147,6 +144,22 @@ const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: I
               {formatField((businessInfo as any)[key], (otherBusinessInfo as any)?.[key])}
             </div>
           ))}
+
+          {/* Business-specific fields - only show when organizationType is "Business" */}
+          {businessInfo.organizationType === "Business" && (
+            <>
+              {[
+                ["businessType", t("businessType")],
+                ["businessScale", t("businessScale")],
+                ["numberOfEmployees", t("numberOfEmployees")],
+              ].map(([key, label]) => (
+                <div key={key as string}>
+                  <p className="text-[12px] text-[#8C8C8C]">{label}</p>
+                  {formatField((businessInfo as any)[key], (otherBusinessInfo as any)?.[key])}
+                </div>
+              ))}
+            </>
+          )}
 
           {/* Addresses */}
           <div>
