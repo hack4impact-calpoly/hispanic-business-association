@@ -11,7 +11,7 @@ interface EditContactInfoProps {
   onSubmitSuccess?: () => void;
 }
 
-// Simplified contact form field structure - removed alternative POC
+// Contact form field structure matching backend expectations
 interface ContactFormData {
   pocName: string;
   phoneNumber: string;
@@ -19,6 +19,13 @@ interface ContactFormData {
   instagram: string;
   facebook: string;
   twitter: string;
+}
+
+// Validation errors state
+interface ValidationErrors {
+  pocName?: string;
+  phoneNumber?: string;
+  email?: string;
 }
 
 // Initialize empty contact form state
@@ -29,6 +36,30 @@ const initialContactFormState: ContactFormData = {
   instagram: "",
   facebook: "",
   twitter: "",
+};
+
+// Email validation matching backend logic exactly
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  // Reject invalid patterns matching backend validation
+  if (
+    email.includes("..") ||
+    email.startsWith(".") ||
+    email.endsWith(".") ||
+    email.includes("@.") ||
+    email.includes(".@")
+  ) {
+    return false;
+  }
+
+  return emailRegex.test(email);
+};
+
+// Phone number validation matching backend processing
+const validatePhoneNumber = (phone: string): boolean => {
+  const phoneStr = phone.toString().replace(/\D/g, "");
+  return phoneStr.length === 10;
 };
 
 // Compare objects recursively for equality
@@ -53,6 +84,7 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [feedback, setFeedback] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const { activeRequest, isLoading: isRequestLoading } = useActiveBusinessRequest();
   const { business } = useBusiness();
   const [existingRequestId, setExistingRequestId] = useState<string | undefined>(undefined);
@@ -60,14 +92,33 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
   const [formData, setFormData] = useState<ContactFormData>({ ...initialContactFormState });
   const [originalFormData, setOriginalFormData] = useState<ContactFormData>({ ...initialContactFormState });
 
+  // Phone number input formatting and validation
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, ""); // Strip non-digits like backend
+    if (value.length <= 10) {
+      setFormData((prev) => ({ ...prev, phoneNumber: value }));
+
+      // Clear phone validation error when user starts typing valid digits
+      if (validationErrors.phoneNumber && value.length > 0) {
+        setValidationErrors((prev) => ({ ...prev, phoneNumber: undefined }));
+      }
+    }
+  };
+
+  // Standard input change handler with validation clearing
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Clear validation errors when user starts typing
+    if (validationErrors[name as keyof ValidationErrors]) {
+      setValidationErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
   };
 
   // Initialize form data from business and activeRequest
   useEffect(() => {
-    // Only run when data is ready
+    // Only run when data ready
     if (isRequestLoading) return;
 
     let loadedFormData: ContactFormData = { ...initialContactFormState };
@@ -110,10 +161,35 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
     setIsLoading(false);
   }, [activeRequest, business, isRequestLoading]);
 
-  // Submit form data, sending only changed fields
+  // Submit form data with validation
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setFeedback(null);
+
+    // Frontend validation matching backend requirements
+    const errors: ValidationErrors = {};
+
+    if (!formData.pocName.trim()) {
+      errors.pocName = t("contactNameRequired");
+    }
+
+    if (!formData.email.trim()) {
+      errors.email = t("contactEmailRequired");
+    } else if (!isValidEmail(formData.email.trim())) {
+      errors.email = t("contactEmailInvalid");
+    }
+
+    if (!formData.phoneNumber.trim()) {
+      errors.phoneNumber = t("contactPhoneRequired");
+    } else if (!validatePhoneNumber(formData.phoneNumber)) {
+      errors.phoneNumber = t("contactPhoneInvalid");
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setIsSubmitting(false);
+      return;
+    }
 
     const changedPayload: any = {};
     let hasChanges = false;
@@ -243,7 +319,7 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
       >
         <form className="space-y-4 pt-4 pb-20">
           <div>
-            <label className="block text-sm font-medium mb-1">{t("pointOfContact")}</label>
+            <label className="block text-sm font-medium mb-1">{t("pointOfContact")} *</label>
             <div className="flex space-x-2 mb-2">
               <input
                 name="pocName"
@@ -251,15 +327,18 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
                 placeholder={t("pointOfContact")}
                 value={formData.pocName}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  validationErrors.pocName ? "border-red-500" : "border-gray-300"
+                }`}
                 aria-label={t("pointOfContact")}
               />
             </div>
+            {validationErrors.pocName && <p className="text-red-600 text-sm mt-1">{validationErrors.pocName}</p>}
           </div>
 
           <div>
             <label htmlFor="phoneNumber" className="block text-sm font-medium mb-1">
-              {t("phoneNumber")}
+              {t("phoneNumber")} *
             </label>
             <input
               id="phoneNumber"
@@ -267,14 +346,20 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
               type="text"
               placeholder="(XXX)-XXX-XXXX"
               value={formData.phoneNumber}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onChange={handlePhoneChange}
+              maxLength={10}
+              className={`w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                validationErrors.phoneNumber ? "border-red-500" : "border-gray-300"
+              }`}
             />
+            {validationErrors.phoneNumber && (
+              <p className="text-red-600 text-sm mt-1">{validationErrors.phoneNumber}</p>
+            )}
           </div>
 
           <div>
             <label htmlFor="email" className="block text-sm font-medium mb-1">
-              {t("email")}
+              {t("email")} *
             </label>
             <input
               id="email"
@@ -283,8 +368,11 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
               placeholder="xxxx@xxx.com"
               value={formData.email}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                validationErrors.email ? "border-red-500" : "border-gray-300"
+              }`}
             />
+            {validationErrors.email && <p className="text-red-600 text-sm mt-1">{validationErrors.email}</p>}
           </div>
 
           <div>

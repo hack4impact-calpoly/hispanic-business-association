@@ -152,7 +152,7 @@ const BusinessSignupApplication = () => {
         }
         const status = await startSignup(email, password1);
         if (status === "verified") {
-          // CRITICAL FIX: Check if postAllData succeeds before setting step 6
+          // Check if postAllData succeeds before setting step 6
           const success = await postAllData("");
           if (success) {
             setStep(6);

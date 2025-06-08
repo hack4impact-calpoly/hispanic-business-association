@@ -224,6 +224,7 @@
   "Edit Mailing Address": "Editar dirección postal",
   "selectBiz": "Seleccione una empresa",
   "businessNameRequired": "Se requiere el nombre de la empresa",
+  "websiteFormatInvalid": "Formato de URL del sitio web inválido",
   "organizationTypeRequired": "Se requiere el tipo de organización",
   "businessOwnerRequired": "Se requiere el propietario de la empresa",
   "genderRequired": "Se requiere el género",

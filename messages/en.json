@@ -225,6 +225,7 @@
   "selectBiz": "Select a business",
   "businessNameRequired": "Business name is required",
   "organizationTypeRequired": "Organization type is required",
+  "websiteFormatInvalid": "Invalid website URL format",
   "businessOwnerRequired": "Business owner is required",
   "genderRequired": "Gender is required",
   "businessTypeRequiredForBusiness": "Business type is required for business organizations",
