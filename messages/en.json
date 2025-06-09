@@ -222,5 +222,16 @@
   "genderRequirement": "Gender is required for grant purposes.",
   "Mailing Address Information": "Mailing Address Information",
   "Edit Mailing Address": "Edit Mailing Address",
-  "selectBiz": "Select a business"
+  "selectBiz": "Select a business",
+  "notSet": "Not Set",
+  "lastPaid": "Last Business Payment Date",
+  "expiryDate": "Membership Expiry Date",
+  "set": "Set",
+  "expiryFail": "Failed to update membership expiry date",
+  "expirySuccess": "Membership expiry date updated successfully",
+  "lastPaidFail": "Failed to update last pay date",
+  "lastPaidSuccess": "Last pay date updated successfully",
+  "selected": "Selected",
+  "dayPick": "Pick a day.",
+  "edit": "Edit"
 }
