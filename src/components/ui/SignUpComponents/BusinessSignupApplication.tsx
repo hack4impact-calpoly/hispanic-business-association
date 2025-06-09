@@ -16,6 +16,7 @@ import { ISignupRequest } from "@/database/signupRequestSchema";
 import { useClerkSignup } from "@/hooks/useClerkSignup";
 import { useTranslations } from "next-intl";
 import { BusinessType, OrganizationType, BusinessScale, EmployeeRange, Gender } from "@/database/types";
+import { useAuth } from "@clerk/nextjs";
 
 interface BusinessSignupAppInfo {
   contactInfo: { name: string; phone: string; email: string };
@@ -37,6 +38,7 @@ interface BusinessSignupAppInfo {
 
 const BusinessSignupApplication = () => {
   const t = useTranslations();
+  const { signOut } = useAuth();
 
   const [step, setStep] = useState(1);
   const [formErrorMessage, setFormErrorMessage] = useState("");

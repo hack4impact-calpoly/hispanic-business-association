@@ -25,7 +25,9 @@ export default function AdminBusinessesPage() {
   const filteredBusinesses = () => {
     if (!businesses) return [];
 
-    const sorted = [...businesses];
+    // Filter out businesses with missing names
+    const validBusinesses = businesses.filter((business) => business.businessName);
+    const sorted = [...validBusinesses];
 
     switch (filter) {
       case "Business Name A-Z":

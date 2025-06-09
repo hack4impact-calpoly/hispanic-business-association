@@ -60,44 +60,6 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
 
     setIsSubmitting(true);
 
-    fetch("/api/business", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        clerkUserID: signupRequest.clerkUserID,
-        businessName: signupRequest.businessName,
-        businessType: signupRequest.businessType,
-        businessOwner: signupRequest.businessOwner,
-        website: signupRequest.website,
-        physicalAddress: signupRequest.physicalAddress,
-        mailingAddress: signupRequest.mailingAddress,
-        pointOfContact: signupRequest.pointOfContact,
-        socialMediaHandles: signupRequest.socialMediaHandles,
-        membershipStartDate: new Date(),
-        description: signupRequest.description,
-        logoUrl: signupRequest.logoUrl,
-        bannerUrl: signupRequest.bannerUrl,
-        organizationType: signupRequest.organizationType,
-        businessScale: signupRequest.businessScale,
-        numberOfEmployees: signupRequest.numberOfEmployees,
-        gender: signupRequest.gender,
-      }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((result) => {
-        console.log("Success:", result);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-
     try {
       const response = await fetch("/api/signup/approve", {
         method: "POST",
