@@ -8,6 +8,10 @@ function isValidSquareSignature(rawBody: string, signature: string, secret: stri
   const hmac = crypto.createHmac("sha256", secret);
   hmac.update(rawBody);
   const digest = hmac.digest("base64");
+  console.log("🔑 Secret length:", secret.length);
+  console.log("🧮 Our digest:", digest);
+  console.log("📦 Square’s signature:", signature);
+  console.log("✅ Matches:", digest === signature);
   return digest === signature;
 }
 export async function POST(req: NextRequest) {
