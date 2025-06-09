@@ -56,7 +56,6 @@ export async function POST(req: Request) {
       pointOfContact: requestData.pointOfContact,
       socialMediaHandles: requestData.socialMediaHandles,
       membershipStartDate: new Date(),
-      membershipExpiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
     };
 
     // Create business record
