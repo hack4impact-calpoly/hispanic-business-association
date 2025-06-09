@@ -5,6 +5,10 @@ import { WebhooksHelper } from "square";
 export const runtime = "nodejs";
 
 async function isValidSquareSignature(rawBody: string, signature: string): Promise<boolean> {
+  console.log("requestBody:", rawBody);
+  console.log("signatureHeader:", signature);
+  console.log("signatureKey:", process.env.SQUARE_WEBHOOK_SIGNATURE_KEY);
+  console.log("notificationUrl:", process.env.SQUARE_WEBHOOK_NOTIFICATION_URL);
   return await WebhooksHelper.verifySignature({
     requestBody: rawBody,
     signatureHeader: signature,
