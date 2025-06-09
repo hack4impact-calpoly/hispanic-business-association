@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/database/db"; // Assuming you have a connectDB function
+import crypto from "crypto";
 
+function isValidSquareSignature(rawBody: string, signature: string, secret: string): boolean {
+  const hmac = crypto.createHmac("sha256", secret);
+  hmac.update(rawBody);
+  const digest = hmac.digest("base64");
+  return digest === signature;
+}
 export async function POST(req: NextRequest) {
   try {
     // Connect to the database
@@ -10,10 +17,10 @@ export async function POST(req: NextRequest) {
     const rawBody = await req.text();
 
     // Get the signature from Square's webhook header
-    // const signature = req.headers.get("x-square-hmacsha256-signature");
-    // if (!signature) {
-    //   return NextResponse.json({ message: "Missing Square signature header" }, { status: 400 });
-    // }
+    const signature = req.headers.get("x-square-hmacsha256-signature");
+    if (!signature || !isValidSquareSignature(rawBody, signature, process.env.SQUARE_WEBHOOK_SIGNATURE_KEY!)) {
+      return NextResponse.json({ message: "Missing Square signature header" }, { status: 400 });
+    }
 
     // Parse the JSON body to get the webhook event
     console.log("GOT HERE");
