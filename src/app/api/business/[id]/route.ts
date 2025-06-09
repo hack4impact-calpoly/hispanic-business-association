@@ -31,3 +31,29 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ message: "Failed to fetch business" }, { status: 500 });
   }
 }
+
+export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  try {
+    await connectDB();
+    const clerkUser = await currentUser();
+    if (!clerkUser) {
+      return NextResponse.json({ message: "User not logged in" }, { status: 401 });
+    }
+    const updates = await req.json();
+    // Find business by business id
+    const dateUpdates = await Business.updateOne(
+      { _id: params.id },
+      { $set: { lastPayDate: updates.lastPayDate, membershipExpiryDate: updates.membershipExpiryDate } },
+      { upsert: true },
+    );
+
+    if (!dateUpdates) {
+      return NextResponse.json({ message: "Date Updates not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(dateUpdates, { status: 200 });
+  } catch (error) {
+    console.error("Error finding address:", error);
+    return NextResponse.json({ message: "Error occurred", error }, { status: 500 });
+  }
+}

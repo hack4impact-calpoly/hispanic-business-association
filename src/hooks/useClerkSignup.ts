@@ -2,10 +2,12 @@
 import { useSignUp } from "@clerk/nextjs";
 import { useState } from "react";
 import { clerkClient } from "@clerk/nextjs/server"; // for server-side
+import { useAuth } from "@clerk/nextjs";
 
 export function useClerkSignup() {
   const { isLoaded, signUp, setActive } = useSignUp();
   const [error, setError] = useState("");
+  const { signOut } = useAuth();
 
   const startSignup = async (email: string, password: string) => {
     if (!isLoaded || !signUp) return "not_loaded";
@@ -46,6 +48,7 @@ export function useClerkSignup() {
         });
 
         postSignupCallback?.(res.createdUserId || "");
+        await signOut();
         return true;
       }
 

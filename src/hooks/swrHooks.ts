@@ -230,10 +230,14 @@ export function useBusinessById(id?: string, config?: SWRConfiguration) {
   const isClerkId = id?.startsWith("user_");
   const endpoint = shouldFetch ? (isClerkId ? `/api/business?clerkId=${id}` : `/api/business/${id}`) : null;
 
-  const { data, error, isLoading, isValidating, mutate } = useSWR<IBusiness>(endpoint, {
-    revalidateOnFocus: false,
-    ...config,
-  });
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IBusiness>(
+    endpoint,
+    endpoint ? fetcher : null, // Skip fetcher if endpoint is null
+    {
+      revalidateOnFocus: false,
+      ...config,
+    },
+  );
 
   return {
     business: data,
