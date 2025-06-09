@@ -10,6 +10,12 @@ const isBusinessRoute = createRouteMatcher(["/business(.*)"]);
 const intlMiddleware = createIntlMiddleware({ locales: ["en", "es"], defaultLocale: "en" });
 
 export default clerkMiddleware(async (auth, req) => {
+  const { pathname } = req.nextUrl;
+
+  // ✅ Skip Clerk middleware for Square webhook route
+  if (pathname === "/api/square/webhooks") {
+    return NextResponse.next();
+  }
   const { userId, sessionClaims } = await auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role;
 
