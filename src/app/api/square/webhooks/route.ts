@@ -1,19 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/database/db"; // Assuming you have a connectDB function
-import crypto from "crypto";
+import { WebhooksHelper } from "square";
 
 export const runtime = "nodejs";
 
-function isValidSquareSignature(rawBody: string, signature: string, secret: string): boolean {
-  const hmac = crypto.createHmac("sha256", secret);
-  hmac.update(rawBody);
-  const digest = hmac.digest("base64");
-  console.log("🔑 Secret length:", secret.length);
-  console.log("🧮 Our digest:", digest);
-  console.log("📦 Square’s signature:", signature);
-  console.log("✅ Matches:", digest === signature);
-  return digest === signature;
+async function isValidSquareSignature(rawBody: string, signature: string): Promise<boolean> {
+  return await WebhooksHelper.verifySignature({
+    requestBody: rawBody,
+    signatureHeader: signature,
+    signatureKey: process.env.SQUARE_WEBHOOK_SIGNATURE_KEY!,
+    notificationUrl: process.env.SQUARE_WEBHOOK_NOTIFICATION_URL!, // e.g., https://yourdomain.com/api/square/webhooks
+  });
 }
+
 export async function POST(req: NextRequest) {
   try {
     // Connect to the database
@@ -26,7 +25,7 @@ export async function POST(req: NextRequest) {
     const signature = req.headers.get("x-square-hmacsha256-signature");
     console.log("🧪 Signature Header:", signature);
     console.log("🧪 Raw Body Length:", rawBody.length);
-    if (!signature || !isValidSquareSignature(rawBody, signature, process.env.SQUARE_WEBHOOK_SIGNATURE_KEY!)) {
+    if (!signature || !(await isValidSquareSignature(rawBody, signature))) {
       return NextResponse.json({ message: "Missing Square signature header" }, { status: 400 });
     }
 
