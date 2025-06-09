@@ -8,7 +8,6 @@ const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
 const isBusinessRoute = createRouteMatcher(["/business(.*)"]);
 
 const intlMiddleware = createIntlMiddleware({ locales: ["en", "es"], defaultLocale: "en" });
-
 export default clerkMiddleware(async (auth, req) => {
   const { userId, sessionClaims } = await auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role;
@@ -38,9 +37,9 @@ export default clerkMiddleware(async (auth, req) => {
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
-    "/(api|trpc)(.*)",
+    "/api/(?!square/webhooks).*",
+
+    // keep matching non-static public routes
+    "/((?!_next|.*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
   ],
 };
