@@ -79,7 +79,7 @@ export default function EditAboutForm({ onClose, onSubmitSuccess, initialDescrip
     try {
       const requestData: { description: string; date: string; requestId?: string } = {
         description: text,
-        date: new Date().toLocaleDateString(),
+        date: new Date().toISOString(),
       };
 
       if (existingRequestId) {

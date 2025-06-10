@@ -117,7 +117,7 @@ export default function ChangeBannerAndLogo({
       }
 
       const requestData: any = {
-        date: new Date().toLocaleDateString(),
+        date: new Date().toISOString(),
       };
       let hasChanges = false;
 
