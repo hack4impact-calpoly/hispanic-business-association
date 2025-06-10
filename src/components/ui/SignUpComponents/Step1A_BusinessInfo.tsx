@@ -9,9 +9,10 @@ interface Step1AProps {
   onBack: () => void;
   onNext: () => void;
   watch: (name?: string | string[], defaultValue?: any) => any;
+  errors: any;
 }
 
-const Step1A_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch }: Step1AProps) => {
+const Step1A_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch, errors }: Step1AProps) => {
   const t = useTranslations();
 
   const selectedOrganizationType = watch("businessInfo.organizationType") || "";
@@ -26,7 +27,7 @@ const Step1A_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
           type="text"
           id="BusinessName"
           placeholder={t("organizationName") + "*"}
-          {...register("businessInfo.businessName", { required: "Organization name is required" })}
+          {...register("businessInfo.businessName", { required: t("businessNameRequired") })}
         />
         <div className="grid grid-cols-12 gap-2">
           <Input
@@ -44,7 +45,7 @@ const Step1A_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
               className={`w-full h-10 border border-[#8C8C8C] text-[14px] rounded-md p-2 focus:outline-black ${
                 (selectedOrganizationType || "") === "" ? "text-[#5B748C]" : "text-black"
               }`}
-              {...register("businessInfo.organizationType", { required: "Organization Type is required" })}
+              {...register("businessInfo.organizationType", { required: t("organizationTypeRequired") })}
             >
               <option value="">{t("organizationType") + "*"}</option>
               {ORGANIZATION_TYPES.map((type) => (
@@ -68,7 +69,7 @@ const Step1A_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
               type="text"
               id="businessOwner"
               placeholder={t("nameBizOwner") + "*"}
-              {...register("businessInfo.businessOwner", { required: "Business Owner is required" })}
+              {...register("businessInfo.businessOwner", { required: t("businessOwnerRequired") })}
             />
           </div>
           <div className="col-span-6">
@@ -78,7 +79,7 @@ const Step1A_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
               className={`w-full h-10 border border-[#8C8C8C] text-[14px] rounded-md p-2 focus:outline-black ${
                 (selectedGender || "") === "" ? "text-[#5B748C]" : "text-black"
               }`}
-              {...register("businessInfo.gender", { required: "Gender is required" })}
+              {...register("businessInfo.gender", { required: t("genderRequired") })}
             >
               <option value="">{t("ownerGender") + "*"}</option>
               {GENDER_OPTIONS.map((type) => (
@@ -99,9 +100,17 @@ const Step1A_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
           {...register("businessInfo.description")}
         />
 
-        {formErrorMessage && (
+        {(formErrorMessage ||
+          errors.businessInfo?.businessName ||
+          errors.businessInfo?.organizationType ||
+          errors.businessInfo?.businessOwner ||
+          errors.businessInfo?.gender) && (
           <div className="text-red-600 w-full md:pr-[4.3em] md:mt-[-0.5em] text-center md:text-start">
-            {formErrorMessage}
+            {formErrorMessage ||
+              errors.businessInfo?.businessName?.message ||
+              errors.businessInfo?.organizationType?.message ||
+              errors.businessInfo?.businessOwner?.message ||
+              errors.businessInfo?.gender?.message}
           </div>
         )}
       </div>

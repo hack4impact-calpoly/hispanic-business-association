@@ -8,9 +8,10 @@ interface Step1BProps {
   onBack: () => void;
   onNext: () => void;
   watch: (name?: string | string[], defaultValue?: any) => any;
+  errors: any;
 }
 
-const Step1B_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch }: Step1BProps) => {
+const Step1B_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch, errors }: Step1BProps) => {
   const t = useTranslations();
 
   const selectedBusinessType = watch("businessInfo.businessType") || "";
@@ -26,7 +27,7 @@ const Step1B_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
           className={`w-full h-10 border border-[#8C8C8C] text-[14px] rounded-md p-2 focus:outline-black ${
             (selectedBusinessType || "") === "" ? "text-[#5B748C]" : "text-black"
           }`}
-          {...register("businessInfo.businessType", { required: "Business Type is required" })}
+          {...register("businessInfo.businessType", { required: t("businessTypeRequiredForBusiness") })}
         >
           <option value="">{t("businessType") + "*"}</option>
           {BUSINESS_TYPES.map((type) => (
@@ -42,7 +43,7 @@ const Step1B_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
           className={`w-full h-10 border border-[#8C8C8C] text-[14px] rounded-md p-2 focus:outline-black ${
             (selectedBusinessScale || "") === "" ? "text-[#5B748C]" : "text-black"
           }`}
-          {...register("businessInfo.businessScale", { required: "Business Scale is required" })}
+          {...register("businessInfo.businessScale", { required: t("businessScaleRequiredForBusiness") })}
         >
           <option value="">{t("businessScale") + "*"}</option>
           {BUSINESS_SCALES.map((type) => (
@@ -58,7 +59,7 @@ const Step1B_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
           className={`w-full h-10 border border-[#8C8C8C] text-[14px] rounded-md p-2 focus:outline-black ${
             (selectedEmployeeRange || "") === "" ? "text-[#5B748C]" : "text-black"
           }`}
-          {...register("businessInfo.numberOfEmployees", { required: "Number of Employees is required" })}
+          {...register("businessInfo.numberOfEmployees", { required: t("numberOfEmployeesRequiredForBusiness") })}
         >
           <option value="">{t("employeeRange") + "*"}</option>
           {EMPLOYEE_RANGES.map((type) => (
@@ -68,9 +69,15 @@ const Step1B_BusinessInfo = ({ register, formErrorMessage, onBack, onNext, watch
           ))}
         </select>
 
-        {formErrorMessage && (
+        {(formErrorMessage ||
+          errors.businessInfo?.businessType ||
+          errors.businessInfo?.businessScale ||
+          errors.businessInfo?.numberOfEmployees) && (
           <div className="text-red-600 w-full md:pr-[4.3em] md:mt-[-0.5em] text-center md:text-start">
-            {formErrorMessage}
+            {formErrorMessage ||
+              errors.businessInfo?.businessType?.message ||
+              errors.businessInfo?.businessScale?.message ||
+              errors.businessInfo?.numberOfEmployees?.message}
           </div>
         )}
       </div>
