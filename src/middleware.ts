@@ -1,4 +1,4 @@
-import { clerkMiddleware as middleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import createIntlMiddleware from "next-intl/middleware";
 
@@ -9,7 +9,7 @@ const isBusinessRoute = createRouteMatcher(["/business(.*)"]);
 
 const intlMiddleware = createIntlMiddleware({ locales: ["en", "es"], defaultLocale: "en" });
 
-export default middleware(async (auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
   const { pathname } = req.nextUrl;
 
   // Skip middleware for Square webhook route
