@@ -253,13 +253,13 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
     // Conditional business validation
     if (formData.organizationType === "Business") {
       if (!formData.businessType.trim()) {
-        errors.businessType = t("businessTypeRequired");
+        errors.businessType = t("businessTypeRequiredForBusiness");
       }
       if (!formData.businessScale.trim()) {
-        errors.businessScale = t("businessScaleRequired");
+        errors.businessScale = t("businessScaleRequiredForBusiness");
       }
       if (!formData.numberOfEmployees.trim()) {
-        errors.numberOfEmployees = t("numberOfEmployeesRequired");
+        errors.numberOfEmployees = t("numberOfEmployeesRequiredForBusiness");
       }
     }
 
