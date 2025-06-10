@@ -49,12 +49,6 @@ export async function POST(req: NextRequest) {
         const currency = payment.amount_money.currency;
 
         console.log("Payment completed:", { paymentId, orderId, amount, currency });
-        await fetch(`/api/business/payment`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
 
         return NextResponse.json({ message: "Payment processed successfully" }, { status: 200 });
       } else {
