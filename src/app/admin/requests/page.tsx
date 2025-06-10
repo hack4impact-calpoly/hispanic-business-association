@@ -176,16 +176,31 @@ export default function AdminRequestsPage() {
     router.push(`/admin/signuprequests/${id}`);
   };
 
-  // Format relative time (e.g., "2 days ago")
+  // Format relative time to closest minute
   const getTimeAgo = (dateString: string | Date): string => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    const diffInMilliseconds = now.getTime() - date.getTime();
+    const diffInMinutes = Math.floor(diffInMilliseconds / (1000 * 60));
 
-    if (diffInHours < 24) {
-      return `${diffInHours} ${t("hoursAgo")}`;
+    if (diffInMinutes < 60) {
+      // Show minimum of 1 minute instead of 0
+      const displayMinutes = Math.max(1, diffInMinutes);
+      if (displayMinutes === 1) {
+        return `1 ${t("minuteAgo")}`;
+      }
+      return `${displayMinutes} ${t("minutesAgo")}`;
+    } else if (diffInMinutes < 1440) {
+      const hours = Math.floor(diffInMinutes / 60);
+      const minutes = diffInMinutes % 60;
+
+      if (minutes === 0) {
+        return `${hours} ${t("hoursAgo")}`;
+      } else {
+        return `${hours}h ${minutes}m ${t("ago")}`;
+      }
     } else {
-      const diffInDays = Math.floor(diffInHours / 24);
+      const diffInDays = Math.floor(diffInMinutes / 1440);
       return `${diffInDays} ${t("daysAgo")}`;
     }
   };

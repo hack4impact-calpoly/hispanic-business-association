@@ -169,7 +169,7 @@ export default function EditContactInfo({ onClose, onSubmitSuccess }: EditContac
     try {
       const requestData: any = {
         ...changedPayload,
-        date: new Date().toLocaleDateString(),
+        date: new Date().toISOString(),
       };
 
       if (existingRequestId) {

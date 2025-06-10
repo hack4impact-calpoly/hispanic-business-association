@@ -268,7 +268,7 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
       // Continue with submission including only changed fields
       const requestData: any = {
         ...changedPayloadFields,
-        date: new Date().toLocaleDateString(),
+        date: new Date().toISOString(),
       };
 
       if (existingRequestId) {
