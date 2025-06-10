@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     // Handle the payment.updated event
     if (event.type === "payment.updated") {
-      const payment = event.data.object;
+      const payment = event.data.object.payment;
       console.log("Payment updated event received:", payment);
       // Check if the payment status is 'COMPLETED'
       if (payment.status === "COMPLETED") {
