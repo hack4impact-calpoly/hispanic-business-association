@@ -11,9 +11,6 @@ const client = new SquareClient({
 });
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
-  // if (req.method !== 'POST') {
-  //   return NextResponse.json({ message: "Not allowed" }, { status: 405 });
-  // }
   const user = await currentUser();
   if (!user?.id) {
     return NextResponse.json({ message: "Clerk ID is required" }, { status: 400 });
@@ -41,7 +38,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
           cashAppPay: false,
         },
         askForShippingAddress: false,
-        redirectUrl: "https://hispanic-business-association.vercel.app",
       },
     });
     return NextResponse.json({ url: response?.paymentLink?.url }, { status: 200 });
