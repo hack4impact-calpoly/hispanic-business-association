@@ -76,8 +76,10 @@ export default function Login() {
       const role = user.publicMetadata?.role;
       if (role === "admin") {
         router.replace(`/admin`);
-      } else {
+      } else if (role === "business") {
         router.replace(`/business`);
+      } else {
+        router.replace("/pending-business");
       }
     }
   }, [isSignedIn, user, router]);

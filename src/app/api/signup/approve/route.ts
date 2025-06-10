@@ -4,6 +4,14 @@ import SignupRequest from "@/database/signupRequestSchema";
 import Business from "@/database/businessSchema";
 import { currentUser } from "@clerk/nextjs/server";
 import { Types } from "mongoose";
+import { clerkClient } from "@clerk/nextjs/server";
+
+export async function setUserRole(userId: string, role: string) {
+  const client = await clerkClient();
+  await client.users.updateUser(userId, {
+    publicMetadata: { role },
+  });
+}
 
 export async function POST(req: Request) {
   try {
@@ -38,6 +46,8 @@ export async function POST(req: Request) {
     if (requestData.status === "closed") {
       return NextResponse.json({ message: "Request already closed" }, { status: 400 });
     }
+
+    await setUserRole(requestData.clerkUserID, "business");
 
     // Create business record with complete required data
     const businessData = {

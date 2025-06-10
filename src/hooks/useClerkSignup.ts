@@ -43,7 +43,7 @@ export function useClerkSignup() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             userId: res.createdUserId,
-            role: "business",
+            role: "pending_business",
           }),
         });
 

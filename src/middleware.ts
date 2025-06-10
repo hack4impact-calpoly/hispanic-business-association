@@ -6,6 +6,7 @@ const isPublicRoute = createRouteMatcher(["/", "/unauthorized", "/forgot-passwor
 
 const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
 const isBusinessRoute = createRouteMatcher(["/business(.*)"]);
+const isPendingBusinessRoute = createRouteMatcher(["/pending-business(.*)"]);
 
 const intlMiddleware = createIntlMiddleware({ locales: ["en", "es"], defaultLocale: "en" });
 
@@ -39,6 +40,9 @@ export default clerkMiddleware(async (auth, req) => {
     return new NextResponse("Forbidden", { status: 403 });
   }
 
+  if (isPendingBusinessRoute(req) && role !== "pending_business") {
+    return new NextResponse("Forbidden", { status: 403 });
+  }
   // If allowed
   return NextResponse.next();
 });
