@@ -58,7 +58,7 @@ const MembershipExpirationAlert = ({ onRenewClick, className }: MembershipExpira
   const [expiresInMonths, setExpiresInMonths] = useState<number>(Infinity);
   const [expiresInWeeks, setExpiresInWeeks] = useState<number>(Infinity);
   const [expiresInDays, setExpiresInDays] = useState<number>(Infinity);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [isCreatingPaymentLink, setIsCreatingPaymentLink] = useState(false);
   useEffect(() => {
     // Calculate the difference in months between today and the expiration date
     const expiryDate = new Date(business?.membershipExpiryDate || new Date());
@@ -81,7 +81,7 @@ const MembershipExpirationAlert = ({ onRenewClick, className }: MembershipExpira
   }
 
   const handleRenewClick = async () => {
-    setIsProcessingPayment(true);
+    setIsCreatingPaymentLink(true);
     try {
       // Make your API call (Example with fetch)
 
@@ -118,7 +118,7 @@ const MembershipExpirationAlert = ({ onRenewClick, className }: MembershipExpira
       console.error("API call failed:", err);
       throw err; // Let the component show the error message
     } finally {
-      setIsProcessingPayment(false);
+      setIsCreatingPaymentLink(false);
     }
   };
 
@@ -143,8 +143,8 @@ const MembershipExpirationAlert = ({ onRenewClick, className }: MembershipExpira
       {/* MESSAGE: Expiration notification with renewal call-to-action */}
       <p className="flex-grow">
         {getExpirationMessage(expiresInDays, expiresInWeeks, expiresInMonths, t)}
-        {isProcessingPayment ? (
-          <LoadingSpinner message="Processing payment..." size="sm" />
+        {isCreatingPaymentLink ? (
+          <LoadingSpinner message="Creating payment link..." size="sm" />
         ) : (
           <button onClick={handleRenewClick} className="underline cursor-pointer focus:outline-none">
             {t("Renew here with Square (Recommended)")}
