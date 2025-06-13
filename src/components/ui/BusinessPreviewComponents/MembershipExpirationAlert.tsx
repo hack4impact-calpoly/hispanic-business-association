@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAdminAddress, useBusiness } from "@/hooks/swrHooks";
+import LoadingSpinner from "@/components/ui/EditBusinessInfoComponents/LoadingSpinner";
 
 interface MembershipExpirationAlertProps {
   // Months until expiration
@@ -57,6 +58,7 @@ const MembershipExpirationAlert = ({ onRenewClick, className }: MembershipExpira
   const [expiresInMonths, setExpiresInMonths] = useState<number>(Infinity);
   const [expiresInWeeks, setExpiresInWeeks] = useState<number>(Infinity);
   const [expiresInDays, setExpiresInDays] = useState<number>(Infinity);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   useEffect(() => {
     // Calculate the difference in months between today and the expiration date
     const expiryDate = new Date(business?.membershipExpiryDate || new Date());
@@ -79,6 +81,7 @@ const MembershipExpirationAlert = ({ onRenewClick, className }: MembershipExpira
   }
 
   const handleRenewClick = async () => {
+    setIsProcessingPayment(true);
     try {
       // Make your API call (Example with fetch)
 
@@ -114,6 +117,8 @@ const MembershipExpirationAlert = ({ onRenewClick, className }: MembershipExpira
     } catch (err) {
       console.error("API call failed:", err);
       throw err; // Let the component show the error message
+    } finally {
+      setIsProcessingPayment(false);
     }
   };
 
@@ -138,11 +143,13 @@ const MembershipExpirationAlert = ({ onRenewClick, className }: MembershipExpira
       {/* MESSAGE: Expiration notification with renewal call-to-action */}
       <p className="flex-grow">
         {getExpirationMessage(expiresInDays, expiresInWeeks, expiresInMonths, t)}
-        {
+        {isProcessingPayment ? (
+          <LoadingSpinner message="Processing payment..." size="sm" />
+        ) : (
           <button onClick={handleRenewClick} className="underline cursor-pointer focus:outline-none">
             {t("Renew here with Square (Recommended)")}
           </button>
-        }
+        )}
         <br />
         {t("Or send a check to:")}
         <br />
