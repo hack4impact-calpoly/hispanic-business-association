@@ -147,7 +147,7 @@ export default function BusinessSendNewMessagePage() {
   };
 
   // Helper to get all emails for a business type
-  const getEmailsByBusinessType = (type: string) => {
+  const getEmailsByBusinessType = (type: string): string[] => {
     if (!businesses) return [];
     if (type === "ALL") {
       return businesses.map((biz) => biz.pointOfContact?.email).filter((email) => !!email);
@@ -175,6 +175,7 @@ export default function BusinessSendNewMessagePage() {
     } else if (businessType) {
       // Send to all businesses of selected type (or all)
       recipientList = getEmailsByBusinessType(businessType === "ALL" ? "ALL" : businessType);
+      recipientList = Array.from(new Set(recipientList));
     }
 
     if (recipientList.length === 0) {
