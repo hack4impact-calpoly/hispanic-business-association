@@ -7,6 +7,9 @@ interface BusinessTemplateParams {
 interface BusinessDeniedTemplateParams extends BusinessTemplateParams {
   denialMessage?: string;
 }
+interface SignupDeniedTemplateParams extends BusinessTemplateParams {
+  denialMessage?: string;
+}
 
 // Type for each template function
 interface EmailTemplate {
@@ -18,7 +21,7 @@ type EmailTemplates = {
   businessApproved: (params: BusinessTemplateParams) => EmailTemplate;
   businessDenied: (params: BusinessDeniedTemplateParams) => EmailTemplate;
   signupApproved: (params: BusinessTemplateParams) => EmailTemplate;
-  signupDenied: (params: BusinessTemplateParams) => EmailTemplate;
+  signupDenied: (params: SignupDeniedTemplateParams) => EmailTemplate;
 };
 
 export const emailTemplates: EmailTemplates = {
@@ -34,8 +37,8 @@ export const emailTemplates: EmailTemplates = {
     subject: `Your business signup has been approved!`,
     body: `Congratulations!\n\nYour signup request for "${businessName}" has been approved. You are now a member of the Hispanic Business Association.\n\nWelcome aboard!\n\n- Hispanic Business Association Team`,
   }),
-  signupDenied: ({ businessName }) => ({
+  signupDenied: ({ businessName, denialMessage }) => ({
     subject: `Your business signup was denied`,
-    body: `Hello,\n\nUnfortunately, your signup request for "${businessName}" was denied.\n\nIf you have questions or believe this was a mistake, please contact us.\n\n- Hispanic Business Association Team`,
+    body: `Hello,\n\nUnfortunately, your signup request for "${businessName}" was denied.${denialMessage ? `\n\nReason: ${denialMessage}` : ""}\n\nIf you have questions or believe this was a mistake, please contact us.\n\n- Hispanic Business Association Team`,
   }),
 };

@@ -12,9 +12,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // Extract request ID from the request body
+    // Extract request ID and denial message from the request body
     const body = await req.json();
     const requestId = body.requestId;
+    const denialMessage = body.denialMessage;
 
     if (!requestId) {
       return NextResponse.json({ message: "Request ID is required" }, { status: 400 });
@@ -42,14 +43,18 @@ export async function POST(req: Request) {
       );
     }
 
-    // Mark signup request as denied after successful Clerk cleanup
+    // Mark signup request as denied with denial message after successful Clerk cleanup
     requestData.status = "closed";
     requestData.decision = "denied";
+    requestData.denialMessage = denialMessage;
     await requestData.save();
 
-    // // Send email notification to business POC
+    // Send email notification to business POC with denial message
     // if (requestData.pointOfContact?.email) {
-    //   const { subject, body } = emailTemplates.signupDenied({ businessName: requestData.businessName });
+    //   const { subject, body } = emailTemplates.signupDenied({
+    //     businessName: requestData.businessName,
+    //     denialMessage,
+    //   });
     //   await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/send-email`, {
     //     method: "POST",
     //     body: (() => {

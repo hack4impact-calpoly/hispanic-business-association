@@ -85,10 +85,11 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
     }
   };
 
-  const handleDeny = async () => {
-    if (!signupRequest) return;
+  const handleDeny = () => {
+    setShowDeniedCard(true);
+  };
 
-    setIsSubmitting(true);
+  const handleDenyWithReason = async (denialMessage: string) => {
     try {
       const response = await fetch("/api/signup/deny", {
         method: "POST",
@@ -97,20 +98,19 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
         },
         body: JSON.stringify({
           requestId: id,
+          denialMessage,
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to deny request");
+        throw new Error(t("denyReqError"));
       }
 
-      setShowDeniedCard(true);
-      mutateRequest();
+      await mutateRequest();
+      router.push("/admin/requests");
     } catch (error) {
       console.error("Error denying request:", error);
-      alert(t("denyReqError"));
-    } finally {
-      setIsSubmitting(false);
+      throw error;
     }
   };
 
@@ -194,7 +194,14 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
         {showApprovedCard && (
           <RequestApprovedCard onClose={() => setShowApprovedCard(false)} message={t("accountApproved")} />
         )}
-        {showDeniedCard && <RequestDeniedCard onClose={() => setShowDeniedCard(false)} message={t("accountDenied")} />}
+        {showDeniedCard && (
+          <RequestDeniedCard
+            onClose={() => setShowDeniedCard(false)}
+            onDenyWithReason={handleDenyWithReason}
+            requestId={id}
+            message={t("accountDenied")}
+          />
+        )}
       </div>
     </ResponsiveLayout>
   );
