@@ -5,6 +5,8 @@ import Business from "@/database/businessSchema";
 import { currentUser } from "@clerk/nextjs/server";
 import { Types } from "mongoose";
 import { setUserRole } from "@/lib/setUserRole";
+import { sendEmail } from "@/lib/sendEmail";
+import { emailTemplates } from "@/app/api/send-email/emailTemplates";
 
 export async function POST(req: Request) {
   try {
@@ -69,6 +71,15 @@ export async function POST(req: Request) {
     requestData.status = "closed";
     requestData.decision = "approved";
     await requestData.save();
+
+    if (businessData.pointOfContact?.email) {
+      const { subject, body } = emailTemplates.signupApproved({ businessName: businessData.businessName });
+      await sendEmail({
+        to: businessData.pointOfContact.email,
+        subject,
+        body,
+      });
+    }
 
     return NextResponse.json({ message: "Request approved successfully", request: requestData });
   } catch (error) {
