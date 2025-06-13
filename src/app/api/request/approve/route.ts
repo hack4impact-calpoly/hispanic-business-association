@@ -5,6 +5,7 @@ import RequestHistory from "@/database/requestHistorySchema";
 import Business from "@/database/businessSchema";
 import { removeImage } from "@/lib/s3Actions";
 import { currentUser } from "@clerk/nextjs/server";
+import { sendEmail } from "@/lib/sendEmail";
 import { emailTemplates } from "@/app/api/send-email/emailTemplates";
 
 // Helper function to check if a field has changed
@@ -144,20 +145,15 @@ export async function POST(req: Request) {
     // Delete the request from the requests collection
     await Request.findByIdAndDelete(requestId);
 
-    // // Send email notification to business POC
-    // if (business.pointOfContact?.email) {
-    //   const { subject, body } = emailTemplates.businessApproved({ businessName: business.businessName });
-    //   await fetch("/api/send-email", {
-    //     method: "POST",
-    //     body: (() => {
-    //       const form = new FormData();
-    //       form.append("toAddresses", JSON.stringify([business.pointOfContact.email]));
-    //       form.append("subject", subject);
-    //       form.append("body", body);
-    //       return form;
-    //     })(),
-    //   });
-    // }
+    const { subject, body: emailBody } = emailTemplates.businessApproved({
+      businessName: business.businessName,
+    });
+
+    await sendEmail({
+      to: business.pointOfContact.email,
+      subject,
+      body: emailBody,
+    });
 
     return NextResponse.json({ message: "Request approved successfully" });
   } catch (error) {

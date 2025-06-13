@@ -1,14 +1,11 @@
-// Email templates for business and signup request notifications
-
-// Types for template parameters
 interface BusinessTemplateParams {
   businessName: string;
 }
+
 interface BusinessDeniedTemplateParams extends BusinessTemplateParams {
   denialMessage?: string;
 }
 
-// Type for each template function
 interface EmailTemplate {
   subject: string;
   body: string;
@@ -23,19 +20,58 @@ type EmailTemplates = {
 
 export const emailTemplates: EmailTemplates = {
   businessApproved: ({ businessName }) => ({
-    subject: `Your business change request has been approved!`,
-    body: `Hello,\n\nYour request to update information for "${businessName}" has been approved and the changes are now live.\n\nThank you for keeping your business information up to date!\n\n- Hispanic Business Association Team`,
+    subject: `✅ Your business update for "${businessName}" is now live`,
+    body: `Hello,
+
+We’re pleased to let you know that your recent update request for "${businessName}" has been reviewed and approved. The updated information is now live on your business profile.
+
+If you have any questions or would like to make further changes, feel free to reach out to us at ${process.env.SMTP_FROM_EMAIL}.
+
+Thank you for being an active member of the Hispanic Business Association!
+
+Best regards,  
+HBA Team`,
   }),
+
   businessDenied: ({ businessName, denialMessage }) => ({
-    subject: `Your business change request was denied`,
-    body: `Hello,\n\nUnfortunately, your request to update information for "${businessName}" was denied.${denialMessage ? `\n\nReason: ${denialMessage}` : ""}\n\nIf you have questions, please contact us.\n\n- Hispanic Business Association Team`,
+    subject: `⚠️ Update request for "${businessName}" was not approved`,
+    body: `Hello,
+
+We’ve reviewed your request to update business information for "${businessName}", but it could not be approved at this time.${
+      denialMessage
+        ? `
+
+Reason: ${denialMessage}`
+        : ""
+    }
+
+Please feel free to reply to this email or contact us at ${process.env.SMTP_FROM_EMAIL} if you have any questions.
+
+Best,  
+HBA Team`,
   }),
+
   signupApproved: ({ businessName }) => ({
-    subject: `Your business signup has been approved!`,
-    body: `Congratulations!\n\nYour signup request for "${businessName}" has been approved. You are now a member of the Hispanic Business Association.\n\nWelcome aboard!\n\n- Hispanic Business Association Team`,
+    subject: `🎉 Welcome! "${businessName}" is now an approved HBA member`,
+    body: `Hi there,
+
+We're excited to welcome "${businessName}" to the Hispanic Business Association! Your membership has been approved, and your business is now part of our growing network.
+
+If you have questions or need help getting started, email us at ${process.env.SMTP_FROM_EMAIL}.
+
+Warm regards,  
+HBA Membership Team`,
   }),
+
   signupDenied: ({ businessName }) => ({
-    subject: `Your business signup was denied`,
-    body: `Hello,\n\nUnfortunately, your signup request for "${businessName}" was denied.\n\nIf you have questions or believe this was a mistake, please contact us.\n\n- Hispanic Business Association Team`,
+    subject: `❌ Your membership request for "${businessName}" could not be approved`,
+    body: `Hello,
+
+We’ve reviewed your request to join the Hispanic Business Association with "${businessName}", but unfortunately, it wasn’t approved.
+
+If you’d like to follow up or need more details, don’t hesitate to reach out at ${process.env.SMTP_FROM_EMAIL}.
+
+Best,  
+HBA Team`,
   }),
 };
