@@ -152,8 +152,9 @@ export default function BusinessSendNewMessagePage() {
     if (type === "ALL") {
       return businesses.map((biz) => biz.pointOfContact?.email).filter((email) => !!email);
     }
+
     return businesses
-      .filter((biz) => biz.businessType === type)
+      .filter((biz) => biz.businessType === type || biz.organizationType === type)
       .map((biz) => biz.pointOfContact?.email)
       .filter((email) => !!email);
   };
@@ -298,7 +299,7 @@ export default function BusinessSendNewMessagePage() {
                 >
                   <option value="">{t("chooseBizType")}</option>
                   <option value="ALL">All</option>
-                  {BUSINESS_TYPES.map((type) => (
+                  {["Nonprofit", "Community", ...BUSINESS_TYPES].map((type) => (
                     <option key={type} value={type}>
                       {type}
                     </option>
