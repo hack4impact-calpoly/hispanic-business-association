@@ -254,7 +254,7 @@ export default function BusinessSendNewMessagePage() {
           <div className="grid grid-cols-1 gap-4 pt-4">
             <div>
               <label htmlFor="subject" className="block text-[20px]">
-                {t("title")}
+                {t("subject")}
               </label>
               <input
                 type="text"
