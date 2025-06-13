@@ -104,11 +104,17 @@ const MembershipExpirationAlert = ({ onRenewClick, className }: MembershipExpira
 
       {/* MESSAGE: Expiration notification with renewal call-to-action */}
       <p className="flex-grow">
-        {expiresInDays < 7
-          ? `${t("membershipexpiration")} ${expiresInDays} ${t("day")}${expiresInDays !== 1 ? "s. " : ". "}`
-          : expiresInWeeks <= 0
-            ? `${t("membershipexpiration")} ${expiresInMonths} ${t("month")}${expiresInMonths !== 1 ? "s. " : ". "}`
-            : `${t("membershipexpiration")} ${expiresInWeeks} ${t("week")}${expiresInWeeks !== 1 ? "s. " : ". "}`}
+        {Math.abs(expiresInDays) < 7
+          ? expiresInDays < 0
+            ? `${t("membershipexpired")} ${Math.abs(expiresInDays)} ${t("day")}${Math.abs(expiresInDays) !== 1 ? "s" : ""} ${t("ago")}.`
+            : `${t("membershipexpiration")} ${expiresInDays} ${t("day")}${expiresInDays !== 1 ? "s. " : ". "}`
+          : expiresInWeeks < 0
+            ? `${t("membershipexpired")} ${Math.abs(expiresInWeeks)} ${t("week")}${Math.abs(expiresInWeeks) !== 1 ? "s" : ""} ${t("ago")}.`
+            : expiresInMonths < 0
+              ? `${t("membershipexpired")} ${Math.abs(expiresInMonths)} ${t("month")}${Math.abs(expiresInMonths) !== 1 ? "s" : ""} ${t("ago")}.`
+              : expiresInWeeks > 0
+                ? `${t("membershipexpiration")} ${expiresInWeeks} ${t("week")}${expiresInWeeks !== 1 ? "s. " : ". "}`
+                : `${t("membershipexpiration")} ${expiresInMonths} ${t("month")}${expiresInMonths !== 1 ? "s. " : ". "}`}
         {
           <button onClick={handleRenewClick} className="underline cursor-pointer focus:outline-none">
             {t("Renew here with Square (Recommended)")}

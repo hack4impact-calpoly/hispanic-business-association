@@ -261,5 +261,7 @@
   "lastPaidSuccess": "Last pay date updated successfully",
   "selected": "Selected",
   "dayPick": "Pick a day.",
-  "edit": "Edit"
+  "edit": "Edit",
+  "membershipexpired": "Membership expired",
+  "expired": "expired"
 }

@@ -261,5 +261,7 @@
   "lastPaidSuccess": "Última fecha de pago actualizada con éxito",
   "selected": "Seleccionado",
   "dayPick": "Escoge un día.",
-  "edit": "Editar"
+  "edit": "Editar",
+  "membershipexpired": "Membresía expirada",
+  "expired": "expirada"
 }
