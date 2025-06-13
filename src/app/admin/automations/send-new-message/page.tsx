@@ -22,7 +22,7 @@ export default function BusinessSendNewMessagePage() {
   // `toAddresses` will still hold the actual email addresses for sending
   const [toAddresses, setToAddresses] = useState("");
   const [businessType, setBusinessType] = useState("");
-  const [attachment, setAttachment] = useState<File | null>(null);
+  const [attachments, setAttachments] = useState<File[]>([]);
   const [attachmentName, setAttachmentName] = useState(t("selectAttch")); // To display selected file name
   const [message, setMessage] = useState("");
   const [wordCount, setWordCount] = useState(0);
@@ -56,10 +56,10 @@ export default function BusinessSendNewMessagePage() {
   }, [selectedBusinessId, businesses]);
 
   useEffect(() => {
-    if (!attachment) {
+    if (attachments.length === 0) {
       setAttachmentName(t("selectAttch"));
     }
-  }, [t, attachment]);
+  }, [attachments, t]);
 
   const closePopUp = () => {
     setIsPopUpVisible(false);
@@ -114,21 +114,10 @@ export default function BusinessSendNewMessagePage() {
 
   const handleAttachmentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
-      const selectedFile = event.target.files[0];
-      setAttachment(selectedFile);
-      setAttachmentName(selectedFile.name);
-    } else {
-      setAttachment(null);
-      setAttachmentName(t("selectAttch"));
-    }
-  };
-
-  const handleRemoveAttachment = () => {
-    setAttachment(null);
-    setAttachmentName(t("selectAttch")); // Reset the displayed name
-    // Optionally, you might want to clear the file input's value as well:
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      const filesArray = Array.from(event.target.files);
+      setAttachments(filesArray);
+      const count = filesArray.length;
+      setAttachmentName(`${count} ${count === 1 ? "file" : "files"} selected`);
     }
   };
 
@@ -147,13 +136,14 @@ export default function BusinessSendNewMessagePage() {
   };
 
   // Helper to get all emails for a business type
-  const getEmailsByBusinessType = (type: string) => {
+  const getEmailsByBusinessType = (type: string): string[] => {
     if (!businesses) return [];
     if (type === "ALL") {
       return businesses.map((biz) => biz.pointOfContact?.email).filter((email) => !!email);
     }
+
     return businesses
-      .filter((biz) => biz.businessType === type)
+      .filter((biz) => biz.businessType === type || biz.organizationType === type)
       .map((biz) => biz.pointOfContact?.email)
       .filter((email) => !!email);
   };
@@ -175,6 +165,7 @@ export default function BusinessSendNewMessagePage() {
     } else if (businessType) {
       // Send to all businesses of selected type (or all)
       recipientList = getEmailsByBusinessType(businessType === "ALL" ? "ALL" : businessType);
+      recipientList = Array.from(new Set(recipientList));
     }
 
     if (recipientList.length === 0) {
@@ -187,9 +178,9 @@ export default function BusinessSendNewMessagePage() {
     formData.append("toAddresses", JSON.stringify(recipientList));
     formData.append("subject", subject);
     formData.append("body", message);
-    if (attachment) {
-      formData.append("attachment", attachment);
-    }
+    attachments.forEach((file, index) => {
+      formData.append(`attachment${index}`, file);
+    });
 
     try {
       const response = await fetch("/api/send-email", {
@@ -203,7 +194,6 @@ export default function BusinessSendNewMessagePage() {
         setSelectedBusinessId("");
         setToAddresses("");
         setBusinessType("");
-        setAttachment(null);
         setAttachmentName("Select attachment");
         setMessage("");
         setWordCount(0);
@@ -217,6 +207,21 @@ export default function BusinessSendNewMessagePage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const removeFile = (indexToRemove: number) => {
+    const updatedFiles = attachments.filter((_, i) => i !== indexToRemove);
+    setAttachments(updatedFiles);
+
+    if (updatedFiles.length === 0 && fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+
+    setAttachmentName(
+      updatedFiles.length > 0
+        ? `${updatedFiles.length} file${updatedFiles.length > 1 ? "s" : ""} selected`
+        : t("selectAttch"),
+    );
   };
 
   // Filter and sort businesses for the dropdown
@@ -254,7 +259,7 @@ export default function BusinessSendNewMessagePage() {
           <div className="grid grid-cols-1 gap-4 pt-4">
             <div>
               <label htmlFor="subject" className="block text-[20px]">
-                {t("title")}
+                {t("subject")}
               </label>
               <input
                 type="text"
@@ -297,7 +302,7 @@ export default function BusinessSendNewMessagePage() {
                 >
                   <option value="">{t("chooseBizType")}</option>
                   <option value="ALL">All</option>
-                  {BUSINESS_TYPES.map((type) => (
+                  {["Nonprofit", "Community", ...BUSINESS_TYPES].map((type) => (
                     <option key={type} value={type}>
                       {type}
                     </option>
@@ -331,21 +336,21 @@ export default function BusinessSendNewMessagePage() {
                     className="hidden"
                     onChange={handleAttachmentChange}
                     ref={fileInputRef}
+                    multiple
                   />
-                  {attachment && (
-                    <button type="button" className="mx-2" onClick={handleRemoveAttachment}>
-                      <svg
-                        className="w-5 h-5 text-red-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  )}
                 </div>
+                {attachments.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {attachments.map((file, index) => (
+                      <div key={index} className="flex items-center bg-gray-100 px-2 py-1 rounded-full text-sm">
+                        <span className="mr-2">{file.name}</span>
+                        <button onClick={() => removeFile(index)} className="text-red-600 hover:text-red-800">
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
             <div className="col-span-1">
