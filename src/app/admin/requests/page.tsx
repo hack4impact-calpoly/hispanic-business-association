@@ -22,6 +22,8 @@ export default function AdminRequestsPage() {
   const { businesses, isLoading: isBusinessesLoading } = useBusinesses();
   const { historyRequests, isLoading: isHistoryLoading } = useRequestHistory();
   const { signupRequests, isLoading: isSignupRequestsLoading } = useSignUpRequests();
+  const [showOnlyLast30Days, setShowOnlyLast30Days] = useState(true);
+  const [showOnlyLast30DaysSignup, setShowOnlyLast30DaysSignup] = useState(true);
 
   // Create a lookup map of clerkUserID to business name
   const businessNameMap = useMemo(() => {
@@ -103,7 +105,13 @@ export default function AdminRequestsPage() {
 
     const closedCurrentRequests = requests?.filter((req) => req.status === "closed") || [];
     const historicalRequests = historyRequests || [];
-    const combinedHistory = [...closedCurrentRequests, ...historicalRequests];
+    let combinedHistory = [...closedCurrentRequests, ...historicalRequests];
+
+    if (showOnlyLast30Days) {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      combinedHistory = combinedHistory.filter((req) => new Date(req.date) >= thirtyDaysAgo);
+    }
 
     const sorted = [...combinedHistory];
 
@@ -124,20 +132,25 @@ export default function AdminRequestsPage() {
   const filterHistorySignupRequests = () => {
     if (!signupRequests) return [];
 
-    const historyRequests = signupRequests.filter((req) => req.status === "closed");
-    const sorted = [...historyRequests];
+    let historyRequests = signupRequests.filter((req) => req.status === "closed");
+
+    if (showOnlyLast30DaysSignup) {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      historyRequests = historyRequests.filter((req) => new Date(req.date) >= thirtyDaysAgo);
+    }
 
     switch (historyAccFilter) {
       case "Most Recent":
-        return sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        return historyRequests.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       case "Oldest":
-        return sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        return historyRequests.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
       case "Business Name A-Z":
-        return sorted.sort((a, b) => (getBusinessName(a) || "").localeCompare(getBusinessName(b) || ""));
+        return historyRequests.sort((a, b) => (getBusinessName(a) || "").localeCompare(getBusinessName(b) || ""));
       case "Business Name Z-A":
-        return sorted.sort((a, b) => (getBusinessName(b) || "").localeCompare(getBusinessName(a) || ""));
+        return historyRequests.sort((a, b) => (getBusinessName(b) || "").localeCompare(getBusinessName(a) || ""));
       default:
-        return sorted;
+        return historyRequests;
     }
   };
 
@@ -280,6 +293,14 @@ export default function AdminRequestsPage() {
                   <FilterButton onFilterChange={handleHistoryFilterChange} selectedFilter={historyFilter} />
                 </div>
               </div>
+              <div className="flex justify-end mb-4">
+                <button
+                  onClick={() => setShowOnlyLast30Days((prev) => !prev)}
+                  className="text-sm text-blue-600 underline"
+                >
+                  {showOnlyLast30Days ? "Show All History" : "Show Only Last 30 Days"}
+                </button>
+              </div>
 
               <div className="space-y-[6px] sm:space-y-[10px] w-full">
                 {isLoading ? (
@@ -353,6 +374,14 @@ export default function AdminRequestsPage() {
                   <div className="flex-shrink-0">
                     <FilterButton onFilterChange={handleHistoryAccFilterChange} selectedFilter={historyAccFilter} />
                   </div>
+                </div>
+                <div className="flex justify-end mb-4">
+                  <button
+                    onClick={() => setShowOnlyLast30DaysSignup((prev) => !prev)}
+                    className="text-sm text-blue-600 underline"
+                  >
+                    {showOnlyLast30DaysSignup ? "Show All History" : "Show Only Last 30 Days"}
+                  </button>
                 </div>
 
                 <div className="space-y-[6px] sm:space-y-[10px] w-full">
