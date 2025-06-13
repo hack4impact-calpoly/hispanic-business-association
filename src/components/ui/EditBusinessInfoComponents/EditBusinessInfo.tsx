@@ -35,6 +35,24 @@ interface FormDataShape {
   sameAddress: boolean;
 }
 
+interface ValidationErrors {
+  businessName?: string;
+  businessOwner?: string;
+  organizationType?: string;
+  gender?: string;
+  businessType?: string;
+  businessScale?: string;
+  numberOfEmployees?: string;
+  physicalAddressStreet?: string;
+  physicalAddressCity?: string;
+  physicalAddressState?: string;
+  physicalAddressZip?: string;
+  mailingAddressStreet?: string;
+  mailingAddressCity?: string;
+  mailingAddressState?: string;
+  mailingAddressZip?: string;
+}
+
 const initialFormState: FormDataShape = {
   businessName: "",
   businessType: "",
@@ -57,6 +75,12 @@ const initialFormState: FormDataShape = {
     zip: "",
   },
   sameAddress: false,
+};
+
+// ZIP code validation
+const isValidZipCode = (zip: string): boolean => {
+  const zipRegex = /^\d{5}$/;
+  return zipRegex.test(zip);
 };
 
 // Compare objects/values recursively for equality
@@ -85,6 +109,7 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [feedback, setFeedback] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const { activeRequest, isLoading: isRequestLoading } = useActiveBusinessRequest();
   const { business } = useBusiness();
   const [existingRequestId, setExistingRequestId] = useState<string | undefined>(undefined);
@@ -106,6 +131,12 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
       }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+
+    // Clear validation errors when user starts typing
+    const errorKey = name.replace(".", "") as keyof ValidationErrors;
+    if (validationErrors[errorKey]) {
+      setValidationErrors((prev) => ({ ...prev, [errorKey]: undefined }));
     }
   };
 
@@ -199,6 +230,80 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
     setIsSubmitting(true);
     setFeedback(null);
 
+    // Frontend validation
+    const errors: ValidationErrors = {};
+
+    // Required field validation
+    if (!formData.businessName.trim()) {
+      errors.businessName = t("businessNameRequired");
+    }
+
+    if (!formData.businessOwner.trim()) {
+      errors.businessOwner = t("businessOwnerRequired");
+    }
+
+    if (!formData.organizationType.trim()) {
+      errors.organizationType = t("organizationTypeRequired");
+    }
+
+    if (!formData.gender.trim()) {
+      errors.gender = t("genderRequired");
+    }
+
+    // Conditional business validation
+    if (formData.organizationType === "Business") {
+      if (!formData.businessType.trim()) {
+        errors.businessType = t("businessTypeRequiredForBusiness");
+      }
+      if (!formData.businessScale.trim()) {
+        errors.businessScale = t("businessScaleRequiredForBusiness");
+      }
+      if (!formData.numberOfEmployees.trim()) {
+        errors.numberOfEmployees = t("numberOfEmployeesRequiredForBusiness");
+      }
+    }
+
+    // Physical address validation
+    if (!formData.physicalAddress.street.trim()) {
+      errors.physicalAddressStreet = t("physicalAddressStreetRequired");
+    }
+    if (!formData.physicalAddress.city.trim()) {
+      errors.physicalAddressCity = t("physicalAddressCityRequired");
+    }
+    if (!formData.physicalAddress.state.trim()) {
+      errors.physicalAddressState = t("physicalAddressStateRequired");
+    }
+    if (!formData.physicalAddress.zip.trim()) {
+      errors.physicalAddressZip = t("physicalAddressZipRequired");
+    } else if (!isValidZipCode(formData.physicalAddress.zip)) {
+      errors.physicalAddressZip = t("physicalAddressZipInvalid");
+    }
+
+    // Mailing address validation - only if not same as physical
+    if (!formData.sameAddress) {
+      if (!formData.mailingAddress.street.trim()) {
+        errors.mailingAddressStreet = t("mailingAddressStreetRequired");
+      }
+      if (!formData.mailingAddress.city.trim()) {
+        errors.mailingAddressCity = t("mailingAddressCityRequired");
+      }
+      if (!formData.mailingAddress.state.trim()) {
+        errors.mailingAddressState = t("mailingAddressStateRequired");
+      }
+      if (!formData.mailingAddress.zip.trim()) {
+        errors.mailingAddressZip = t("mailingAddressZipRequired");
+      } else if (!isValidZipCode(formData.mailingAddress.zip)) {
+        errors.mailingAddressZip = t("mailingAddressZipInvalid");
+      }
+    }
+
+    // Stop submission if validation errors exist
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setIsSubmitting(false);
+      return;
+    }
+
     const changedPayloadFields: any = {};
     let hasChanges = false;
 
@@ -219,9 +324,13 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
       hasChanges = true;
     }
 
-    // Check website changes
+    // Check website changes - normalize URL with https if needed
     if (formData.website !== originalFormData.website) {
-      changedPayloadFields.website = formData.website;
+      let normalizedWebsite = formData.website.trim();
+      if (normalizedWebsite && !normalizedWebsite.match(/^https?:\/\//)) {
+        normalizedWebsite = `https://${normalizedWebsite}`;
+      }
+      changedPayloadFields.website = normalizedWebsite;
       hasChanges = true;
     }
 
@@ -268,7 +377,7 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
       // Continue with submission including only changed fields
       const requestData: any = {
         ...changedPayloadFields,
-        date: new Date().toISOString(),
+        date: new Date().toLocaleDateString(),
       };
 
       if (existingRequestId) {
@@ -342,7 +451,7 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
           {/* Business Name Input */}
           <div>
             <label htmlFor="businessName" className="block text-sm font-medium mb-1">
-              {t("businessName")}
+              {t("businessName")} *
             </label>
             <input
               id="businessName"
@@ -351,14 +460,19 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
               placeholder={t("officialRegisteredName")}
               value={formData.businessName}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                validationErrors.businessName ? "border-red-500" : "border-gray-300"
+              }`}
             />
+            {validationErrors.businessName && (
+              <p className="text-red-600 text-sm mt-1">{validationErrors.businessName}</p>
+            )}
           </div>
 
           {/* Business Owner Inputs */}
           <div>
             <label htmlFor="businessOwner" className="block text-sm font-medium mb-1">
-              {t("bizowner")}
+              {t("bizowner")} *
             </label>
             <input
               id="businessOwner"
@@ -367,27 +481,37 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
               placeholder={t("bizowner")}
               value={formData.businessOwner}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                validationErrors.businessOwner ? "border-red-500" : "border-gray-300"
+              }`}
             />
+            {validationErrors.businessOwner && (
+              <p className="text-red-600 text-sm mt-1">{validationErrors.businessOwner}</p>
+            )}
           </div>
 
           {/* Organization Type Select */}
           <div>
             <label htmlFor="organizationType" className="block text-sm font-medium mb-1">
-              {t("organizationType")}
+              {t("organizationType")} *
             </label>
             <select
               id="organizationType"
               name="organizationType"
               value={formData.organizationType}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full border rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                validationErrors.organizationType ? "border-red-500" : "border-gray-300"
+              }`}
             >
               <option value="">{t("selectType")}</option>
-              <option value="Nonprofit">Nonprofit</option>
-              <option value="Community">Community</option>
-              <option value="Business">Business</option>
+              <option value="Nonprofit">{t("nonprofit")}</option>
+              <option value="Community">{t("community")}</option>
+              <option value="Business">{t("business")}</option>
             </select>
+            {validationErrors.organizationType && (
+              <p className="text-red-600 text-sm mt-1">{validationErrors.organizationType}</p>
+            )}
           </div>
 
           {/* Business Type Select - Only show for Business organizations */}
@@ -395,58 +519,70 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
             <>
               <div>
                 <label htmlFor="businessType" className="block text-sm font-medium mb-1">
-                  {t("businessType")}
+                  {t("businessType")} *
                 </label>
                 <select
                   id="businessType"
                   name="businessType"
                   value={formData.businessType}
                   onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full border rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    validationErrors.businessType ? "border-red-500" : "border-gray-300"
+                  }`}
                 >
                   <option value="">{t("selectType")}</option>
-                  <option value="Food">Food</option>
-                  <option value="Housing">Housing</option>
-                  <option value="Banking/Finance">Banking/Finance</option>
-                  <option value="Retail shops">Retail shops</option>
-                  <option value="Wedding/Events">Wedding/Events</option>
-                  <option value="Automotive">Automotive</option>
-                  <option value="Education">Education</option>
-                  <option value="Technology">Technology</option>
-                  <option value="Marketing">Marketing</option>
-                  <option value="Other">Other</option>
+                  <option value="Food">{t("food")}</option>
+                  <option value="Housing">{t("housing")}</option>
+                  <option value="Banking/Finance">{t("bankingFinance")}</option>
+                  <option value="Retail shops">{t("retailShops")}</option>
+                  <option value="Wedding/Events">{t("weddingEvents")}</option>
+                  <option value="Automotive">{t("automotive")}</option>
+                  <option value="Education">{t("education")}</option>
+                  <option value="Technology">{t("technology")}</option>
+                  <option value="Marketing">{t("marketing")}</option>
+                  <option value="Other">{t("other")}</option>
                 </select>
+                {validationErrors.businessType && (
+                  <p className="text-red-600 text-sm mt-1">{validationErrors.businessType}</p>
+                )}
               </div>
 
               {/* Business Scale Select */}
               <div>
                 <label htmlFor="businessScale" className="block text-sm font-medium mb-1">
-                  {t("businessScale")}
+                  {t("businessScale")} *
                 </label>
                 <select
                   id="businessScale"
                   name="businessScale"
                   value={formData.businessScale}
                   onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full border rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    validationErrors.businessScale ? "border-red-500" : "border-gray-300"
+                  }`}
                 >
                   <option value="">{t("selectScale")}</option>
-                  <option value="Corporate">Corporate</option>
-                  <option value="Small Business">Small Business</option>
+                  <option value="Corporate">{t("corporate")}</option>
+                  <option value="Small Business">{t("smallBusiness")}</option>
                 </select>
+                {validationErrors.businessScale && (
+                  <p className="text-red-600 text-sm mt-1">{validationErrors.businessScale}</p>
+                )}
               </div>
 
               {/* Number of Employees Select */}
               <div>
                 <label htmlFor="numberOfEmployees" className="block text-sm font-medium mb-1">
-                  {t("numberOfEmployees")}
+                  {t("numberOfEmployees")} *
                 </label>
                 <select
                   id="numberOfEmployees"
                   name="numberOfEmployees"
                   value={formData.numberOfEmployees}
                   onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full border rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    validationErrors.numberOfEmployees ? "border-red-500" : "border-gray-300"
+                  }`}
                 >
                   <option value="">{t("selectEmployeeRange")}</option>
                   <option value="1-10">1-10</option>
@@ -455,6 +591,9 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
                   <option value="51-99">51-99</option>
                   <option value="100+">100+</option>
                 </select>
+                {validationErrors.numberOfEmployees && (
+                  <p className="text-red-600 text-sm mt-1">{validationErrors.numberOfEmployees}</p>
+                )}
               </div>
             </>
           )}
@@ -462,22 +601,25 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
           {/* Gender Select */}
           <div>
             <label htmlFor="gender" className="block text-sm font-medium mb-1">
-              {t("gender")}
+              {t("gender")} *
             </label>
             <select
               id="gender"
               name="gender"
               value={formData.gender}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full border rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                validationErrors.gender ? "border-red-500" : "border-gray-300"
+              }`}
             >
               <option value="">{t("selectGender")}</option>
-              <option value="Female">Female</option>
-              <option value="Male">Male</option>
-              <option value="Non-binary">Non-binary</option>
-              <option value="Prefer not to say">Prefer not to say</option>
-              <option value="Other">Other</option>
+              <option value="Female">{t("female")}</option>
+              <option value="Male">{t("male")}</option>
+              <option value="Non-binary">{t("nonBinary")}</option>
+              <option value="Prefer not to say">{t("preferNotToSay")}</option>
+              <option value="Other">{t("other")}</option>
             </select>
+            {validationErrors.gender && <p className="text-red-600 text-sm mt-1">{validationErrors.gender}</p>}
           </div>
 
           {/* Website Input */}
@@ -492,22 +634,27 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
               placeholder="https://example.com"
               value={formData.website}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {/* Physical Address Inputs */}
           <div>
-            <label className="block text-sm font-medium mb-1">{t("physAdd")}</label>
+            <label className="block text-sm font-medium mb-1">{t("physAdd")} *</label>
             <input
               name="physicalAddress.street"
               type="text"
               placeholder={t("street")}
               value={formData.physicalAddress.street}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md p-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full border rounded-md p-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                validationErrors.physicalAddressStreet ? "border-red-500" : "border-gray-300"
+              }`}
               aria-label={t("physicalStreet")}
             />
+            {validationErrors.physicalAddressStreet && (
+              <p className="text-red-600 text-sm mt-1 mb-2">{validationErrors.physicalAddressStreet}</p>
+            )}
             <div className="grid grid-cols-12 gap-2">
               <div className="col-span-5">
                 <input
@@ -516,9 +663,14 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
                   placeholder={t("city")}
                   value={formData.physicalAddress.city}
                   onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    validationErrors.physicalAddressCity ? "border-red-500" : "border-gray-300"
+                  }`}
                   aria-label={t("physicalCity")}
                 />
+                {validationErrors.physicalAddressCity && (
+                  <p className="text-red-600 text-sm mt-1">{validationErrors.physicalAddressCity}</p>
+                )}
               </div>
               <div className="col-span-4">
                 <input
@@ -527,9 +679,14 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
                   placeholder={t("state")}
                   value={formData.physicalAddress.state}
                   onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    validationErrors.physicalAddressState ? "border-red-500" : "border-gray-300"
+                  }`}
                   aria-label={t("physicalState")}
                 />
+                {validationErrors.physicalAddressState && (
+                  <p className="text-red-600 text-sm mt-1">{validationErrors.physicalAddressState}</p>
+                )}
               </div>
               <div className="col-span-3">
                 <input
@@ -538,9 +695,15 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
                   placeholder={t("zip")}
                   value={formData.physicalAddress.zip}
                   onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    validationErrors.physicalAddressZip ? "border-red-500" : "border-gray-300"
+                  }`}
                   aria-label={t("physicalZip")}
+                  maxLength={5}
                 />
+                {validationErrors.physicalAddressZip && (
+                  <p className="text-red-600 text-sm mt-1">{validationErrors.physicalAddressZip}</p>
+                )}
               </div>
             </div>
           </div>
@@ -563,16 +726,21 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
           {/* Mailing Address Inputs (Conditional) */}
           {!formData.sameAddress && (
             <div>
-              <label className="block text-sm font-medium mb-1">{t("mailAdd")}</label>
+              <label className="block text-sm font-medium mb-1">{t("mailAdd")} *</label>
               <input
                 name="mailingAddress.street"
                 type="text"
                 placeholder={t("street")}
                 value={formData.mailingAddress.street}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md p-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full border rounded-md p-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  validationErrors.mailingAddressStreet ? "border-red-500" : "border-gray-300"
+                }`}
                 aria-label={t("mailingStreet")}
               />
+              {validationErrors.mailingAddressStreet && (
+                <p className="text-red-600 text-sm mt-1 mb-2">{validationErrors.mailingAddressStreet}</p>
+              )}
               <div className="grid grid-cols-12 gap-2">
                 <div className="col-span-5">
                   <input
@@ -581,9 +749,14 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
                     placeholder={t("city")}
                     value={formData.mailingAddress.city}
                     onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className={`w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      validationErrors.mailingAddressCity ? "border-red-500" : "border-gray-300"
+                    }`}
                     aria-label={t("mailingCity")}
                   />
+                  {validationErrors.mailingAddressCity && (
+                    <p className="text-red-600 text-sm mt-1">{validationErrors.mailingAddressCity}</p>
+                  )}
                 </div>
                 <div className="col-span-4">
                   <input
@@ -592,9 +765,14 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
                     placeholder={t("state")}
                     value={formData.mailingAddress.state}
                     onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className={`w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      validationErrors.mailingAddressState ? "border-red-500" : "border-gray-300"
+                    }`}
                     aria-label={t("mailingState")}
                   />
+                  {validationErrors.mailingAddressState && (
+                    <p className="text-red-600 text-sm mt-1">{validationErrors.mailingAddressState}</p>
+                  )}
                 </div>
                 <div className="col-span-3">
                   <input
@@ -603,9 +781,15 @@ export default function EditBusinessInfo({ onClose, onSubmitSuccess }: EditBusin
                     placeholder={t("zip")}
                     value={formData.mailingAddress.zip}
                     onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className={`w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      validationErrors.mailingAddressZip ? "border-red-500" : "border-gray-300"
+                    }`}
                     aria-label={t("mailingZip")}
+                    maxLength={5}
                   />
+                  {validationErrors.mailingAddressZip && (
+                    <p className="text-red-600 text-sm mt-1">{validationErrors.mailingAddressZip}</p>
+                  )}
                 </div>
               </div>
             </div>

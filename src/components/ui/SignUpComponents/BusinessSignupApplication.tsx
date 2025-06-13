@@ -88,7 +88,6 @@ const BusinessSignupApplication = () => {
   const validateData = async () => {
     const result = await trigger();
     if (!result) {
-      setFormErrorMessage(t("errorMsgs"));
       return false;
     } else {
       setFormErrorMessage("");
@@ -232,6 +231,7 @@ const BusinessSignupApplication = () => {
             onBack={prevStep}
             onNext={nextStep}
             watch={watch}
+            errors={errors}
           />
         );
       case 15:
@@ -242,6 +242,7 @@ const BusinessSignupApplication = () => {
             onBack={prevStep}
             onNext={nextStep}
             watch={watch}
+            errors={errors}
           />
         );
       case 2:
@@ -259,6 +260,7 @@ const BusinessSignupApplication = () => {
             }}
             onBack={prevStep}
             onNext={nextStep}
+            errors={errors}
           />
         );
       case 3:
@@ -278,6 +280,7 @@ const BusinessSignupApplication = () => {
             formErrorMessage={formErrorMessage}
             onBack={prevStep}
             onNext={nextStep}
+            errors={errors}
           />
         );
       case 5:

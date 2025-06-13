@@ -16,7 +16,26 @@ interface Step4Props {
   formErrorMessage: string;
   onBack: () => void;
   onNext: () => void;
+  errors: any;
 }
+
+// Email validation function that matches backend logic
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  // Reject obvious invalid patterns - matches backend validation
+  if (
+    email.includes("..") ||
+    email.startsWith(".") ||
+    email.endsWith(".") ||
+    email.includes("@.") ||
+    email.includes(".@")
+  ) {
+    return false;
+  }
+
+  return emailRegex.test(email);
+};
 
 const Step4_ContactInfo = ({
   register,
@@ -31,6 +50,7 @@ const Step4_ContactInfo = ({
   formErrorMessage,
   onBack,
   onNext,
+  errors,
 }: Step4Props) => {
   const t = useTranslations();
   return (
@@ -42,7 +62,7 @@ const Step4_ContactInfo = ({
           type="text"
           id="ContactName"
           placeholder={t("contactName") + "*"}
-          {...register("contactInfo.name", { required: "Contact Name is required" })}
+          {...register("contactInfo.name", { required: t("contactNameRequired") })}
         />
 
         <Input
@@ -51,11 +71,12 @@ const Step4_ContactInfo = ({
           type="text"
           id="Phone"
           placeholder={t("bizPhoneNum") + "*"}
+          maxLength={10}
           {...register("contactInfo.phone", {
-            required: "Phone Number is required",
+            required: t("contactPhoneRequired"),
             pattern: {
-              value: /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/,
-              message: "Phone Number must have nine digits.",
+              value: /^\d{10}$/,
+              message: t("contactPhoneInvalid"),
             },
             onChange: (e: { target: { value: string } }) => {
               e.target.value = e.target.value.replace(/\D/g, "");
@@ -70,8 +91,10 @@ const Step4_ContactInfo = ({
           id="ContactEmail"
           placeholder={t("email") + "*"}
           {...register("contactInfo.email", {
-            required: "Email is required",
-            pattern: { value: /^[^@]+@[^@]+$/, message: "Not in a familiar format." },
+            required: t("contactEmailRequired"),
+            validate: {
+              isValidEmail: (value: string) => isValidEmail(value) || t("contactEmailInvalid"),
+            },
           })}
         />
 
@@ -114,9 +137,12 @@ const Step4_ContactInfo = ({
         </div>
       </div>
 
-      {formErrorMessage && (
+      {(formErrorMessage || errors.contactInfo?.name || errors.contactInfo?.phone || errors.contactInfo?.email) && (
         <div className="text-red-600 w-full md:pr-[4.3em] md:mt-[-0.5em] text-center md:text-start pt-3">
-          {formErrorMessage}
+          {formErrorMessage ||
+            errors.contactInfo?.name?.message ||
+            errors.contactInfo?.phone?.message ||
+            errors.contactInfo?.email?.message}
         </div>
       )}
 
