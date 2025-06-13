@@ -110,7 +110,8 @@ export default function SignupRequestDetailPage({ params }: SignupRequestDetailP
       router.push("/admin/requests");
     } catch (error) {
       console.error("Error denying request:", error);
-      throw error;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
