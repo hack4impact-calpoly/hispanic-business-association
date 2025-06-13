@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/database/db";
 import SignupRequest from "@/database/signupRequestSchema";
-import { currentUser } from "@clerk/nextjs/server";
+import { currentUser, clerkClient } from "@clerk/nextjs/server";
 import { emailTemplates } from "@/app/api/send-email/emailTemplates";
 
 export async function POST(req: Request) {
@@ -28,7 +28,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Request not found" }, { status: 404 });
     }
 
-    // Mark the request as closed and denied
+    // Delete Clerk user account before database denial
+    try {
+      const client = await clerkClient();
+      await client.users.deleteUser(requestData.clerkUserID);
+    } catch (clerkError) {
+      console.error("Failed to delete Clerk user:", clerkError);
+      return NextResponse.json(
+        {
+          message: "Failed to delete user account - please try again later",
+        },
+        { status: 500 },
+      );
+    }
+
+    // Mark signup request as denied after successful Clerk cleanup
     requestData.status = "closed";
     requestData.decision = "denied";
     await requestData.save();
