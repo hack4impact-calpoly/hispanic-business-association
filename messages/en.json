@@ -264,5 +264,6 @@
   "edit": "Edit",
   "membershipexpired": "Membership expired",
   "expired": "expired",
-  "signupInfo": "Sign Up Information"
+  "signupInfo": "Sign Up Information",
+  "selectDate": "Select a date"
 }

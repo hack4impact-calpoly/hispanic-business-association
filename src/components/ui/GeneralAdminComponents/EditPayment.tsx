@@ -3,12 +3,14 @@
 import * as React from "react";
 import Image from "next/image";
 import { useState, useEffect, useMemo } from "react";
-import { useTranslations, useLocale } from "next-intl";
-import { DayPicker } from "react-day-picker";
+import { useTranslations } from "next-intl";
 import { useBusinessById } from "@/hooks/swrHooks";
 import { mutate } from "swr";
-import "@/styles/react-day-picker.css";
-import { enUS, es } from "react-day-picker/locale";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { TextField } from "@mui/material";
+import { enUS, es } from "date-fns/locale";
+import { useLocale } from "next-intl";
 
 interface EditPaymentProps {
   dateType: string;
@@ -20,23 +22,17 @@ interface EditPaymentProps {
 export default function EditPayment({ dateType, bizId, onClose, onSubmitSuccess }: EditPaymentProps) {
   const t = useTranslations();
   const locale = useLocale();
-  const [selected, setSelected] = useState<Date>();
+  const [selected, setSelected] = useState<Date | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
-  const { business, isLoading: isBusinessLoading } = useBusinessById(bizId);
+  const { business } = useBusinessById(bizId);
 
-  const getWords = (type: string) => {
-    if (type == "lastPaid") {
-      return t("set") + " " + t("lastPaid");
-    }
-    return t("set") + " " + t("expiryDate");
-  };
+  const getWords = (type: string) =>
+    type === "lastPaid" ? `${t("set")} ${t("lastPaid")}` : `${t("set")} ${t("expiryDate")}`;
 
   const initialMonth = useMemo(() => {
     if (dateType === "expiryDate") {
-      if (business?.membershipExpiryDate) {
-        return new Date(business.membershipExpiryDate);
-      }
+      if (business?.membershipExpiryDate) return new Date(business.membershipExpiryDate);
       const d = new Date();
       d.setFullYear(d.getFullYear() + 1);
       return d;
@@ -45,68 +41,42 @@ export default function EditPayment({ dateType, bizId, onClose, onSubmitSuccess 
     }
   }, [dateType, business]);
 
-  const [currentMonth, setCurrentMonth] = useState<Date>(initialMonth);
-
-  const dayPickerLocale = locale === "es" ? es : enUS;
-
   useEffect(() => {
-    setCurrentMonth(initialMonth);
-  }, [initialMonth]);
-
-  const handleMonthChange = (year: number, month: number) => {
-    const newDate = new Date(year, month, 1);
-    setCurrentMonth(newDate);
-  };
+    setSelected(null);
+  }, [dateType, business]);
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setFeedback(null);
-    if (dateType == "lastPaid") {
-      try {
-        const response = await fetch(`/api/business/${bizId}`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ lastPayDate: selected, membershipExpiryDate: business?.membershipExpiryDate || null }),
-        });
+    try {
+      const body =
+        dateType === "lastPaid"
+          ? { lastPayDate: selected, membershipExpiryDate: business?.membershipExpiryDate || null }
+          : { lastPayDate: business?.lastPayDate || null, membershipExpiryDate: selected };
 
-        if (!response.ok) {
-          throw new Error(t("lastPaidFail"));
-        }
+      const response = await fetch(`/api/business/${bizId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
 
-        await mutate(`/api/business/${bizId}`);
-
-        setFeedback({ type: "success", message: t("lastPaidSuccess") });
-        if (onSubmitSuccess) onSubmitSuccess();
-      } catch (error) {
-        setFeedback({ type: "error", message: t("lastPaidFail") });
-      } finally {
-        setIsSubmitting(false);
+      if (!response.ok) {
+        throw new Error();
       }
-    } else {
-      try {
-        const response = await fetch(`/api/business/${bizId}`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ lastPayDate: business?.lastPayDate || null, membershipExpiryDate: selected }),
-        });
 
-        if (!response.ok) {
-          throw new Error(t("expiryFail"));
-        }
-
-        await mutate(`/api/business/${bizId}`);
-
-        setFeedback({ type: "success", message: t("expirySuccess") });
-        if (onSubmitSuccess) onSubmitSuccess();
-      } catch (error) {
-        setFeedback({ type: "error", message: t("expiryFail") });
-      } finally {
-        setIsSubmitting(false);
-      }
+      await mutate(`/api/business/${bizId}`);
+      setFeedback({
+        type: "success",
+        message: dateType === "lastPaid" ? t("lastPaidSuccess") : t("expirySuccess"),
+      });
+      if (onSubmitSuccess) onSubmitSuccess();
+    } catch (error) {
+      setFeedback({
+        type: "error",
+        message: dateType === "lastPaid" ? t("lastPaidFail") : t("expiryFail"),
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -116,11 +86,7 @@ export default function EditPayment({ dateType, bizId, onClose, onSubmitSuccess 
         <header className="flex flex-wrap gap-2 md:gap-5 justify-between items-start">
           <h1 className="text-lg md:text-xl font-medium text-black">{getWords(dateType)}</h1>
           {onClose && (
-            <button
-              onClick={onClose}
-              className="p-2 rounded-full hover:bg-[#f0f0f0] transition-colors"
-              aria-label="Close"
-            >
+            <button onClick={onClose} className="p-2 rounded-full hover:bg-[#f0f0f0]" aria-label="Close">
               <Image
                 src="/icons/General_Icons/Close.png"
                 alt="Close"
@@ -139,47 +105,16 @@ export default function EditPayment({ dateType, bizId, onClose, onSubmitSuccess 
         style={{ WebkitOverflowScrolling: "touch" }}
       >
         <div className="flex justify-center my-5 flex-col items-center">
-          {/* Year + Month Dropdowns */}
-          <div className="flex gap-4 mb-4">
-            <select
-              value={currentMonth.getFullYear()}
-              onChange={(e) => handleMonthChange(Number(e.target.value), currentMonth.getMonth())}
-              className="border px-2 py-1 rounded"
-            >
-              {Array.from({ length: 10 }, (_, i) => {
-                const year = new Date().getFullYear() - 2 + i;
-                return (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                );
-              })}
-            </select>
-
-            <select
-              value={currentMonth.getMonth()}
-              onChange={(e) => handleMonthChange(currentMonth.getFullYear(), Number(e.target.value))}
-              className="border px-2 py-1 rounded"
-            >
-              {Array.from({ length: 12 }, (_, i) => (
-                <option key={i} value={i}>
-                  {new Date(0, i).toLocaleString(locale, { month: "long" })}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* DayPicker */}
-          <DayPicker
-            animate
-            mode="single"
-            selected={selected}
-            onSelect={setSelected}
-            month={currentMonth}
-            onMonthChange={setCurrentMonth}
-            locale={dayPickerLocale}
-            footer={selected ? `${t("selected")}: ${selected.toLocaleDateString()}` : t("dayPick")}
-          />
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale === "es" ? es : enUS}>
+            <DatePicker
+              label={t("selectDate")}
+              value={selected}
+              onChange={(newValue) => setSelected(newValue)}
+              slotProps={{ textField: { fullWidth: true } }}
+              defaultValue={initialMonth}
+              openTo="day"
+            />
+          </LocalizationProvider>
         </div>
 
         {feedback && (
