@@ -189,6 +189,23 @@ export default function BusinessSendNewMessagePage() {
       });
 
       if (response.ok) {
+        // 🔥 Save message history to MongoDB
+        const recipient =
+          selectedBusinessId && businesses
+            ? { directlyTo: businesses.find((b) => b._id?.toString() === selectedBusinessId)?.businessName || "" }
+            : { businessType };
+
+        await fetch("/api/send-email/history", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            subject,
+            body: message,
+            attachments: attachments.map((f) => f.name),
+            recipient,
+          }),
+        });
+
         setIsPopUpVisible(true);
         setSubject("");
         setSelectedBusinessId("");
@@ -199,9 +216,6 @@ export default function BusinessSendNewMessagePage() {
         setWordCount(0);
         setAttachments([]);
         if (fileInputRef.current) fileInputRef.current.value = "";
-      } else {
-        const errorData = await response.json();
-        setApiError(errorData.error || "Failed to send email.");
       }
     } catch (error: any) {
       console.error("Error sending email:", error);
