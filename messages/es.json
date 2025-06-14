@@ -272,5 +272,7 @@
   "msgAttachments": "Archivos adjuntos",
   "msgBody": "Cuerpo del mensaje",
   "msgSentOn": "Enviado el",
-  "loading": "Cargando vista previa del mensaje..."
+  "loading": "Cargando vista previa del mensaje...",
+  "showAll": "Mostrar todo",
+  "showLast30Days": "Mostrar últimos 30 días"
 }
