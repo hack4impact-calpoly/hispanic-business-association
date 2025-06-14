@@ -1,4 +1,4 @@
-/* @import "./react-day-picker.module.css"; */
+@import "./react-day-picker.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
