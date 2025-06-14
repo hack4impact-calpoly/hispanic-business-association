@@ -74,7 +74,7 @@ const MembershipExpirationAlert = ({ onRenewClick, className }: MembershipExpira
     setExpiresInMonths(monthsDifference);
   }, [business?.membershipExpiryDate]);
   // CONDITIONAL: Skip rendering for expiration > 1 month
-  if (expiresInMonths > 1) {
+  if (expiresInDays > 30) {
     return null;
   }
 
