@@ -16,6 +16,7 @@ export default function BusinessAutomationsPage() {
   const isMobile = useIsMobile();
   const router = useRouter();
   const pathname = usePathname();
+  const [showAll, setShowAll] = useState(false); // false = show last 30 days by default
 
   const { sentMessages, isLoading } = useSentMessages();
   console.log("Sent Messages:", sentMessages);
@@ -23,20 +24,26 @@ export default function BusinessAutomationsPage() {
   const sortedMessages = useCallback(() => {
     if (!sentMessages) return [];
 
-    const sorted = [...sentMessages];
+    let filtered = [...sentMessages];
+    if (!showAll) {
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - 30);
+      filtered = filtered.filter((msg) => new Date(msg.createdAt) >= cutoff);
+    }
+
     switch (sortOption) {
       case "latest":
-        return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        return filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       case "oldest":
-        return sorted.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        return filtered.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
       case "a-z":
-        return sorted.sort((a, b) => (a.recipient?.directlyTo || "").localeCompare(b.recipient?.directlyTo || ""));
+        return filtered.sort((a, b) => (a.recipient?.directlyTo || "").localeCompare(b.recipient?.directlyTo || ""));
       case "z-a":
-        return sorted.sort((a, b) => (b.recipient?.directlyTo || "").localeCompare(a.recipient?.directlyTo || ""));
+        return filtered.sort((a, b) => (b.recipient?.directlyTo || "").localeCompare(a.recipient?.directlyTo || ""));
       default:
-        return sorted;
+        return filtered;
     }
-  }, [sortOption, sentMessages]);
+  }, [sortOption, sentMessages, showAll]);
 
   const handleFilterClick = () => {
     setIsFilterOpen(!isFilterOpen);
@@ -94,48 +101,56 @@ export default function BusinessAutomationsPage() {
 
         <div className="flex justify-between items-center mb-3 relative">
           <h2 className={`font-semibold ${isMobile ? "text-lg" : "text-[26px]"}`}>{t("recentMsgSent")}</h2>
-          <div className="relative">
+          <div className="flex items-center gap-4">
             <button
-              className={`flex items-center gap-1 ${isMobile ? "text-lg" : "text-[24px]"}`}
-              onClick={handleFilterClick}
+              className="text-sm underline text-blue-600 hover:text-blue-800"
+              onClick={() => setShowAll((prev) => !prev)}
             >
-              {t("sortBy")}
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={`w-6 h-6`}>
-                <path
-                  fillRule="evenodd"
-                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              {showAll ? t("showLast30Days") : t("showAll")}
             </button>
-            {isFilterOpen && (
-              <div className="absolute top-full right-0 mt-2 bg-white rounded-md shadow-md z-10">
-                <button
-                  onClick={() => handleSortOptionSelect("latest")}
-                  className={`block w-full px-4 py-2 text-left hover:bg-gray-100 ${sortOption === "latest" ? "font-semibold" : ""}`}
-                >
-                  {t("latest")}
-                </button>
-                <button
-                  onClick={() => handleSortOptionSelect("oldest")}
-                  className={`block w-full px-4 py-2 text-left hover:bg-gray-100 ${sortOption === "oldest" ? "font-semibold" : ""}`}
-                >
-                  {t("Oldest")}
-                </button>
-                <button
-                  onClick={() => handleSortOptionSelect("a-z")}
-                  className={`block w-full px-4 py-2 text-left hover:bg-gray-100 ${sortOption === "a-z" ? "font-semibold" : ""}`}
-                >
-                  A-Z
-                </button>
-                <button
-                  onClick={() => handleSortOptionSelect("z-a")}
-                  className={`block w-full px-4 py-2 text-left hover:bg-gray-100 ${sortOption === "z-a" ? "font-semibold" : ""}`}
-                >
-                  Z-A
-                </button>
-              </div>
-            )}
+            <div className="relative">
+              <button
+                className={`flex items-center gap-1 ${isMobile ? "text-lg" : "text-[24px]"}`}
+                onClick={handleFilterClick}
+              >
+                {t("sortBy")}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={`w-6 h-6`}>
+                  <path
+                    fillRule="evenodd"
+                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+              {isFilterOpen && (
+                <div className="absolute top-full right-0 mt-2 bg-white rounded-md shadow-md z-10">
+                  <button
+                    onClick={() => handleSortOptionSelect("latest")}
+                    className={`block w-full px-4 py-2 text-left hover:bg-gray-100 ${sortOption === "latest" ? "font-semibold" : ""}`}
+                  >
+                    {t("latest")}
+                  </button>
+                  <button
+                    onClick={() => handleSortOptionSelect("oldest")}
+                    className={`block w-full px-4 py-2 text-left hover:bg-gray-100 ${sortOption === "oldest" ? "font-semibold" : ""}`}
+                  >
+                    {t("Oldest")}
+                  </button>
+                  <button
+                    onClick={() => handleSortOptionSelect("a-z")}
+                    className={`block w-full px-4 py-2 text-left hover:bg-gray-100 ${sortOption === "a-z" ? "font-semibold" : ""}`}
+                  >
+                    A-Z
+                  </button>
+                  <button
+                    onClick={() => handleSortOptionSelect("z-a")}
+                    className={`block w-full px-4 py-2 text-left hover:bg-gray-100 ${sortOption === "z-a" ? "font-semibold" : ""}`}
+                  >
+                    Z-A
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
         {renderMessages()}

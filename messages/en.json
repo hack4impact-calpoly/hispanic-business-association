@@ -272,5 +272,7 @@
   "msgAttachments": "Attachments",
   "msgBody": "Message Body",
   "msgSentOn": "Sent on",
-  "loading": "Loading message preview..."
+  "loading": "Loading message preview...",
+  "showAll": "Show All",
+  "showLast30Days": "Show Last 30 Days"
 }
