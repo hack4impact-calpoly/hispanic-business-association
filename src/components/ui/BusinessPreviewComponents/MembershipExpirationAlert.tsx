@@ -16,6 +16,39 @@ interface MembershipExpirationAlertProps {
   className?: string;
 }
 
+// Generate expiration message based on time values and expired state
+const getExpirationMessage = (
+  expiresInDays: number,
+  expiresInWeeks: number,
+  expiresInMonths: number,
+  t: (key: string) => string,
+): string => {
+  if (Math.abs(expiresInDays) < 7) {
+    if (expiresInDays < 0) {
+      const days = Math.abs(expiresInDays);
+      return `${t("membershipexpired")} ${days} ${t("day")}${days !== 1 ? "s" : ""} ${t("ago")}.`;
+    } else {
+      return `${t("membershipexpiration")} ${expiresInDays} ${t("day")}${expiresInDays !== 1 ? "s. " : ". "}`;
+    }
+  }
+
+  if (expiresInWeeks < 0) {
+    const weeks = Math.abs(expiresInWeeks);
+    return `${t("membershipexpired")} ${weeks} ${t("week")}${weeks !== 1 ? "s" : ""} ${t("ago")}.`;
+  }
+
+  if (expiresInMonths < 0) {
+    const months = Math.abs(expiresInMonths);
+    return `${t("membershipexpired")} ${months} ${t("month")}${months !== 1 ? "s" : ""} ${t("ago")}.`;
+  }
+
+  if (expiresInWeeks > 0) {
+    return `${t("membershipexpiration")} ${expiresInWeeks} ${t("week")}${expiresInWeeks !== 1 ? "s. " : ". "}`;
+  }
+
+  return `${t("membershipexpiration")} ${expiresInMonths} ${t("month")}${expiresInMonths !== 1 ? "s. " : ". "}`;
+};
+
 // Alert component shown when membership nears expiration
 const MembershipExpirationAlert = ({ onRenewClick, className }: MembershipExpirationAlertProps) => {
   const t = useTranslations();
@@ -41,7 +74,7 @@ const MembershipExpirationAlert = ({ onRenewClick, className }: MembershipExpira
     setExpiresInMonths(monthsDifference);
   }, [business?.membershipExpiryDate]);
   // CONDITIONAL: Skip rendering for expiration > 1 month
-  if (expiresInMonths > 1) {
+  if (expiresInDays > 30) {
     return null;
   }
 
@@ -104,11 +137,7 @@ const MembershipExpirationAlert = ({ onRenewClick, className }: MembershipExpira
 
       {/* MESSAGE: Expiration notification with renewal call-to-action */}
       <p className="flex-grow">
-        {expiresInDays < 7
-          ? `${t("membershipexpiration")} ${expiresInDays} ${t("day")}${expiresInDays !== 1 ? "s. " : ". "}`
-          : expiresInWeeks <= 0
-            ? `${t("membershipexpiration")} ${expiresInMonths} ${t("month")}${expiresInMonths !== 1 ? "s. " : ". "}`
-            : `${t("membershipexpiration")} ${expiresInWeeks} ${t("week")}${expiresInWeeks !== 1 ? "s. " : ". "}`}
+        {getExpirationMessage(expiresInDays, expiresInWeeks, expiresInMonths, t)}
         {
           <button onClick={handleRenewClick} className="underline cursor-pointer focus:outline-none">
             {t("Renew here with Square (Recommended)")}

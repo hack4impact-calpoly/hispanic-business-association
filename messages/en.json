@@ -262,5 +262,7 @@
   "selected": "Selected",
   "dayPick": "Pick a day.",
   "edit": "Edit",
+  "membershipexpired": "Membership expired",
+  "expired": "expired",
   "signupInfo": "Sign Up Information"
 }
