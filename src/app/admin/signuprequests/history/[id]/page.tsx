@@ -101,9 +101,15 @@ export default function SignupHistoryDetailPage({ params }: SignupHistoryDetailP
 
               {/* Denial Message */}
               {signupRequest && signupRequest.decision === "denied" && signupRequest.denialMessage && (
-                <div className="mt-6 p-4 bg-red-50 rounded-lg border border-red-100">
-                  <h3 className="font-futura font-medium text-xl text-black mb-2">{t("reasonDenial")}</h3>
-                  <p className="text-gray-700">{signupRequest.denialMessage}</p>
+                <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+                  <div className="w-full flex justify-center">
+                    <div className="w-full lg:max-w-[600px]">
+                      <div className="p-4 bg-red-50 rounded-lg border border-red-100">
+                        <h3 className="font-futura font-medium text-xl text-black mb-2">{t("reasonDenial")}</h3>
+                        <p className="text-gray-700">{signupRequest.denialMessage}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </>
