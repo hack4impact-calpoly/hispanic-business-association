@@ -265,5 +265,12 @@
   "membershipexpired": "Membresía expirada",
   "expired": "expirada",
   "signupInfo": "Información de registro",
-  "selectDate": "Selecciona una fecha"
+  "selectDate": "Selecciona una fecha",
+  "msgPreview": "Vista previa del mensaje",
+  "msgSubject": "Asunto del mensaje",
+  "msgRecipient": "Destinatario",
+  "msgAttachments": "Archivos adjuntos",
+  "msgBody": "Cuerpo del mensaje",
+  "msgSentOn": "Enviado el",
+  "loading": "Cargando vista previa del mensaje..."
 }

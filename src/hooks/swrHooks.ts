@@ -1,10 +1,41 @@
 import useSWR, { MutatorCallback, SWRConfiguration } from "swr";
 import { IBusiness } from "@/database/businessSchema";
-import { IUser } from "@/database/userSchema";
 import { IRequest } from "@/database/requestSchema";
 import { ISignupRequest } from "@/database/signupRequestSchema";
 import { IAdminMailingAddress } from "@/database/adminAddressSchema";
 import { fetcher } from "@/lib/fetcher";
+
+import { ISentMessage } from "@/database/sendMessage";
+
+export function useSentMessages(config?: SWRConfiguration) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<ISentMessage[]>("/api/send-email/history", {
+    revalidateOnFocus: false,
+    ...config,
+  });
+
+  return {
+    sentMessages: data,
+    isLoading,
+    isValidating,
+    isError: error,
+    mutate,
+  };
+}
+
+export function useSentMessageById(id?: string, config?: SWRConfiguration) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<ISentMessage>(
+    id ? `/api/send-email/history/${id}` : null,
+    { revalidateOnFocus: false, ...config },
+  );
+
+  return {
+    message: data,
+    isLoading,
+    isValidating,
+    isError: error,
+    mutate,
+  };
+}
 
 /**
  * Common SWR response interface with proper typing

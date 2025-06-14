@@ -7,6 +7,7 @@ import MessageCard from "@/components/ui/AutomationsCards/MessageCard";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useSentMessages } from "@/hooks/swrHooks";
 
 export default function BusinessAutomationsPage() {
   const t = useTranslations();
@@ -16,63 +17,26 @@ export default function BusinessAutomationsPage() {
   const router = useRouter();
   const pathname = usePathname();
 
-  interface Message {
-    title: string;
-    description: string;
-    date: Date | string | number;
-  }
-
-  const messages: Message[] = [
-    {
-      title: "HALO Hair Studio",
-      description: "Personal Message",
-      date: new Date(2025, 0, 11),
-    },
-    {
-      title: "FOOD TRUCKS",
-      description: "Festival Opportunity",
-      date: "2025-01-11",
-    },
-    {
-      title: "BEAUTY",
-      description: "Grant Opportunity",
-      date: 1736572800000,
-    },
-  ];
+  const { sentMessages, isLoading } = useSentMessages();
+  console.log("Sent Messages:", sentMessages);
 
   const sortedMessages = useCallback(() => {
-    const messages: Message[] = [
-      {
-        title: "HALO Hair Studio",
-        description: "Personal Message",
-        date: new Date(2025, 0, 11),
-      },
-      {
-        title: "FOOD TRUCKS",
-        description: "Festival Opportunity",
-        date: "2025-01-11",
-      },
-      {
-        title: "BEAUTY",
-        description: "Grant Opportunity",
-        date: 1736572800000,
-      },
-    ];
+    if (!sentMessages) return [];
 
-    const sorted = [...messages];
+    const sorted = [...sentMessages];
     switch (sortOption) {
       case "latest":
-        return sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       case "oldest":
-        return sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        return sorted.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
       case "a-z":
-        return sorted.sort((a, b) => a.title.localeCompare(b.title));
+        return sorted.sort((a, b) => (a.recipient?.directlyTo || "").localeCompare(b.recipient?.directlyTo || ""));
       case "z-a":
-        return sorted.sort((a, b) => b.title.localeCompare(a.title));
+        return sorted.sort((a, b) => (b.recipient?.directlyTo || "").localeCompare(a.recipient?.directlyTo || ""));
       default:
         return sorted;
     }
-  }, [sortOption]);
+  }, [sortOption, sentMessages]);
 
   const handleFilterClick = () => {
     setIsFilterOpen(!isFilterOpen);
@@ -85,9 +49,23 @@ export default function BusinessAutomationsPage() {
 
   const renderMessages = () => (
     <div className="space-y-4">
-      {sortedMessages().map((message, index) => (
-        <MessageCard key={index} message={message} />
-      ))}
+      {isLoading ? (
+        <p>Loading messages...</p>
+      ) : sortedMessages().length === 0 ? (
+        <p>No messages found.</p>
+      ) : (
+        sortedMessages().map((message, index) => (
+          <MessageCard
+            key={index}
+            message={{
+              _id: String(message._id),
+              title: message.recipient?.directlyTo || message.recipient?.businessType || "Unknown",
+              description: message.subject,
+              date: message.createdAt,
+            }}
+          />
+        ))
+      )}
     </div>
   );
 

@@ -1,11 +1,12 @@
 "use client";
 
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Card, CardHeader, CardContent } from "../shadcnComponents/card";
+import { Card, CardHeader } from "../shadcnComponents/card";
 import { format } from "date-fns";
+import { useRouter } from "next/navigation";
 
-// Interface for the message card content structure
 interface MessageCardInfo {
+  _id: string;
   title: string;
   description: string;
   date: Date | string | number;
@@ -18,34 +19,28 @@ interface MessageCardProps {
 const MessageCard = ({ message }: MessageCardProps) => {
   const formattedDate = message.date ? format(new Date(message.date), "MM/dd/yyyy") : "N/A";
   const isMobile = useIsMobile();
+  const router = useRouter();
 
-  if (isMobile) {
-    return (
-      <Card className="w-full bg-white rounded-xl border border-black">
-        <CardHeader className="px-4 py-3 flex">
-          <div className="flex items-center gap-2 text-[14px]">
-            <p className="font-bold">{message.title}</p>
-            <p>{message.description}</p>
-            <p className="ml-auto">{formattedDate}</p>
-          </div>
-        </CardHeader>
-      </Card>
-    );
-  } else {
-    return (
-      <Card className="w-full bg-white rounded-xl border border-black">
-        <CardHeader className="px-4 py-3 flex">
-          <div className="flex items-center gap-2 text-[20px]">
-            {" "}
-            {/* Container for title and description */}
-            <p className="font-bold">{message.title}</p>
-            <p>{message.description}</p>
-            <p className="ml-auto">{formattedDate}</p>
-          </div>
-        </CardHeader>
-      </Card>
-    );
-  }
+  const handleClick = () => {
+    router.push(`/admin/automations/preview/${message._id}`);
+  };
+
+  return (
+    <Card
+      onClick={handleClick}
+      className={`w-full bg-white rounded-xl border border-black cursor-pointer hover:bg-gray-100 ${
+        isMobile ? "px-4 py-3 text-[14px]" : "px-4 py-3 text-[20px]"
+      }`}
+    >
+      <CardHeader className="flex">
+        <div className="flex items-center gap-2 w-full">
+          <p className="font-bold">{message.title}</p>
+          <p>{message.description}</p>
+          <p className="ml-auto">{formattedDate}</p>
+        </div>
+      </CardHeader>
+    </Card>
+  );
 };
 
 export default MessageCard;

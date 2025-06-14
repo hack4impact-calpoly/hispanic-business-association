@@ -265,5 +265,12 @@
   "membershipexpired": "Membership expired",
   "expired": "expired",
   "signupInfo": "Sign Up Information",
-  "selectDate": "Select a date"
+  "selectDate": "Select a date",
+  "msgPreview": "Message Preview",
+  "msgSubject": "Message Subject",
+  "msgRecipient": "Recipient",
+  "msgAttachments": "Attachments",
+  "msgBody": "Message Body",
+  "msgSentOn": "Sent on",
+  "loading": "Loading message preview..."
 }
