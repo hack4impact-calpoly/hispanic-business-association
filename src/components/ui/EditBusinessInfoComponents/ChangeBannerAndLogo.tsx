@@ -19,7 +19,7 @@ export default function ChangeBannerAndLogo({
   onClose,
   onSubmitSuccess,
   initialBannerUrl = "/logo/Default_Banner.jpg",
-  initialLogoUrl = "/logo/Default_Logo.jpg",
+  initialLogoUrl = "/logo/Default_Logo.png",
 }: ChangeBannerAndLogoProps) {
   const t = useTranslations();
   // Store selected image files

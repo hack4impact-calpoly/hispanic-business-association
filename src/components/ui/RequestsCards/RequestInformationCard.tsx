@@ -16,7 +16,7 @@ interface InformationCardProps {
 
 const InformationCard = ({ type, businessInfo, className, otherBusinessInfo }: InformationCardProps) => {
   const t = useTranslations();
-  const defaultLogo = "/logo/Default_Logo.jpg";
+  const defaultLogo = "/logo/Default_Logo.png";
   const defaultBanner = "/logo/Default_Banner.png";
 
   const isChanged = (current: any, other: any): boolean => {

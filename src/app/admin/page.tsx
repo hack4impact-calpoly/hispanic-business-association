@@ -104,7 +104,7 @@ export default function AdminBusinessesPage() {
                       <BusinessCard
                         id={businessId}
                         businessName={business.businessName}
-                        logoUrl={business.logoUrl || "/logo/Default_Logo.jpg"}
+                        logoUrl={business.logoUrl || "/logo/Default_Logo.png"}
                         logoAlt={`${business.businessName} logo`}
                         className="w-full"
                         onClick={() => handleBusinessClick(businessId)}
@@ -125,7 +125,7 @@ export default function AdminBusinessesPage() {
                       <BusinessCard
                         id={businessId}
                         businessName={business.businessName}
-                        logoUrl={business.logoUrl || "/logo/Default_Logo.jpg"}
+                        logoUrl={business.logoUrl || "/logo/Default_Logo.png"}
                         logoAlt={`${business.businessName} logo`}
                         className="w-full"
                         onClick={() => handleBusinessClick(businessId)}

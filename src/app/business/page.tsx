@@ -40,7 +40,7 @@ export default function BusinessDashboardPage() {
   const displayData = extractBusinessDisplayData(business);
 
   // Default image URLs for fallbacks
-  const defaultLogo = "/logo/Default_Logo.jpg";
+  const defaultLogo = "/logo/Default_Logo.png";
   const defaultBanner = "/logo/Default_Banner.png";
 
   // Handle loading state

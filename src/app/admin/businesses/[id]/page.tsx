@@ -22,7 +22,7 @@ export default function BusinessDetailsPage() {
   const businessId = params?.id as string;
 
   // Default image URLs for fallbacks
-  const defaultLogo = "/logo/Default_Logo.jpg";
+  const defaultLogo = "/logo/Default_Logo.png";
   const defaultBanner = "/logo/Default_Banner.png";
 
   // Fetch business data
