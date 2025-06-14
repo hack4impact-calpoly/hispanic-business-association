@@ -8,6 +8,7 @@ export type ISignupRequest = IBusinessCore & {
   date: Date;
   status?: "open" | "closed";
   decision?: null | "approved" | "denied" | "request changes";
+  denialMessage?: string;
 };
 
 const SignupRequestSchema = new Schema<ISignupRequest>({
@@ -16,6 +17,7 @@ const SignupRequestSchema = new Schema<ISignupRequest>({
   date: { type: Date },
   status: { type: String, enum: ["open", "closed"], default: "open" },
   decision: { type: String, enum: ["approved", "denied", "request changes"], default: null },
+  denialMessage: { type: String },
 });
 
 export default mongoose.models.SignupRequest || mongoose.model("SignupRequest", SignupRequestSchema);

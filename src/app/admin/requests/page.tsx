@@ -185,8 +185,14 @@ export default function AdminRequestsPage() {
     }
   };
 
+  // Navigate to pending signup request detail page
   const handleSignUpRequestClick = (id: string) => {
     router.push(`/admin/signuprequests/${id}`);
+  };
+
+  // Navigate to signup request history detail page
+  const handleSignUpHistoryClick = (id: string) => {
+    router.push(`/admin/signuprequests/history/${id}`);
   };
 
   // Format relative time to closest minute
@@ -391,7 +397,7 @@ export default function AdminRequestsPage() {
                     historySignupData.map((request) => (
                       <div
                         key={(request as any)._id}
-                        onClick={() => handleSignUpRequestClick((request as any)._id)}
+                        onClick={() => handleSignUpHistoryClick((request as any)._id)}
                         className="w-full"
                       >
                         <RequestCard

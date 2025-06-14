@@ -5,6 +5,9 @@ interface BusinessTemplateParams {
 interface BusinessDeniedTemplateParams extends BusinessTemplateParams {
   denialMessage?: string;
 }
+interface SignupDeniedTemplateParams extends BusinessTemplateParams {
+  denialMessage?: string;
+}
 
 interface EmailTemplate {
   subject: string;
@@ -15,7 +18,7 @@ type EmailTemplates = {
   businessApproved: (params: BusinessTemplateParams) => EmailTemplate;
   businessDenied: (params: BusinessDeniedTemplateParams) => EmailTemplate;
   signupApproved: (params: BusinessTemplateParams) => EmailTemplate;
-  signupDenied: (params: BusinessTemplateParams) => EmailTemplate;
+  signupDenied: (params: SignupDeniedTemplateParams) => EmailTemplate;
 };
 
 export const emailTemplates: EmailTemplates = {
@@ -62,14 +65,19 @@ If you have questions or need help getting started, email us at ${process.env.SM
 Warm regards,  
 HBA Membership Team`,
   }),
-
-  signupDenied: ({ businessName }) => ({
+  signupDenied: ({ businessName, denialMessage }) => ({
     subject: `❌ Your membership request for "${businessName}" could not be approved`,
     body: `Hello,
 
-We’ve reviewed your request to join the Hispanic Business Association with "${businessName}", but unfortunately, it wasn’t approved.
+We've reviewed your request to join the Hispanic Business Association with "${businessName}", but unfortunately, it wasn't approved.${
+      denialMessage
+        ? `
 
-If you’d like to follow up or need more details, don’t hesitate to reach out at ${process.env.SMTP_FROM_EMAIL}.
+Reason: ${denialMessage}`
+        : ""
+    }
+
+If you'd like to follow up or need more details, don't hesitate to reach out at ${process.env.SMTP_FROM_EMAIL}.
 
 Best,  
 HBA Team`,
