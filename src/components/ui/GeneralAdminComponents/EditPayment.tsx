@@ -7,7 +7,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { DayPicker } from "react-day-picker";
 import { useBusinessById } from "@/hooks/swrHooks";
 import { mutate } from "swr";
-import "react-day-picker/dist/style.css";
+import "@/styles/react-day-picker.css";
 import { enUS, es } from "react-day-picker/locale";
 
 interface EditPaymentProps {
