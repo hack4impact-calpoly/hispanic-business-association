@@ -7,7 +7,7 @@ import crypto from "crypto";
 
 const client = new SquareClient({
   token: process.env.SQUARE_ACCESS_TOKEN,
-  environment: SquareEnvironment.Sandbox, // Change to Production when ready
+  environment: SquareEnvironment.Production, // Change to Production when ready
 });
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
