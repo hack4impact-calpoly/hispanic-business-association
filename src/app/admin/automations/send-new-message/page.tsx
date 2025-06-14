@@ -197,6 +197,8 @@ export default function BusinessSendNewMessagePage() {
         setAttachmentName("Select attachment");
         setMessage("");
         setWordCount(0);
+        setAttachments([]);
+        if (fileInputRef.current) fileInputRef.current.value = "";
       } else {
         const errorData = await response.json();
         setApiError(errorData.error || "Failed to send email.");

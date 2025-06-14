@@ -198,7 +198,7 @@
   "sortBy": "Clasificar Por",
   "latest": "Más Reciente",
   "messages": "Mensajes",
-  "selectAttch": "Seleccionar archivo adjunto",
+  "selectAttch": "Seleccionar archivos adjuntos",
   "maxWordLimit": "Ha alcanzado el límite máximo de palabras de",
   "backToAuto": "Volver a Automatizaciones",
   "title": "Título",
@@ -263,5 +263,6 @@
   "dayPick": "Escoge un día.",
   "edit": "Editar",
   "membershipexpired": "Membresía expirada",
-  "expired": "expirada"
+  "expired": "expirada",
+  "signupInfo": "Información de registro"
 }
