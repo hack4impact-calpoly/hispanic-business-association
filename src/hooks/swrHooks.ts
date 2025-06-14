@@ -22,6 +22,21 @@ export function useSentMessages(config?: SWRConfiguration) {
   };
 }
 
+export function useSentMessageById(id?: string, config?: SWRConfiguration) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<ISentMessage>(
+    id ? `/api/send-email/history/${id}` : null,
+    { revalidateOnFocus: false, ...config },
+  );
+
+  return {
+    message: data,
+    isLoading,
+    isValidating,
+    isError: error,
+    mutate,
+  };
+}
+
 /**
  * Common SWR response interface with proper typing
  */

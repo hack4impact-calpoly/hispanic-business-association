@@ -58,6 +58,7 @@ export default function BusinessAutomationsPage() {
           <MessageCard
             key={index}
             message={{
+              _id: String(message._id),
               title: message.recipient?.directlyTo || message.recipient?.businessType || "Unknown",
               description: message.subject,
               date: message.createdAt,
