@@ -21,14 +21,38 @@ export async function sendEmail({
     },
   });
 
-  const info = await transporter.sendMail({
-    from: process.env.SMTP_FROM_EMAIL,
-    to,
-    subject,
-    text: body,
-    attachments,
+  await new Promise((resolve, reject) => {
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error("Transporter verification failed:", error);
+        reject(error);
+      } else {
+        console.log("Transporter is ready:", success);
+        resolve(success);
+      }
+    });
   });
 
-  console.log("📨 Email sent:", info.messageId);
+  const info = await new Promise((resolve, reject) => {
+    transporter.sendMail(
+      {
+        from: process.env.SMTP_FROM_EMAIL,
+        to,
+        subject,
+        text: body,
+        attachments,
+      },
+      (err, result) => {
+        if (err) {
+          console.error("Error sending email:", err);
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      },
+    );
+  });
+
+  console.log("📨 Email sent:", (info as any).messageId);
   return info;
 }
