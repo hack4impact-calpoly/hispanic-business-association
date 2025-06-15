@@ -76,17 +76,31 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const sendPromises = toAddresses.map((to: string) =>
-      transporter.sendMail({
-        from: process.env.SMTP_FROM_EMAIL,
-        to,
-        subject,
-        text: body,
-        attachments,
-      }),
+    const results = await Promise.all(
+      toAddresses.map(
+        (to) =>
+          new Promise((resolve, reject) => {
+            transporter.sendMail(
+              {
+                from: process.env.SMTP_FROM_EMAIL,
+                to,
+                subject,
+                text: body,
+                attachments,
+              },
+              (err, info) => {
+                if (err) {
+                  console.error(`Error sending to ${to}:`, err);
+                  reject(err);
+                } else {
+                  console.log(`Sent to ${to}:`, info);
+                  resolve(info);
+                }
+              },
+            );
+          }),
+      ),
     );
-
-    const results = await Promise.all(sendPromises);
 
     for (const attachment of attachments) {
       try {
