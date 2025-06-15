@@ -10,7 +10,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "hba-website-test-images.s3.us-west-2.amazonaws.com",
+        hostname: `${process.env.S3_BUCKET_NAME}.s3.us-west-2.amazonaws.com`,
       },
     ],
   },
