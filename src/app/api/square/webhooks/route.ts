@@ -14,6 +14,16 @@ async function isValidSquareSignature(rawBody: string, signature: string): Promi
   });
 }
 
+// Helper function to check if a date is today
+function isToday(someDate: Date): boolean {
+  const today = new Date();
+  return (
+    someDate.getDate() === today.getDate() &&
+    someDate.getMonth() === today.getMonth() &&
+    someDate.getFullYear() === today.getFullYear()
+  );
+}
+
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
@@ -35,9 +45,21 @@ export async function POST(req: NextRequest) {
 
         // Find the current business doc
         const businessDoc = await Business.findOne({ clerkUserID });
+        if (!businessDoc) {
+          // If business isn't found, we can't process it.
+          // This could happen if the user was deleted after payment but before the webhook.
+          return NextResponse.json({ message: "Business not found for the given clerkUserID." }, { status: 404 });
+        }
 
+        // If the last payment date is today, assume it's a duplicate webhook and ignore it.
+        if (businessDoc.lastPayDate && isToday(new Date(businessDoc.lastPayDate))) {
+          console.log(`Duplicate payment ignored for user ${clerkUserID}. lastPayDate is today.`);
+          return NextResponse.json({ message: "Payment already processed today" }, { status: 200 });
+        }
+
+        // --- ORIGINAL LOGIC ---
         // Determine base date (current expiry if in future, otherwise now)
-        const baseDate = businessDoc?.membershipExpiryDate ? new Date(businessDoc.membershipExpiryDate) : new Date();
+        const baseDate = businessDoc.membershipExpiryDate ? new Date(businessDoc.membershipExpiryDate) : new Date();
 
         // Add one year to base date
         const newExpiryDate = new Date(baseDate);
@@ -52,7 +74,6 @@ export async function POST(req: NextRequest) {
               lastPayDate: new Date(),
             },
           },
-          { upsert: true },
         );
 
         return NextResponse.json({ message: "Payment processed successfully" }, { status: 200 });
@@ -64,6 +85,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "Invalid event type" }, { status: 400 });
   } catch (error) {
     console.error("Error processing webhook:", error);
-    return NextResponse.json({ message: "Error occurred", error }, { status: 500 });
+    return NextResponse.json({ message: "Error occurred", error: (error as Error).message }, { status: 500 });
   }
 }
