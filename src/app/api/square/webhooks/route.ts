@@ -14,6 +14,16 @@ async function isValidSquareSignature(rawBody: string, signature: string): Promi
   });
 }
 
+// Helper function to check if a date is today
+function isToday(someDate: Date): boolean {
+  const today = new Date();
+  return (
+    someDate.getDate() === today.getDate() &&
+    someDate.getMonth() === today.getMonth() &&
+    someDate.getFullYear() === today.getFullYear()
+  );
+}
+
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
@@ -63,6 +73,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "Invalid event type" }, { status: 400 });
   } catch (error) {
     console.error("Error processing webhook:", error);
-    return NextResponse.json({ message: "Error occurred", error }, { status: 500 });
+    return NextResponse.json({ message: "Error occurred", error: (error as Error).message }, { status: 500 });
   }
 }
