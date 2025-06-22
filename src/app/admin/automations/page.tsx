@@ -19,7 +19,6 @@ export default function BusinessAutomationsPage() {
   const [showAll, setShowAll] = useState(false); // false = show last 30 days by default
 
   const { sentMessages, isLoading } = useSentMessages();
-  console.log("Sent Messages:", sentMessages);
 
   const sortedMessages = useCallback(() => {
     if (!sentMessages) return [];

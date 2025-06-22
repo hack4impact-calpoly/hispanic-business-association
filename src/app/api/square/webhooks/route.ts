@@ -28,7 +28,6 @@ export async function POST(req: NextRequest) {
 
     if (event.type === "payment.updated") {
       const payment = event.data.object.payment;
-      console.log("Payment updated event received:", payment);
 
       if (payment.status === "COMPLETED") {
         const clerkUserID = payment.note;

@@ -98,7 +98,6 @@ export default function BusinessSendNewMessagePage() {
       setSelectedBusinessId(""); // Clear selected business if a type is selected
       setToAddresses(""); // Clear toAddresses since it's only for single business
       // Print all emails in the selected type
-      // (console.log removed)
     } else {
       // Reset everything if no type is selected
       setSelectedBusinessId("");
@@ -244,8 +243,11 @@ export default function BusinessSendNewMessagePage() {
   const sortedBusinessesForDropdown = () => {
     if (!businesses) return [];
     let sorted = [...businesses];
-    // Removed James' Test business
-    return sorted.sort((a, b) => a.businessName.localeCompare(b.businessName));
+    return sorted.sort((a, b) => {
+      const nameA = a.businessName || "";
+      const nameB = b.businessName || "";
+      return nameA.localeCompare(nameB);
+    });
   };
 
   if (isBusinessesLoading) {
