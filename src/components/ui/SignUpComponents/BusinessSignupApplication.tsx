@@ -98,7 +98,6 @@ const BusinessSignupApplication = () => {
   const nextStep = async () => {
     switch (step) {
       case 1:
-        console.log(`first step: ${step}`);
         if (getValues("businessInfo.organizationType") === "Business") {
           if (await validateData()) setStep(15); // for 1.5
         } else {

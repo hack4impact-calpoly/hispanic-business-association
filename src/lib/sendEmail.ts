@@ -24,10 +24,8 @@ export async function sendEmail({
   await new Promise((resolve, reject) => {
     transporter.verify((error, success) => {
       if (error) {
-        console.error("Transporter verification failed:", error);
         reject(error);
       } else {
-        console.log("Transporter is ready:", success);
         resolve(success);
       }
     });
@@ -53,6 +51,5 @@ export async function sendEmail({
     );
   });
 
-  console.log("📨 Email sent:", (info as any).messageId);
   return info;
 }

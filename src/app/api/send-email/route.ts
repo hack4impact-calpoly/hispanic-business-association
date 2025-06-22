@@ -13,8 +13,6 @@ interface EmailAttachment {
 
 export async function POST(req: NextRequest) {
   try {
-    console.log("Received POST request for /api/send-email");
-
     const formData = await req.formData();
 
     const toAddressesRaw = formData.get("toAddresses") as string;
@@ -53,17 +51,9 @@ export async function POST(req: NextRequest) {
           filename: file.name,
           path: tempFilePath,
         });
-
-        console.log(`Saved temporary file: ${tempFilePath}`);
       } catch (err) {
         console.error(`Error handling attachment ${file.name}:`, err);
       }
-    }
-
-    if (attachments.length > 0) {
-      console.log("Attachments to be sent:", attachments);
-    } else {
-      console.log("No attachments found.");
     }
 
     const transporter = nodemailer.createTransport({
@@ -93,7 +83,6 @@ export async function POST(req: NextRequest) {
                   console.error(`Error sending to ${to}:`, err);
                   reject(err);
                 } else {
-                  console.log(`Sent to ${to}:`, info);
                   resolve(info);
                 }
               },
@@ -111,7 +100,6 @@ export async function POST(req: NextRequest) {
             .catch(() => false)
         ) {
           await fs.unlink(attachment.path);
-          console.log(`Deleted temporary file: ${attachment.path}`);
         }
       } catch (err) {
         console.error(`Failed to delete temporary file ${attachment.path}:`, err);

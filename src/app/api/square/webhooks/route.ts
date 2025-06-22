@@ -38,28 +38,15 @@ export async function POST(req: NextRequest) {
 
     if (event.type === "payment.updated") {
       const payment = event.data.object.payment;
-      console.log("Payment updated event received:", payment);
 
       if (payment.status === "COMPLETED") {
         const clerkUserID = payment.note;
 
         // Find the current business doc
         const businessDoc = await Business.findOne({ clerkUserID });
-        if (!businessDoc) {
-          // If business isn't found, we can't process it.
-          // This could happen if the user was deleted after payment but before the webhook.
-          return NextResponse.json({ message: "Business not found for the given clerkUserID." }, { status: 404 });
-        }
 
-        // If the last payment date is today, assume it's a duplicate webhook and ignore it.
-        if (businessDoc.lastPayDate && isToday(new Date(businessDoc.lastPayDate))) {
-          console.log(`Duplicate payment ignored for user ${clerkUserID}. lastPayDate is today.`);
-          return NextResponse.json({ message: "Payment already processed today" }, { status: 200 });
-        }
-
-        // --- ORIGINAL LOGIC ---
         // Determine base date (current expiry if in future, otherwise now)
-        const baseDate = businessDoc.membershipExpiryDate ? new Date(businessDoc.membershipExpiryDate) : new Date();
+        const baseDate = businessDoc?.membershipExpiryDate ? new Date(businessDoc.membershipExpiryDate) : new Date();
 
         // Add one year to base date
         const newExpiryDate = new Date(baseDate);
@@ -74,6 +61,7 @@ export async function POST(req: NextRequest) {
               lastPayDate: new Date(),
             },
           },
+          { upsert: true },
         );
 
         return NextResponse.json({ message: "Payment processed successfully" }, { status: 200 });
