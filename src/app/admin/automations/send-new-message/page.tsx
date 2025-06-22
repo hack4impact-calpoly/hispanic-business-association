@@ -243,11 +243,8 @@ export default function BusinessSendNewMessagePage() {
   const sortedBusinessesForDropdown = () => {
     if (!businesses) return [];
     let sorted = [...businesses];
-    return sorted.sort((a, b) => {
-      const nameA = a.businessName || "";
-      const nameB = b.businessName || "";
-      return nameA.localeCompare(nameB);
-    });
+    if (businesses.length <= 1) return businesses;
+    return sorted.sort((a, b) => a.businessName.localeCompare(b.businessName));
   };
 
   if (isBusinessesLoading) {
