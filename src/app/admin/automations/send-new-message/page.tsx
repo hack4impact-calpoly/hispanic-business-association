@@ -242,8 +242,8 @@ export default function BusinessSendNewMessagePage() {
   // Filter and sort businesses for the dropdown
   const sortedBusinessesForDropdown = () => {
     if (!businesses) return [];
-    let sorted = [...businesses];
-    if (businesses.length <= 1) return businesses;
+    // make sure every business object has a businessName before sorting
+    let sorted = businesses.filter((b) => b && b.businessName);
     return sorted.sort((a, b) => a.businessName.localeCompare(b.businessName));
   };
 
