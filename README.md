@@ -19,13 +19,17 @@ The Hispanic Business Association provides resources, support, and advocacy for 
 
 The Hispanic Business Association team consists of {#} Cal Poly students. Over the course of about 9 months, we worked as a team to deploy this web application. The team members are listed below:
 
-- [First Last](https://www.linkedin.com/) - Project Manager
-- [First Last](https://www.linkedin.com/) - Designer
-- James Torres - Tech Lead
+- [James Torres](https://www.linkedin.com/in/jameskt/) - Tech Lead
 - [Belal Elshenety](https://www.linkedin.com/in/belal-elshenety) - Tech Lead
+- [Jasmine Lee](https://www.linkedin.com/in/jasminelee16/) - Project Manager
+- [Xouxa Latendresse](https://www.linkedin.com/in/xouxa/) - Designer
+- [Alice Lui](https://www.linkedin.com/in/alicesylui/) - Designer
+- [Brooke Higuera](https://www.linkedin.com/in/brooke-higuera/) - Designer
+- [Sumedha Kundurthi](https://www.linkedin.com/in/sumedha-kundurthi-514013235/) - Software Developer
 - [Rachana Raju](https://www.linkedin.com/in/rachana-raju/) - Software Developer
 - [Xavier Garcia](https://www.linkedin.com/in/xavier-a-garcia/) - Software Developer
 - [Kevin Rutledge](https://www.linkedin.com/in/kevinrutledge89/) - Software Developer
+- [James Lamkin](https://www.linkedin.com/in/james-lamkin/) - Software Developer
 - [Andrew Munoz Arvizu](https://www.linkedin.com/in/amunozar/) - Software Devevloper
 
 ## Getting Started And Contributing
